@@ -10,6 +10,7 @@ var TOKEN_TABLE = map[string]token.TokenType{
 	"!":  token.BANG,
 	"+":  token.PLUS,
 	"-":  token.MINUS,
+	"*":  token.ASTERISK,
 	"/":  token.SLASH,
 	"^":  token.HAT,
 	">":  token.GREATER,
