@@ -13,17 +13,20 @@ const (
 
 	IDENT  = "IDENT"
 	INT    = "INT"
+	REAL   = "REAL"
 	STRING = "STRING"
 	TRUE   = "TRUE"
 	FALSE  = "FALSE"
 
-	ASSIGN   = "="
-	PLUS     = "+"
-	MINUS    = "-"
-	MULTIPLY = "*"
-	SLASH    = "/"
-	HAT      = "^"
-	BANG     = "!"
+	ASSIGN  = "="
+	PLUS    = "+"
+	MINUS   = "-"
+	STAR    = "*"
+	PERCENT = "%"
+	SLASH   = "/"
+	HAT     = "^"
+	BANG    = "!"
+	DOT     = "."
 
 	EQ         = "=="
 	NEQ        = "!="
@@ -35,7 +38,8 @@ const (
 	LET    = "LET"
 	IF     = "IF"
 	FOR    = "FOR"
-	IN     = "IN"
+	BELONG = "BELONG"
+	IMPLY  = "IMPLY"
 	INPUT  = "INPUT"
 	OUTPUT = "OUTPUT"
 
@@ -43,6 +47,10 @@ const (
 	RPAREN    = "RPAREN"
 	LBRACE    = "LBRACE"
 	RBRACE    = "RBRACE"
+	LBRACKET  = "LBRACKET"
+	RBRACKET  = "RBRACKET"
+	COMMA     = "COMMA"
+	COLON     = "COLON"
 	SEMICOLON = "SEMICOLON"
 )
 
@@ -63,7 +71,7 @@ var keywords = keywordsWithoutDiacritic(map[string]TokenType{
 	"đúng":  TRUE,
 	"sai":   FALSE,
 	"với":   FOR,
-	"thuộc": IN,
+	"thuộc": BELONG,
 	"nhập":  INPUT,
 	"xuất":  OUTPUT,
 })

@@ -2,6 +2,8 @@ package lexer
 
 import "vila/token"
 
+var VNALPHA = arrToMap([]rune("aAàÀảẢãÃáÁạẠăĂằẰẳẲẵẴắẮặẶâÂầẦẩẨẫẪấẤậẬbBcCdDđĐeEèÈẻẺẽẼéÉẹẸêÊềỀểỂễỄếẾệỆfFgGhHiIìÌỉỈĩĨíÍịỊjJkKlLmMnNoOòÒỏỎõÕóÓọỌôÔồỒổỔỗỖốỐộỘơƠờỜởỞỡỠớỚợỢpPqQrRsStTuUùÙủỦũŨúÚụỤưƯừỪửỬữỮứỨựỰvVwWxXyYỳỲỷỶỹỸýÝỵỴzZ"))
+
 func appendIdent(ident1 *token.Token, ident2 token.Token) {
 	if ident1.Type != token.IDENT || ident2.Type != token.IDENT {
 		panic("Cannot merge non-identifier")
@@ -26,7 +28,7 @@ func isVietnameseLetter(ch rune) bool {
 }
 
 func isLetter(ch rune) bool {
-	return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_' || isVietnameseLetter(ch)
+	return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_' || isVietnameseLetter(ch) || isDigit(ch)
 }
 
 func isDigit(ch rune) bool {

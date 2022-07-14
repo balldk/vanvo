@@ -1,13 +1,13 @@
 package lexer
 
 import (
-	"vila/error"
+	"vila/errorhandler"
 	"vila/token"
 )
 
-var VNALPHA = arrToMap([]rune("aAàÀảẢãÃáÁạẠăĂằẰẳẲẵẴắẮặẶâÂầẦẩẨẫẪấẤậẬbBcCdDđĐeEèÈẻẺẽẼéÉẹẸêÊềỀểỂễỄếẾệỆfFgGhHiIìÌỉỈĩĨíÍịỊjJkKlLmMnNoOòÒỏỎõÕóÓọỌôÔồỒổỔỗỖốỐộỘơƠờỜởỞỡỠớỚợỢpPqQrRsStTuUùÙủỦũŨúÚụỤưƯừỪửỬữỮứỨựỰvVwWxXyYỳỲỷỶỹỸýÝỵỴzZ"))
-
 type Lexer struct {
+	Errors *errorhandler.ErrorList
+
 	input           []rune
 	position        int
 	readPosition    int
@@ -28,6 +28,8 @@ func New(input string) *Lexer {
 		tempNextToken:   token.Token{},
 	}
 
+	l.Errors = errorhandler.NewErrorList()
+
 	l.readChar()
 	return l
 }
@@ -39,39 +41,16 @@ func (l *Lexer) NextToken() token.Token {
 		return nextToken
 	}
 
-	var tok token.Token
-
 	l.skipWhiteSpace()
 
+	var tok token.Token
+
+	if tok = l.lookupToken(); tok.Type != token.ILLEGAL {
+		l.readChar()
+		return tok
+	}
+
 	switch l.ch {
-	case '=':
-		tok = l.newDoubleToken(token.EQ, token.ASSIGN, '=')
-	case '>':
-		tok = l.newDoubleToken(token.GREATER_EQ, token.GREATER, '=')
-	case '<':
-		tok = l.newDoubleToken(token.LESS_EQ, token.LESS, '=')
-	case '!':
-		tok = l.newDoubleToken(token.NEQ, token.BANG, '=')
-	case '+':
-		tok = l.newSingleToken(token.PLUS)
-	case '-':
-		tok = l.newSingleToken(token.MINUS)
-	case '*':
-		tok = l.newSingleToken(token.MULTIPLY)
-	case '/':
-		tok = l.newSingleToken(token.SLASH)
-	case '^':
-		tok = l.newSingleToken(token.HAT)
-	case '(':
-		tok = l.newSingleToken(token.LPAREN)
-	case ')':
-		tok = l.newSingleToken(token.RPAREN)
-	case '{':
-		tok = l.newSingleToken(token.LBRACE)
-	case '}':
-		tok = l.newSingleToken(token.RBRACE)
-	case ';':
-		tok = l.newSingleToken(token.SEMICOLON)
 	case '"':
 		tok = l.newToken(token.STRING, l.readString())
 	case '\n':
@@ -81,7 +60,20 @@ func (l *Lexer) NextToken() token.Token {
 	case 0:
 		tok = l.newToken(token.EOF, []rune{})
 	default:
-		if isLetter(l.ch) {
+		if isDigit(l.ch) {
+			tokenType := token.TokenType(token.INT)
+			literal := l.readNumber()
+
+			if l.ch == '.' {
+				tokenType = token.REAL
+				literal = append(literal, l.ch)
+				l.readChar()
+				literal = append(literal, l.readNumber()...)
+			}
+			tok = l.newToken(tokenType, literal)
+			return tok
+
+		} else if isLetter(l.ch) {
 			tokenLiteral := l.readWord()
 			tokenType := token.LookupKeyword(tokenLiteral)
 			tok = l.newToken(tokenType, tokenLiteral)
@@ -103,9 +95,6 @@ func (l *Lexer) NextToken() token.Token {
 
 			return tok
 
-		} else if isDigit(l.ch) {
-			tok = l.newToken(token.INT, l.readNumber())
-			return tok
 		} else {
 			tok = l.newSingleToken(token.ILLEGAL)
 		}
@@ -121,16 +110,6 @@ func (l *Lexer) newToken(tokenType token.TokenType, tokenLiteral []rune) token.T
 		Literal: tokenLiteral,
 		Line:    l.line,
 		Row:     l.row - len(tokenLiteral),
-	}
-}
-
-func (l *Lexer) newDoubleToken(tokenType token.TokenType, defaultTokenType token.TokenType, nextChar rune) token.Token {
-	if l.peekChar() == nextChar {
-		eq := l.ch
-		l.readChar()
-		return l.newToken(tokenType, []rune{eq, l.ch})
-	} else {
-		return l.newSingleToken(defaultTokenType)
 	}
 }
 
@@ -168,9 +147,13 @@ func (l *Lexer) readString() []rune {
 		l.readChar()
 
 		if l.ch == 0 {
-			error.ThrowError(error.SYNTAX_ERROR, "thiếu dấu \" kết thúc chuỗi")
+			l.Errors.AddSyntaxError("thiếu dấu \" kết thúc chuỗi", &token.Token{
+				Line: l.line,
+				Row:  l.row,
+			})
+			break
 
-		} else if l.ch == '"' || l.ch == 0 {
+		} else if l.ch == '"' {
 			break
 		}
 	}
