@@ -85,7 +85,7 @@ func (l *Lexer) NextToken() token.Token {
 				nextToken := l.NextToken()
 
 				for nextToken.Type == token.IDENT {
-					appendIdent(&tok, nextToken)
+					appendToken(&tok, nextToken)
 					nextToken = l.NextToken()
 				}
 

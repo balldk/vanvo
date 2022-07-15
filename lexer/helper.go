@@ -4,12 +4,10 @@ import "vila/token"
 
 var VNALPHA = arrToMap([]rune("aAàÀảẢãÃáÁạẠăĂằẰẳẲẵẴắẮặẶâÂầẦẩẨẫẪấẤậẬbBcCdDđĐeEèÈẻẺẽẼéÉẹẸêÊềỀểỂễỄếẾệỆfFgGhHiIìÌỉỈĩĨíÍịỊjJkKlLmMnNoOòÒỏỎõÕóÓọỌôÔồỒổỔỗỖốỐộỘơƠờỜởỞỡỠớỚợỢpPqQrRsStTuUùÙủỦũŨúÚụỤưƯừỪửỬữỮứỨựỰvVwWxXyYỳỲỷỶỹỸýÝỵỴzZ"))
 
-func appendIdent(ident1 *token.Token, ident2 token.Token) {
-	if ident1.Type != token.IDENT || ident2.Type != token.IDENT {
-		panic("Cannot merge non-identifier")
-	}
-	ident1.Literal = append(ident1.Literal, ' ')
-	ident1.Literal = append(ident1.Literal, ident2.Literal...)
+func appendToken(tok1 *token.Token, tok2 token.Token) {
+	tok1.Literal = append(tok1.Literal, ' ')
+	tok1.Literal = append(tok1.Literal, tok2.Literal...)
+	tok1.Type = token.LookupKeyword(tok1.Literal)
 }
 
 func arrToMap(arr []rune) map[rune]bool {

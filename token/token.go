@@ -35,13 +35,15 @@ const (
 	LESS_EQ    = "<="
 	GREATER_EQ = ">="
 
-	LET    = "LET"
-	IF     = "IF"
-	FOR    = "FOR"
-	BELONG = "BELONG"
-	IMPLY  = "IMPLY"
-	INPUT  = "INPUT"
-	OUTPUT = "OUTPUT"
+	LET     = "LET"
+	IF      = "IF"
+	ELSE_IF = "ELSE_IF"
+	ELSE    = "ELSE"
+	FOR     = "FOR"
+	BELONG  = "BELONG"
+	IMPLY   = "IMPLY"
+	INPUT   = "INPUT"
+	OUTPUT  = "OUTPUT"
 
 	LPAREN    = "LPAREN"
 	RPAREN    = "RPAREN"
@@ -66,14 +68,16 @@ func (t Token) String() string {
 }
 
 var keywords = keywordsWithoutDiacritic(map[string]TokenType{
-	"cho":   LET,
-	"nếu":   IF,
-	"đúng":  TRUE,
-	"sai":   FALSE,
-	"với":   FOR,
-	"thuộc": BELONG,
-	"nhập":  INPUT,
-	"xuất":  OUTPUT,
+	"cho":       LET,
+	"nếu":       IF,
+	"còn nếu":   ELSE_IF,
+	"còn không": ELSE,
+	"đúng":      TRUE,
+	"sai":       FALSE,
+	"với":       FOR,
+	"thuộc":     BELONG,
+	"nhập":      INPUT,
+	"xuất":      OUTPUT,
 })
 
 func LookupKeyword(word []rune) TokenType {

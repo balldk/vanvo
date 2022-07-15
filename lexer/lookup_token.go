@@ -36,6 +36,7 @@ func (l *Lexer) lookupToken() token.Token {
 	ch := string(l.ch)
 
 	if tokenType, ok := TOKEN_TABLE[doubleCh]; ok {
+		l.readChar()
 		return token.Token{
 			Type:    tokenType,
 			Literal: []rune(doubleCh),
