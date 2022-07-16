@@ -83,11 +83,9 @@ func (p *Parser) parseBlockStatement() *ast.BlockStatement {
 		p.nextToken()
 	}
 
-	if !p.curTokenIs(token.RBRACE) {
-		p.expectError(token.RBRACE)
+	if !p.expectCur(token.RBRACE) {
 		return nil
 	}
-	p.nextToken()
 
 	return block
 }

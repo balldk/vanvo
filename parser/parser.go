@@ -36,6 +36,7 @@ func New(l *lexer.Lexer, errors *errorhandler.ErrorList) *Parser {
 	p.registerInfix(token.GREATER, p.parseInfixExpression)
 	p.registerInfix(token.LESS_EQ, p.parseInfixExpression)
 	p.registerInfix(token.GREATER_EQ, p.parseInfixExpression)
+	p.registerInfix(token.LPAREN, p.parseCallExpression)
 
 	p.nextToken()
 	p.nextToken()
@@ -106,6 +107,17 @@ func (p *Parser) expectPeek(t token.TokenType) bool {
 	}
 }
 
+func (p *Parser) expectCur(t token.TokenType) bool {
+	if p.curTokenIs(t) {
+		p.nextToken()
+		return true
+	} else {
+		p.expectError(t)
+		p.nextToken()
+		return false
+	}
+}
+
 func (p *Parser) syntaxError(message string) {
 	p.Errors.AddSyntaxError(message, p.curToken)
 }
@@ -114,9 +126,9 @@ func (p *Parser) expectError(tokType token.TokenType) {
 	var msg string
 
 	if p.curIsStatementSeperator() {
-		msg = fmt.Sprintf("Thiếu `%s` ở đây", string(tokType))
+		msg = fmt.Sprintf("Thiếu `%s`", string(tokType))
 	} else {
-		msg = fmt.Sprintf("Cần `%s` thay vì `%s` ở đây", string(tokType), string(p.curToken.Literal))
+		msg = fmt.Sprintf("Cần `%s` thay vì `%s`", string(tokType), string(p.curToken.Literal))
 	}
 	p.syntaxError(msg)
 }
