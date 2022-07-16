@@ -18,17 +18,16 @@ type Lexer struct {
 	row             int
 }
 
-func New(input string) *Lexer {
+func New(input string, errors *errorhandler.ErrorList) *Lexer {
 	l := &Lexer{
 		input:           []rune(input),
+		Errors:          errors,
 		readPosition:    0,
 		line:            1,
 		row:             0,
 		isPreviousIdent: false,
 		tempNextToken:   token.Token{},
 	}
-
-	l.Errors = errorhandler.NewErrorList()
 
 	l.readChar()
 	return l
@@ -96,6 +95,12 @@ func (l *Lexer) NextToken() token.Token {
 			return tok
 
 		} else {
+			l.Errors.AddSyntaxError("Ký tự `"+string(l.ch)+"` không hợp lệ", token.Token{
+				Type:    token.ILLEGAL,
+				Literal: []rune{l.ch},
+				Line:    l.line,
+				Row:     l.row,
+			})
 			tok = l.newSingleToken(token.ILLEGAL)
 		}
 	}
@@ -146,11 +151,13 @@ func (l *Lexer) readString() []rune {
 	for {
 		l.readChar()
 
-		if l.ch == 0 {
-			l.Errors.AddSyntaxError("thiếu dấu \" kết thúc chuỗi", &token.Token{
+		if l.ch == 0 || l.ch == '\n' || l.ch == ';' {
+			l.Errors.AddSyntaxError("thiếu dấu \" kết thúc chuỗi", token.Token{
 				Line: l.line,
 				Row:  l.row,
 			})
+			l.line++
+			l.row = 0
 			break
 
 		} else if l.ch == '"' {

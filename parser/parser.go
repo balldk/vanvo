@@ -1,16 +1,17 @@
 package parser
 
 import (
+	"fmt"
 	"vila/ast"
 	"vila/errorhandler"
 	"vila/lexer"
 	"vila/token"
 )
 
-func New(l *lexer.Lexer) *Parser {
+func New(l *lexer.Lexer, errors *errorhandler.ErrorList) *Parser {
 	p := &Parser{
 		l:      l,
-		Errors: errorhandler.NewErrorList(),
+		Errors: errors,
 	}
 	p.prefixParseFns = make(map[token.TokenType]prefixParseFn)
 	p.registerPrefix(token.IDENT, p.parseIdentifier)
@@ -20,12 +21,15 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerPrefix(token.FALSE, p.parseBoolean)
 	p.registerPrefix(token.BANG, p.parsePrefixExpression)
 	p.registerPrefix(token.MINUS, p.parsePrefixExpression)
+	p.registerPrefix(token.LPAREN, p.parseGroupedExpression)
+	p.registerPrefix(token.IF, p.parseIfExpression)
 
 	p.infixParseFns = make(map[token.TokenType]infixParseFn)
 	p.registerInfix(token.PLUS, p.parseInfixExpression)
 	p.registerInfix(token.MINUS, p.parseInfixExpression)
 	p.registerInfix(token.SLASH, p.parseInfixExpression)
 	p.registerInfix(token.ASTERISK, p.parseInfixExpression)
+	p.registerInfix(token.HAT, p.parseInfixExpression)
 	p.registerInfix(token.EQ, p.parseInfixExpression)
 	p.registerInfix(token.NEQ, p.parseInfixExpression)
 	p.registerInfix(token.LESS, p.parseInfixExpression)
@@ -61,8 +65,13 @@ func (p *Parser) ParseProgram() *ast.Program {
 
 	for p.curToken.Type != token.EOF {
 		stmt := p.parseStatement()
+
 		if stmt != nil {
 			program.Statements = append(program.Statements, stmt)
+		}
+		p.nextToken()
+		if !p.curIsStatementSeperator() {
+			p.syntaxError("Cú pháp không hợp lệ")
 		}
 		p.nextToken()
 	}
@@ -79,11 +88,11 @@ func (p *Parser) peekTokenIs(t token.TokenType) bool {
 }
 
 func (p *Parser) peekIsStatementSeperator() bool {
-	return p.peekTokenIs(token.SEMICOLON) || p.peekTokenIs(token.ENDLINE)
+	return p.peekTokenIs(token.SEMICOLON) || p.peekTokenIs(token.ENDLINE) || p.peekTokenIs(token.EOF)
 }
 
 func (p *Parser) curIsStatementSeperator() bool {
-	return p.curTokenIs(token.SEMICOLON) || p.curTokenIs(token.ENDLINE)
+	return p.curTokenIs(token.SEMICOLON) || p.curTokenIs(token.ENDLINE) || p.curTokenIs(token.EOF)
 }
 
 func (p *Parser) expectPeek(t token.TokenType) bool {
@@ -91,11 +100,23 @@ func (p *Parser) expectPeek(t token.TokenType) bool {
 		p.nextToken()
 		return true
 	} else {
+		p.nextToken()
+		p.expectError(t)
 		return false
 	}
 }
 
-// func (p *Parser) peekError(t token.tokenType) {
-// 	msg := fmt.Sprintf("Ở đây đáng lẽ là '%s', trong khi lại là %s")
-// 	p.Errors.AddSyntaxError(msg)
-// }
+func (p *Parser) syntaxError(message string) {
+	p.Errors.AddSyntaxError(message, p.curToken)
+}
+
+func (p *Parser) expectError(tokType token.TokenType) {
+	var msg string
+
+	if p.curIsStatementSeperator() {
+		msg = fmt.Sprintf("Thiếu `%s` ở đây", string(tokType))
+	} else {
+		msg = fmt.Sprintf("Cần `%s` thay vì `%s` ở đây", string(tokType), string(p.curToken.Literal))
+	}
+	p.syntaxError(msg)
+}

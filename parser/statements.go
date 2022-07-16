@@ -21,10 +21,6 @@ func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
 
 	stmt.Expression = p.parseExpression(LOWEST)
 
-	if p.peekIsStatementSeperator() {
-		p.nextToken()
-	}
-
 	return stmt
 }
 
@@ -33,7 +29,7 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 
 	// Tên biến
 	if !p.expectPeek(token.IDENT) {
-		p.Errors.AddSyntaxError("Sau 'cho' phải là một tên định danh", &p.curToken)
+		p.Errors.AddSyntaxError("Sau 'cho' phải là một tên định danh", p.curToken)
 	}
 	stmt.Name = &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
 
@@ -46,7 +42,6 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 		p.nextToken()
 
 		stmt.Value = p.parseExpression(LOWEST)
-
 	}
 
 	// Nếu có mệnh đề 'thuộc'
@@ -57,7 +52,7 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 		stmt.SetType = p.parseExpression(LOWEST)
 
 	} else if !hasAssign {
-		p.Errors.AddSyntaxError("Khai báo biến phải có giá trị khởi tạo hoặc miền xác định", &p.curToken)
+		p.Errors.AddSyntaxError("Khai báo biến phải có giá trị khởi tạo hoặc miền xác định", p.curToken)
 	}
 
 	return stmt
@@ -69,9 +64,30 @@ func (p *Parser) parseImplyStatement() *ast.ImplyStatement {
 
 	stmt.Value = p.parseExpression(LOWEST)
 
-	if !p.curIsStatementSeperator() {
+	return stmt
+}
+
+func (p *Parser) parseBlockStatement() *ast.BlockStatement {
+	block := &ast.BlockStatement{Token: p.curToken}
+	block.Statements = []ast.Statement{}
+
+	if !p.expectPeek(token.LBRACE) {
+		return nil
+	}
+
+	for !p.curTokenIs(token.RBRACE) && !p.curTokenIs(token.EOF) {
+		stmt := p.parseStatement()
+		if stmt != nil {
+			block.Statements = append(block.Statements, stmt)
+		}
 		p.nextToken()
 	}
 
-	return stmt
+	if !p.curTokenIs(token.RBRACE) {
+		p.expectError(token.RBRACE)
+		return nil
+	}
+	p.nextToken()
+
+	return block
 }

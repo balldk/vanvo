@@ -17,13 +17,12 @@ const (
 type Error struct {
 	Type    ErrorType
 	Message string
-	Line    int
-	Row     int
+	Token   token.Token
 }
 
 type ErrorList struct {
 	filepath string
-	input    string
+	lines    []string
 	Errors   []Error
 }
 
@@ -42,20 +41,24 @@ func min(a int, b int) int {
 	}
 }
 
-func NewError(errType ErrorType, message string, line int, row int) Error {
-	return Error{Type: errType, Message: message, Line: line, Row: row}
+func NewError(errType ErrorType, message string, tok token.Token) Error {
+	return Error{Type: errType, Message: message, Token: tok}
 }
 
 func NewErrorList(input string, filepath string) *ErrorList {
-	return &ErrorList{Errors: []Error{}, input: input, filepath: filepath}
+	return &ErrorList{
+		Errors:   []Error{},
+		lines:    strings.Split(input, "\n"),
+		filepath: filepath,
+	}
 }
 
 func (eh *ErrorList) AddError(err Error) {
 	eh.Errors = append(eh.Errors, err)
 }
 
-func (eh *ErrorList) AddSyntaxError(message string, tok *token.Token) {
-	err := NewError(SYNTAX_ERROR, message, tok.Line, tok.Row)
+func (eh *ErrorList) AddSyntaxError(message string, tok token.Token) {
+	err := NewError(SYNTAX_ERROR, message, tok)
 	eh.AddError(err)
 }
 
@@ -71,34 +74,38 @@ func (el *ErrorList) String() string {
 	green := color.New(color.FgHiGreen)
 	white := color.New(color.FgWhite)
 
-	lines := strings.Split(el.input, "\n")
-
 	if el.filepath != "" {
 		green.Fprintln(&buf, "-->", el.filepath)
 	}
 
-	for _, err := range el.Errors {
+	for index, err := range el.Errors {
 
-		fromLine := max(1, err.Line-1)
-		toLine := min(err.Line, len(lines))
+		fromLine := max(1, err.Token.Line-1)
+		toLine := min(err.Token.Line, len(el.lines))
 
 		red.Fprint(&buf, err.Type+": ")
 		white.Fprintln(&buf, err.Message)
 
 		for i := fromLine - 1; i < toLine; i++ {
-			line := lines[i]
-			if i+1 == err.Line {
+			line := el.lines[i]
+			if i+1 == err.Token.Line {
 				blue.Fprint(&buf, i+1, " | ")
 				white.Fprintln(&buf, line)
 				blue.Fprint(&buf, " ", " | ")
-				white.Fprint(&buf, strings.Repeat(" ", err.Row-1))
-				red.Fprintln(&buf, "^")
+				white.Fprint(&buf, strings.Repeat(" ", err.Token.Row-1))
+
+				for j := 0; j < max(1, len(err.Token.Literal)); j++ {
+					red.Fprint(&buf, "^")
+				}
 			} else {
 				blue.Fprint(&buf, " ", " | ")
 				white.Fprintln(&buf, line)
 			}
 		}
 		buf.WriteString("\n")
+		if index != len(el.Errors)-1 {
+			buf.WriteString("\n")
+		}
 	}
 
 	return buf.String()

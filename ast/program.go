@@ -10,7 +10,7 @@ func (p *Program) String() string {
 	var out bytes.Buffer
 
 	for _, s := range p.Statements {
-		out.WriteString(s.String())
+		out.WriteString(s.String() + "\n")
 	}
 
 	return out.String()

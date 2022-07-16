@@ -9,10 +9,11 @@ import (
 const (
 	_ int = iota
 	LOWEST
-	EQUALS      // ==
-	LESSGREATER // > or <
-	SUM         // +
-	PRODUCT     // *
+	EQUAL   // ==
+	COMPARE // > or <
+	SUM     // +
+	PRODUCT // *
+	EXP     // ^
 	PREFIX
 	CALL
 )
@@ -20,7 +21,6 @@ const (
 func (p *Parser) parseExpression(precedence int) ast.Expression {
 	prefix := p.prefixParseFns[p.curToken.Type]
 	if prefix == nil {
-		p.Errors.AddSyntaxError("tiền tố không tồn tại", &p.curToken)
 		return nil
 	}
 	leftExp := prefix()
@@ -28,6 +28,7 @@ func (p *Parser) parseExpression(precedence int) ast.Expression {
 	for !p.peekTokenIs(token.SEMICOLON) && precedence < p.peekPrecedence() {
 		infix := p.infixParseFns[p.peekToken.Type]
 		if infix == nil {
+			p.syntaxError("toán tử trung tố không tồn tại")
 			return leftExp
 		}
 
@@ -47,7 +48,7 @@ func (p *Parser) parseInt() ast.Expression {
 
 	value, err := strconv.ParseInt(string(p.curToken.Literal), 0, 64)
 	if err != nil {
-		p.Errors.AddSyntaxError("Không thể parse số nguyên này", &p.curToken)
+		p.syntaxError("Không thể parse số nguyên này")
 	}
 
 	i.Value = value
@@ -60,7 +61,7 @@ func (p *Parser) parseReal() ast.Expression {
 
 	value, err := strconv.ParseFloat(string(p.curToken.Literal), 64)
 	if err != nil {
-		p.Errors.AddSyntaxError("Không thể parse số thực này", &p.curToken)
+		p.syntaxError("Không thể parse số thực này")
 	}
 
 	re.Value = value
@@ -70,4 +71,20 @@ func (p *Parser) parseReal() ast.Expression {
 
 func (p *Parser) parseBoolean() ast.Expression {
 	return &ast.Boolean{Token: p.curToken, Value: p.curTokenIs(token.TRUE)}
+}
+
+func (p *Parser) parseIfExpression() ast.Expression {
+	expression := &ast.IfExpression{Token: p.curToken}
+
+	p.nextToken()
+	expression.Condition = p.parseExpression(LOWEST)
+	expression.Consequence = p.parseBlockStatement()
+
+	if p.peekTokenIs(token.ELSE) {
+		p.nextToken()
+
+		expression.Alternative = p.parseBlockStatement()
+	}
+
+	return expression
 }

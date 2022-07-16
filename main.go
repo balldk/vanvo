@@ -1,13 +1,17 @@
 package main
 
 import (
-	"bufio"
+	"bytes"
 	"fmt"
 	"io/ioutil"
 	"os"
+	"vila/errorhandler"
 	"vila/lexer"
 	"vila/parser"
 	"vila/token"
+
+	"github.com/chzyer/readline"
+	"github.com/fatih/color"
 )
 
 const PROMPT = ">> "
@@ -22,57 +26,59 @@ func main() {
 	defer errRecover()
 
 	if len(os.Args) > 1 {
-		file, err := ioutil.ReadFile(os.Args[1])
-		if err != nil {
-			fmt.Println("Can't read file:", os.Args[1])
-		} else {
-			l := lexer.New(string(file))
+		filepath := os.Args[1]
+		file, err := ioutil.ReadFile(filepath)
+		input := string(file)
 
-			if l.Errors.Length() > 0 {
-				fmt.Println(l.Errors)
-				return
-			}
+		if err != nil {
+			fmt.Println("Can't read file:", filepath)
+		} else {
+			lexerErr := errorhandler.NewErrorList(input, filepath)
+			l := lexer.New(input, lexerErr)
 
 			for tok := l.NextToken(); tok.Type != token.EOF; tok = l.NextToken() {
 				fmt.Println(tok)
+			}
+			if lexerErr.Length() > 0 {
+				fmt.Print(lexerErr)
+				return
 			}
 		}
 		return
 	}
 
-	scanner := bufio.NewScanner(os.Stdin)
+	var buf bytes.Buffer
+	color.New(color.FgGreen).Fprint(&buf, PROMPT)
+
+	rl, err := readline.New(buf.String())
+	if err != nil {
+		panic(err)
+	}
+	defer rl.Close()
 
 	for {
-		fmt.Print(PROMPT)
-		if ok := scanner.Scan(); !ok {
-			return
-		}
+		line, err := rl.Readline()
 
-		line := scanner.Text()
-		// line := "cho abc = 5"
-		l := lexer.New(line)
-		p := parser.New(l)
-
-		if l.Errors.Length() > 0 {
-			fmt.Println("Lexer error:")
-			fmt.Println(l.Errors)
+		if err != nil {
+			fmt.Println("Bái bai :(")
 			break
 		}
-		if p.Errors.Length() > 0 {
-			fmt.Println("Parser error:")
-			fmt.Println(p.Errors)
-			break
-		}
-		fmt.Println(p.ParseProgram())
-		// for _, each := range p.ParseProgram() {
 
-		// }
-		// for tok := l.NextToken(); tok.Type != token.EOF; tok = l.NextToken() {
-		// 	if l.Errors.Length() > 0 {
-		// 		fmt.Println(l.Errors)
-		// 		break
-		// 	}
-		// 	fmt.Println(tok)
-		// }
+		lexerErr := errorhandler.NewErrorList(line, "")
+		parserErr := errorhandler.NewErrorList(line, "")
+
+		l := lexer.New(line, lexerErr)
+		p := parser.New(l, parserErr)
+
+		res := p.ParseProgram()
+
+		if lexerErr.Length() > 0 {
+			fmt.Print(lexerErr)
+
+		} else if parserErr.Length() > 0 {
+			fmt.Print(parserErr)
+		} else {
+			fmt.Print(res)
+		}
 	}
 }
