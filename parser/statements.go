@@ -6,6 +6,10 @@ import (
 )
 
 func (p *Parser) parseStatement() ast.Statement {
+	if p.curTokenIs(token.IDENT) && p.peekTokenIs(token.ASSIGN) {
+		return p.parseAssignStatement()
+	}
+
 	switch p.curToken.Type {
 	case token.LET:
 		return p.parseLetStatement()
@@ -31,7 +35,7 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 	if !p.expectPeek(token.IDENT) {
 		p.Errors.AddSyntaxError("Sau 'cho' phải là một tên định danh", p.curToken)
 	}
-	stmt.Name = &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
+	stmt.Ident = &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
 
 	hasAssign := false
 
@@ -88,4 +92,16 @@ func (p *Parser) parseBlockStatement() *ast.BlockStatement {
 	}
 
 	return block
+}
+
+func (p *Parser) parseAssignStatement() *ast.AssignStatement {
+	stmt := &ast.AssignStatement{Token: p.curToken}
+	stmt.Ident = &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
+
+	p.nextToken()
+	p.nextToken()
+
+	stmt.Value = p.parseExpression(LOWEST)
+
+	return stmt
 }

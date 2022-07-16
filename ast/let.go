@@ -7,7 +7,7 @@ import (
 
 type LetStatement struct {
 	Token   token.Token
-	Name    *Identifier
+	Ident   *Identifier
 	Value   Expression
 	SetType Expression
 }
@@ -16,7 +16,7 @@ func (ls *LetStatement) String() string {
 	var out bytes.Buffer
 
 	out.WriteString(string(ls.Token.Literal) + " ")
-	out.WriteString(ls.Name.String())
+	out.WriteString(ls.Ident.String())
 
 	if ls.Value != nil {
 		out.WriteString(" = ")
