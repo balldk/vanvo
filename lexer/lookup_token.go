@@ -22,6 +22,7 @@ var TOKEN_TABLE = map[string]token.TokenType{
 	"[":  token.LBRACKET,
 	"]":  token.RBRACKET,
 	".":  token.DOT,
+	"..": token.DOTDOT,
 	",":  token.COMMA,
 	":":  token.COLON,
 	";":  token.SEMICOLON,

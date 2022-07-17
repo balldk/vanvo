@@ -9,14 +9,14 @@ type TokenType string
 const (
 	ILLEGAL = "ILLEGAL"
 	EOF     = "EOF"
-	ENDLINE = "\n"
+	ENDLINE = "ENDLINE"
 
 	IDENT  = "IDENT"
-	INT    = "INT"
-	REAL   = "REAL"
-	STRING = "STRING"
-	TRUE   = "TRUE"
-	FALSE  = "FALSE"
+	INT    = "Số nguyên"
+	REAL   = "Số thực"
+	STRING = "Chuỗi"
+	TRUE   = "đúng"
+	FALSE  = "sai"
 
 	ASSIGN   = "="
 	PLUS     = "+"
@@ -27,6 +27,7 @@ const (
 	HAT      = "^"
 	BANG     = "!"
 	DOT      = "."
+	DOTDOT   = ".."
 
 	EQ         = "=="
 	NEQ        = "!="
@@ -52,7 +53,7 @@ const (
 	LBRACKET  = "["
 	RBRACKET  = "]"
 	COMMA     = ","
-	COLON     = "."
+	COLON     = ":"
 	SEMICOLON = ";"
 )
 
