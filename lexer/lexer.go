@@ -63,7 +63,7 @@ func (l *Lexer) AdvanceToken() token.Token {
 			tokenType := token.TokenType(token.INT)
 			literal := l.readNumber()
 
-			if l.ch == '.' || isDigit(l.peekChar()) {
+			if l.ch == '.' && isDigit(l.peekChar()) {
 				tokenType = token.REAL
 				literal = append(literal, l.ch)
 				l.readChar()
