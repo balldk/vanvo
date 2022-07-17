@@ -16,16 +16,8 @@ func (p *Parser) parseStatement() ast.Statement {
 	case token.IMPLY:
 		return p.parseImplyStatement()
 	default:
-		return p.parseExpressionStatement()
+		return p.parseExpression(LOWEST)
 	}
-}
-
-func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
-	stmt := &ast.ExpressionStatement{Token: p.curToken}
-
-	stmt.Expression = p.parseExpression(LOWEST)
-
-	return stmt
 }
 
 func (p *Parser) parseLetStatement() *ast.LetStatement {
