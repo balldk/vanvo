@@ -73,6 +73,39 @@ func (p *Parser) parseBoolean() ast.Expression {
 	return &ast.Boolean{Token: p.curToken, Value: p.curTokenIs(token.TRUE)}
 }
 
+func (p *Parser) parseInterval() ast.Expression {
+	p.advanceToken()
+
+	lower := p.parseExpression(LOWEST)
+
+	p.advanceToken()
+	if p.curTokenIs(token.COMMA) { // real interval
+		p.advanceToken()
+
+		seg := &ast.RealInterval{
+			Lower: lower,
+			Upper: p.parseExpression(LOWEST),
+		}
+		if p.expectPeek(token.RBRACKET) {
+			return seg
+		}
+
+	} else if p.curTokenIs(token.DOTDOT) { // int interval
+		p.advanceToken()
+
+		seg := &ast.IntInterval{
+			Lower: lower,
+			Upper: p.parseExpression(LOWEST),
+		}
+		if p.expectPeek(token.RBRACKET) {
+			return seg
+		}
+	}
+
+	p.invalidSyntax()
+	return nil
+}
+
 func (p *Parser) parseIfExpression() ast.Expression {
 	expression := &ast.IfExpression{Token: p.curToken}
 

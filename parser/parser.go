@@ -22,6 +22,7 @@ func New(l *lexer.Lexer, errors *errorhandler.ErrorList) *Parser {
 	p.registerPrefix(token.BANG, p.parsePrefixExpression)
 	p.registerPrefix(token.MINUS, p.parsePrefixExpression)
 	p.registerPrefix(token.LPAREN, p.parseGroupedExpression)
+	p.registerPrefix(token.LBRACKET, p.parseInterval)
 	p.registerPrefix(token.IF, p.parseIfExpression)
 
 	p.infixParseFns = make(map[token.TokenType]infixParseFn)
@@ -58,6 +59,7 @@ type Parser struct {
 
 func (p *Parser) advanceToken() {
 	p.curToken = p.peekToken
+	fmt.Println(p.curToken)
 	p.peekToken = p.l.AdvanceToken()
 }
 
@@ -73,7 +75,7 @@ func (p *Parser) ParseProgram() *ast.Program {
 		}
 		p.advanceToken()
 		if !p.curIsStatementSeperator() {
-			p.syntaxError("Cú pháp không hợp lệ")
+			p.invalidSyntax()
 		}
 		p.advanceToken()
 	}
@@ -121,6 +123,10 @@ func (p *Parser) expectCur(t token.TokenType) bool {
 
 func (p *Parser) syntaxError(message string) {
 	p.Errors.AddSyntaxError(message, p.curToken)
+}
+
+func (p *Parser) invalidSyntax() {
+	p.Errors.AddSyntaxError("Cú pháp không hợp lệ", p.curToken)
 }
 
 func (p *Parser) expectError(tokType token.TokenType) {
