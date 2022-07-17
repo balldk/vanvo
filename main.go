@@ -36,7 +36,7 @@ func main() {
 			lexerErr := errorhandler.NewErrorList(input, filepath)
 			l := lexer.New(input, lexerErr)
 
-			for tok := l.NextToken(); tok.Type != token.EOF; tok = l.NextToken() {
+			for tok := l.AdvanceToken(); tok.Type != token.EOF; tok = l.AdvanceToken() {
 				fmt.Println(tok)
 			}
 			if lexerErr.Length() > 0 {

@@ -39,8 +39,8 @@ func New(l *lexer.Lexer, errors *errorhandler.ErrorList) *Parser {
 	p.registerInfix(token.GREATER_EQ, p.parseInfixExpression)
 	p.registerInfix(token.LPAREN, p.parseCallExpression)
 
-	p.nextToken()
-	p.nextToken()
+	p.advanceToken()
+	p.advanceToken()
 
 	return p
 }
@@ -56,9 +56,9 @@ type Parser struct {
 	infixParseFns  map[token.TokenType]infixParseFn
 }
 
-func (p *Parser) nextToken() {
+func (p *Parser) advanceToken() {
 	p.curToken = p.peekToken
-	p.peekToken = p.l.NextToken()
+	p.peekToken = p.l.AdvanceToken()
 }
 
 func (p *Parser) ParseProgram() *ast.Program {
@@ -71,11 +71,11 @@ func (p *Parser) ParseProgram() *ast.Program {
 		if stmt != nil {
 			program.Statements = append(program.Statements, stmt)
 		}
-		p.nextToken()
+		p.advanceToken()
 		if !p.curIsStatementSeperator() {
 			p.syntaxError("Cú pháp không hợp lệ")
 		}
-		p.nextToken()
+		p.advanceToken()
 	}
 
 	return program
@@ -99,10 +99,10 @@ func (p *Parser) curIsStatementSeperator() bool {
 
 func (p *Parser) expectPeek(t token.TokenType) bool {
 	if p.peekTokenIs(t) {
-		p.nextToken()
+		p.advanceToken()
 		return true
 	} else {
-		p.nextToken()
+		p.advanceToken()
 		p.expectError(t)
 		return false
 	}
@@ -110,11 +110,11 @@ func (p *Parser) expectPeek(t token.TokenType) bool {
 
 func (p *Parser) expectCur(t token.TokenType) bool {
 	if p.curTokenIs(t) {
-		p.nextToken()
+		p.advanceToken()
 		return true
 	} else {
 		p.expectError(t)
-		p.nextToken()
+		p.advanceToken()
 		return false
 	}
 }

@@ -33,7 +33,7 @@ func New(input string, errors *errorhandler.ErrorList) *Lexer {
 	return l
 }
 
-func (l *Lexer) NextToken() token.Token {
+func (l *Lexer) AdvanceToken() token.Token {
 	if l.tempNextToken.Type != "" {
 		nextToken := l.tempNextToken
 		l.tempNextToken = token.Token{}
@@ -81,11 +81,11 @@ func (l *Lexer) NextToken() token.Token {
 			if tokenType == token.IDENT && !l.isPreviousIdent {
 
 				l.isPreviousIdent = true
-				nextToken := l.NextToken()
+				nextToken := l.AdvanceToken()
 
 				for nextToken.Type == token.IDENT {
 					appendToken(&tok, nextToken)
-					nextToken = l.NextToken()
+					nextToken = l.AdvanceToken()
 				}
 
 				l.isPreviousIdent = false

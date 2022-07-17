@@ -34,16 +34,16 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 	// Nếu có lệnh gán
 	if p.peekTokenIs(token.ASSIGN) {
 		hasAssign = true
-		p.nextToken()
-		p.nextToken()
+		p.advanceToken()
+		p.advanceToken()
 
 		stmt.Value = p.parseExpression(LOWEST)
 	}
 
 	// Nếu có mệnh đề 'thuộc'
 	if p.peekTokenIs(token.BELONG) {
-		p.nextToken()
-		p.nextToken()
+		p.advanceToken()
+		p.advanceToken()
 
 		stmt.SetType = p.parseExpression(LOWEST)
 
@@ -56,7 +56,7 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 
 func (p *Parser) parseImplyStatement() *ast.ImplyStatement {
 	stmt := &ast.ImplyStatement{Token: p.curToken}
-	p.nextToken()
+	p.advanceToken()
 
 	stmt.Value = p.parseExpression(LOWEST)
 
@@ -76,7 +76,7 @@ func (p *Parser) parseBlockStatement() *ast.BlockStatement {
 		if stmt != nil {
 			block.Statements = append(block.Statements, stmt)
 		}
-		p.nextToken()
+		p.advanceToken()
 	}
 
 	if !p.expectCur(token.RBRACE) {
@@ -90,8 +90,8 @@ func (p *Parser) parseAssignStatement() *ast.AssignStatement {
 	stmt := &ast.AssignStatement{Token: p.curToken}
 	stmt.Ident = &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
 
-	p.nextToken()
-	p.nextToken()
+	p.advanceToken()
+	p.advanceToken()
 
 	stmt.Value = p.parseExpression(LOWEST)
 

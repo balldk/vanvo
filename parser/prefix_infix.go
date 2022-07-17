@@ -57,7 +57,7 @@ func (p *Parser) parsePrefixExpression() ast.Expression {
 		Operator: p.curToken.Literal,
 	}
 
-	p.nextToken()
+	p.advanceToken()
 	expr.Right = p.parseExpression(PREFIX)
 
 	if expr.Right == nil {
@@ -75,7 +75,7 @@ func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
 	}
 
 	precedence := p.curPrecedence()
-	p.nextToken()
+	p.advanceToken()
 	expr.Right = p.parseExpression(precedence)
 
 	if expr.Right == nil {
@@ -86,7 +86,7 @@ func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
 }
 
 func (p *Parser) parseGroupedExpression() ast.Expression {
-	p.nextToken()
+	p.advanceToken()
 
 	exp := p.parseExpression(LOWEST)
 

@@ -32,7 +32,7 @@ func (p *Parser) parseExpression(precedence int) ast.Expression {
 			return leftExp
 		}
 
-		p.nextToken()
+		p.advanceToken()
 		leftExp = infix(leftExp)
 	}
 
@@ -76,12 +76,12 @@ func (p *Parser) parseBoolean() ast.Expression {
 func (p *Parser) parseIfExpression() ast.Expression {
 	expression := &ast.IfExpression{Token: p.curToken}
 
-	p.nextToken()
+	p.advanceToken()
 	expression.Condition = p.parseExpression(LOWEST)
 	expression.Consequence = p.parseBlockStatement()
 
 	if p.peekTokenIs(token.ELSE) {
-		p.nextToken()
+		p.advanceToken()
 
 		expression.Alternative = p.parseBlockStatement()
 	}
@@ -99,16 +99,16 @@ func (p *Parser) parseCallArguments() []ast.Expression {
 	args := []ast.Expression{}
 
 	if p.peekTokenIs(token.RPAREN) {
-		p.nextToken()
+		p.advanceToken()
 		return args
 	}
 
-	p.nextToken()
+	p.advanceToken()
 	args = append(args, p.parseExpression(LOWEST))
 
 	for p.peekTokenIs(token.COMMA) {
-		p.nextToken()
-		p.nextToken()
+		p.advanceToken()
+		p.advanceToken()
 		if p.curTokenIs(token.RPAREN) {
 			return args
 		}
