@@ -6,9 +6,13 @@ import (
 )
 
 type AssignStatement struct {
-	Token token.Token
+	Tok   token.Token
 	Ident *Identifier
 	Value Expression
+}
+
+func (as *AssignStatement) Token() token.Token {
+	return as.Tok
 }
 
 func (as *AssignStatement) String() string {

@@ -6,16 +6,19 @@ import (
 )
 
 type PrefixExpression struct {
-	Token    token.Token
-	Operator []rune
+	Operator token.Token
 	Right    Expression
+}
+
+func (pe *PrefixExpression) Token() token.Token {
+	return pe.Operator
 }
 
 func (pe *PrefixExpression) String() string {
 	var out bytes.Buffer
 
 	out.WriteString("(")
-	out.WriteString(string(pe.Operator))
+	out.WriteString(string(pe.Operator.Literal))
 	out.WriteString(pe.Right.String())
 	out.WriteString(")")
 
@@ -23,19 +26,22 @@ func (pe *PrefixExpression) String() string {
 }
 
 type InfixExpression struct {
-	Token    token.Token
 	Left     Expression
-	Operator []rune
+	Operator token.Token
 	Right    Expression
 }
 
-func (oe *InfixExpression) String() string {
+func (ie *InfixExpression) Token() token.Token {
+	return ie.Operator
+}
+
+func (ie *InfixExpression) String() string {
 	var out bytes.Buffer
 
 	out.WriteString("(")
-	out.WriteString(oe.Left.String())
-	out.WriteString(" " + string(oe.Operator) + " ")
-	out.WriteString(oe.Right.String())
+	out.WriteString(ie.Left.String())
+	out.WriteString(" " + string(ie.Operator.Literal) + " ")
+	out.WriteString(ie.Right.String())
 	out.WriteString(")")
 
 	return out.String()

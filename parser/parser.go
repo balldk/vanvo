@@ -21,6 +21,7 @@ func New(l *lexer.Lexer, errors *errorhandler.ErrorList) *Parser {
 	p.registerPrefix(token.FALSE, p.parseBoolean)
 	p.registerPrefix(token.BANG, p.parsePrefixExpression)
 	p.registerPrefix(token.MINUS, p.parsePrefixExpression)
+	p.registerPrefix(token.PLUS, p.parsePrefixExpression)
 	p.registerPrefix(token.LPAREN, p.parseGroupedExpression)
 	p.registerPrefix(token.LBRACKET, p.parseInterval)
 	p.registerPrefix(token.IF, p.parseIfExpression)
@@ -59,7 +60,6 @@ type Parser struct {
 
 func (p *Parser) advanceToken() {
 	p.curToken = p.peekToken
-	fmt.Println(p.curToken)
 	p.peekToken = p.l.AdvanceToken()
 }
 

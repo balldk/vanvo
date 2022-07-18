@@ -53,8 +53,7 @@ func (p *Parser) curPrecedence() int {
 
 func (p *Parser) parsePrefixExpression() ast.Expression {
 	expr := &ast.PrefixExpression{
-		Token:    p.curToken,
-		Operator: p.curToken.Literal,
+		Operator: p.curToken,
 	}
 
 	p.advanceToken()
@@ -69,8 +68,7 @@ func (p *Parser) parsePrefixExpression() ast.Expression {
 
 func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
 	expr := &ast.InfixExpression{
-		Token:    p.curToken,
-		Operator: p.curToken.Literal,
+		Operator: p.curToken,
 		Left:     left,
 	}
 
@@ -79,7 +77,7 @@ func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
 	expr.Right = p.parseExpression(precedence)
 
 	if expr.Right == nil {
-		p.syntaxError("Thiếu vế phải của " + string(expr.Operator))
+		p.syntaxError("Thiếu vế phải của " + string(expr.Operator.Literal))
 	}
 
 	return expr

@@ -1,9 +1,16 @@
 package ast
 
-import "bytes"
+import (
+	"bytes"
+	"vila/token"
+)
 
 type Program struct {
 	Statements []Statement
+}
+
+func (p *Program) Token() token.Token {
+	return token.Token{}
 }
 
 func (p *Program) String() string {

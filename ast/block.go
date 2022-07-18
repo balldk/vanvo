@@ -6,8 +6,12 @@ import (
 )
 
 type BlockStatement struct {
-	Token      token.Token
+	Tok        token.Token
 	Statements []Statement
+}
+
+func (bs *BlockStatement) Token() token.Token {
+	return bs.Tok
 }
 
 func (bs *BlockStatement) String() string {

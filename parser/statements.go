@@ -16,18 +16,25 @@ func (p *Parser) parseStatement() ast.Statement {
 	case token.IMPLY:
 		return p.parseImplyStatement()
 	default:
-		return p.parseExpression(LOWEST)
+		return p.parseExpressionStatement()
 	}
 }
 
+func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
+	stmt := &ast.ExpressionStatement{Tok: p.curToken}
+	stmt.Expression = p.parseExpression(LOWEST)
+
+	return stmt
+}
+
 func (p *Parser) parseLetStatement() *ast.LetStatement {
-	stmt := &ast.LetStatement{Token: p.curToken}
+	stmt := &ast.LetStatement{Tok: p.curToken}
 
 	// Tên biến
 	if !p.expectPeek(token.IDENT) {
 		p.Errors.AddSyntaxError("Sau 'cho' phải là một tên định danh", p.curToken)
 	}
-	stmt.Ident = &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
+	stmt.Ident = &ast.Identifier{Tok: p.curToken, Value: p.curToken.Literal}
 
 	hasAssign := false
 
@@ -55,7 +62,7 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 }
 
 func (p *Parser) parseImplyStatement() *ast.ImplyStatement {
-	stmt := &ast.ImplyStatement{Token: p.curToken}
+	stmt := &ast.ImplyStatement{Tok: p.curToken}
 	p.advanceToken()
 
 	stmt.Value = p.parseExpression(LOWEST)
@@ -64,7 +71,7 @@ func (p *Parser) parseImplyStatement() *ast.ImplyStatement {
 }
 
 func (p *Parser) parseBlockStatement() *ast.BlockStatement {
-	block := &ast.BlockStatement{Token: p.curToken}
+	block := &ast.BlockStatement{Tok: p.curToken}
 	block.Statements = []ast.Statement{}
 
 	if !p.expectPeek(token.LBRACE) {
@@ -87,8 +94,8 @@ func (p *Parser) parseBlockStatement() *ast.BlockStatement {
 }
 
 func (p *Parser) parseAssignStatement() *ast.AssignStatement {
-	stmt := &ast.AssignStatement{Token: p.curToken}
-	stmt.Ident = &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
+	stmt := &ast.AssignStatement{Tok: p.curToken}
+	stmt.Ident = &ast.Identifier{Tok: p.curToken, Value: p.curToken.Literal}
 
 	p.advanceToken()
 	p.advanceToken()

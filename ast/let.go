@@ -6,16 +6,20 @@ import (
 )
 
 type LetStatement struct {
-	Token   token.Token
+	Tok     token.Token
 	Ident   *Identifier
 	Value   Expression
 	SetType Expression
 }
 
+func (ls *LetStatement) Token() token.Token {
+	return ls.Tok
+}
+
 func (ls *LetStatement) String() string {
 	var out bytes.Buffer
 
-	out.WriteString(string(ls.Token.Literal) + " ")
+	out.WriteString(string(ls.Tok.Literal) + " ")
 	out.WriteString(ls.Ident.String())
 
 	if ls.Value != nil {

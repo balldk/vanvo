@@ -40,11 +40,11 @@ func (p *Parser) parseExpression(precedence int) ast.Expression {
 }
 
 func (p *Parser) parseIdentifier() ast.Expression {
-	return &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
+	return &ast.Identifier{Tok: p.curToken, Value: p.curToken.Literal}
 }
 
 func (p *Parser) parseInt() ast.Expression {
-	i := &ast.Int{Token: p.curToken}
+	i := &ast.Int{Tok: p.curToken}
 
 	value, err := strconv.ParseInt(string(p.curToken.Literal), 0, 64)
 	if err != nil {
@@ -57,7 +57,7 @@ func (p *Parser) parseInt() ast.Expression {
 }
 
 func (p *Parser) parseReal() ast.Expression {
-	re := &ast.Real{Token: p.curToken}
+	re := &ast.Real{Tok: p.curToken}
 
 	value, err := strconv.ParseFloat(string(p.curToken.Literal), 64)
 	if err != nil {
@@ -70,11 +70,12 @@ func (p *Parser) parseReal() ast.Expression {
 }
 
 func (p *Parser) parseBoolean() ast.Expression {
-	return &ast.Boolean{Token: p.curToken, Value: p.curTokenIs(token.TRUE)}
+	return &ast.Boolean{Tok: p.curToken, Value: p.curTokenIs(token.TRUE)}
 }
 
 func (p *Parser) parseInterval() ast.Expression {
 	p.advanceToken()
+	tok := p.curToken
 
 	lower := p.parseExpression(LOWEST)
 
@@ -83,6 +84,7 @@ func (p *Parser) parseInterval() ast.Expression {
 		p.advanceToken()
 
 		seg := &ast.RealInterval{
+			Tok:   tok,
 			Lower: lower,
 			Upper: p.parseExpression(LOWEST),
 		}
@@ -94,6 +96,7 @@ func (p *Parser) parseInterval() ast.Expression {
 		p.advanceToken()
 
 		seg := &ast.IntInterval{
+			Tok:   tok,
 			Lower: lower,
 			Upper: p.parseExpression(LOWEST),
 		}
@@ -107,7 +110,7 @@ func (p *Parser) parseInterval() ast.Expression {
 }
 
 func (p *Parser) parseIfExpression() ast.Expression {
-	expression := &ast.IfExpression{Token: p.curToken}
+	expression := &ast.IfExpression{Tok: p.curToken}
 
 	p.advanceToken()
 	expression.Condition = p.parseExpression(LOWEST)
@@ -123,7 +126,7 @@ func (p *Parser) parseIfExpression() ast.Expression {
 }
 
 func (p *Parser) parseCallExpression(fn ast.Expression) ast.Expression {
-	exp := &ast.CallExpression{Token: p.curToken, Function: fn}
+	exp := &ast.CallExpression{Tok: p.curToken, Function: fn}
 	exp.Arguments = p.parseCallArguments()
 	return exp
 }
