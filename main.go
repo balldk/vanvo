@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 	"vila/errorhandler"
+	"vila/evaluator"
 	"vila/lexer"
 	"vila/parser"
 	"vila/token"
@@ -70,15 +71,17 @@ func main() {
 		l := lexer.New(line, lexerErr)
 		p := parser.New(l, parserErr)
 
-		res := p.ParseProgram()
+		program := p.ParseProgram()
+		value := evaluator.Eval(program)
 
 		if lexerErr.Length() > 0 {
 			fmt.Print(lexerErr)
 
 		} else if parserErr.Length() > 0 {
 			fmt.Print(parserErr)
+
 		} else {
-			fmt.Print(res)
+			fmt.Println(value.Display())
 		}
 	}
 }
