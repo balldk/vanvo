@@ -2,7 +2,9 @@ package evaluator
 
 import (
 	"vila/ast"
+	"vila/errorhandler"
 	"vila/object"
+	"vila/token"
 )
 
 var (
@@ -11,18 +13,31 @@ var (
 	FALSE = &object.Boolean{Value: false}
 )
 
-func Eval(node ast.Node) object.Object {
+func New(errors *errorhandler.ErrorList) *Evaluator {
+	ev := &Evaluator{Errors: errors}
+	return ev
+}
+
+type Evaluator struct {
+	Errors *errorhandler.ErrorList
+}
+
+func (ev *Evaluator) Eval(node ast.Node) object.Object {
+	if ev.Errors.NotEmpty() {
+		return NULL
+	}
+
 	switch node := node.(type) {
 
 	case *ast.Program:
-		return evalStatements(node.Statements)
+		return ev.evalStatements(node.Statements)
 
 	case *ast.ExpressionStatement:
-		return Eval(node.Expression)
+		return ev.Eval(node.Expression)
 
 	case *ast.PrefixExpression:
-		right := Eval(node.Right)
-		return evalPrefixExpression(node.Operator, right)
+		right := ev.Eval(node.Right)
+		return ev.evalPrefixExpression(node.Operator, right)
 
 	case *ast.Int:
 		return &object.Int{Value: node.Value}
@@ -38,11 +53,11 @@ func Eval(node ast.Node) object.Object {
 	return NULL
 }
 
-func evalStatements(stmts []ast.Statement) object.Object {
+func (ev *Evaluator) evalStatements(stmts []ast.Statement) object.Object {
 	var result object.Object
 
 	for _, statement := range stmts {
-		result = Eval(statement)
+		result = ev.Eval(statement)
 	}
 
 	return result
@@ -53,4 +68,9 @@ func boolRef(val bool) *object.Boolean {
 		return TRUE
 	}
 	return FALSE
+}
+
+func (ev *Evaluator) runtimeError(msg string, tok token.Token) object.Object {
+	ev.Errors.AddRuntimeError(msg, tok)
+	return NULL
 }

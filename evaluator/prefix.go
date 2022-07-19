@@ -5,20 +5,20 @@ import (
 	"vila/token"
 )
 
-func evalPrefixExpression(operator token.Token, right object.Object) object.Object {
+func (ev *Evaluator) evalPrefixExpression(operator token.Token, right object.Object) object.Object {
 	switch operator.Type {
 	case token.BANG:
-		return evalBangPrefix(right)
+		return ev.evalBangPrefix(right)
 	case token.MINUS:
-		return evalMinusPrefix(right)
+		return ev.evalMinusPrefix(right)
 	case token.PLUS:
-		return evalPlusPrefix(right)
+		return ev.evalPlusPrefix(right)
 	default:
 		return NULL
 	}
 }
 
-func evalBangPrefix(right object.Object) object.Object {
+func (ev *Evaluator) evalBangPrefix(right object.Object) object.Object {
 	switch right {
 	case TRUE:
 		return FALSE
@@ -31,7 +31,7 @@ func evalBangPrefix(right object.Object) object.Object {
 	}
 }
 
-func evalMinusPrefix(right object.Object) object.Object {
+func (ev *Evaluator) evalMinusPrefix(right object.Object) object.Object {
 	switch right := right.(type) {
 	case *object.Int:
 		right.Value = -right.Value
@@ -44,6 +44,6 @@ func evalMinusPrefix(right object.Object) object.Object {
 	}
 }
 
-func evalPlusPrefix(right object.Object) object.Object {
+func (ev *Evaluator) evalPlusPrefix(right object.Object) object.Object {
 	return right
 }

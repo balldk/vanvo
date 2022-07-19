@@ -67,18 +67,23 @@ func main() {
 
 		lexerErr := errorhandler.NewErrorList(line, "")
 		parserErr := errorhandler.NewErrorList(line, "")
+		evaluatorErr := errorhandler.NewErrorList(line, "")
 
 		l := lexer.New(line, lexerErr)
 		p := parser.New(l, parserErr)
+		ev := evaluator.New(evaluatorErr)
 
 		program := p.ParseProgram()
-		value := evaluator.Eval(program)
+		value := ev.Eval(program)
 
-		if lexerErr.Length() > 0 {
+		if lexerErr.NotEmpty() {
 			fmt.Print(lexerErr)
 
-		} else if parserErr.Length() > 0 {
+		} else if parserErr.NotEmpty() {
 			fmt.Print(parserErr)
+
+		} else if evaluatorErr.NotEmpty() {
+			fmt.Print(evaluatorErr)
 
 		} else {
 			fmt.Println(value.Display())
