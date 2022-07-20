@@ -7,54 +7,54 @@ import (
 type TokenType string
 
 const (
-	ILLEGAL = "ILLEGAL"
+	Illegal = "ILLEGAL"
 	EOF     = "EOF"
-	ENDLINE = "ENDLINE"
+	Endline = "Endline"
 
-	IDENT  = "IDENT"
-	INT    = "Số nguyên"
-	REAL   = "Số thực"
-	STRING = "Chuỗi"
-	TRUE   = "đúng"
-	FALSE  = "sai"
+	Ident  = "IDENT"
+	Int    = "Số nguyên"
+	Real   = "Số thực"
+	String = "Chuỗi"
+	True   = "đúng"
+	False  = "sai"
 
-	ASSIGN   = "="
-	PLUS     = "+"
-	MINUS    = "-"
-	ASTERISK = "*"
-	PERCENT  = "%"
-	SLASH    = "/"
-	HAT      = "^"
-	BANG     = "!"
-	DOT      = "."
-	DOTDOT   = ".."
+	Assign   = "="
+	Plus     = "+"
+	Minus    = "-"
+	Asterisk = "*"
+	Percent  = "%"
+	Slash    = "/"
+	Hat      = "^"
+	Bang     = "!"
+	Dot      = "."
+	DotDot   = ".."
 
-	EQ         = "=="
-	NEQ        = "!="
-	LESS       = "<"
-	GREATER    = ">"
-	LESS_EQ    = "<="
-	GREATER_EQ = ">="
+	Equal        = "=="
+	NotEqual     = "!="
+	Less         = "<"
+	Greater      = ">"
+	LessEqual    = "<="
+	GreaterEqual = ">="
 
-	LET     = "cho"
-	IF      = "nếu"
-	ELSE_IF = "còn nếu"
-	ELSE    = "còn không"
-	FOR     = "với"
-	BELONG  = "thuộc"
-	IMPLY   = "=>"
-	INPUT   = "nhập"
-	OUTPUT  = "xuất"
+	Let    = "cho"
+	If     = "nếu"
+	ElseIf = "còn nếu"
+	Else   = "còn không"
+	For    = "với"
+	Belong = "thuộc"
+	Imply  = "=>"
+	Input  = "nhập"
+	Output = "xuất"
 
-	LPAREN    = "("
-	RPAREN    = ")"
-	LBRACE    = "{"
-	RBRACE    = "}"
-	LBRACKET  = "["
-	RBRACKET  = "]"
-	COMMA     = ","
-	COLON     = ":"
-	SEMICOLON = ";"
+	LParen    = "("
+	RParen    = ")"
+	LBrace    = "{"
+	RBrace    = "}"
+	LBracket  = "["
+	RBracket  = "]"
+	Comma     = ","
+	Colon     = ":"
+	Semicolon = ";"
 )
 
 type Token struct {
@@ -69,21 +69,21 @@ func (t Token) String() string {
 }
 
 var keywords = keywordsWithoutDiacritic(map[string]TokenType{
-	"cho":       LET,
-	"nếu":       IF,
-	"còn nếu":   ELSE_IF,
-	"còn không": ELSE,
-	"đúng":      TRUE,
-	"sai":       FALSE,
-	"với":       FOR,
-	"thuộc":     BELONG,
-	"nhập":      INPUT,
-	"xuất":      OUTPUT,
+	"cho":       Let,
+	"nếu":       If,
+	"còn nếu":   ElseIf,
+	"còn không": Else,
+	"đúng":      True,
+	"sai":       False,
+	"với":       For,
+	"thuộc":     Belong,
+	"nhập":      Input,
+	"xuất":      Output,
 })
 
 func LookupKeyword(word []rune) TokenType {
 	if tok, ok := keywords[string(word)]; ok {
 		return tok
 	}
-	return IDENT
+	return Ident
 }

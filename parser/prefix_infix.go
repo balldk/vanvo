@@ -6,20 +6,20 @@ import (
 )
 
 var precedences = map[token.TokenType]int{
-	token.EQ:         EQUAL,
-	token.NEQ:        EQUAL,
-	token.LESS:       COMPARE,
-	token.GREATER:    COMPARE,
-	token.LESS_EQ:    COMPARE,
-	token.GREATER_EQ: COMPARE,
-	token.PLUS:       SUM,
-	token.MINUS:      SUM,
-	token.ASTERISK:   PRODUCT,
-	token.DOT:        PRODUCT,
-	token.SLASH:      PRODUCT,
-	token.PERCENT:    PRODUCT,
-	token.HAT:        EXP,
-	token.LPAREN:     CALL,
+	token.Equal:        EQUAL,
+	token.NotEqual:     EQUAL,
+	token.Less:         COMPARE,
+	token.Greater:      COMPARE,
+	token.LessEqual:    COMPARE,
+	token.GreaterEqual: COMPARE,
+	token.Plus:         SUM,
+	token.Minus:        SUM,
+	token.Asterisk:     PRODUCT,
+	token.Dot:          PRODUCT,
+	token.Slash:        PRODUCT,
+	token.Percent:      PRODUCT,
+	token.Hat:          EXP,
+	token.LParen:       CALL,
 }
 
 type (
@@ -88,7 +88,7 @@ func (p *Parser) parseGroupedExpression() ast.Expression {
 
 	exp := p.parseExpression(LOWEST)
 
-	if !p.expectPeek(token.RPAREN) {
+	if !p.expectPeek(token.RParen) {
 		return nil
 	}
 

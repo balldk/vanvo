@@ -44,27 +44,27 @@ func (l *Lexer) AdvanceToken() token.Token {
 
 	var tok token.Token
 
-	if tok = l.lookupToken(); tok.Type != token.ILLEGAL {
+	if tok = l.lookupToken(); tok.Type != token.Illegal {
 		l.readChar()
 		return tok
 	}
 
 	switch l.ch {
 	case '"':
-		tok = l.newToken(token.STRING, l.readString())
+		tok = l.newToken(token.String, l.readString())
 	case '\n':
-		tok = l.newSingleToken(token.ENDLINE)
+		tok = l.newSingleToken(token.Endline)
 		l.line += 1
 		l.row = 0
 	case 0:
 		tok = l.newToken(token.EOF, []rune{})
 	default:
 		if isDigit(l.ch) {
-			tokenType := token.TokenType(token.INT)
+			tokenType := token.TokenType(token.Int)
 			literal := l.readNumber()
 
 			if l.ch == '.' && isDigit(l.peekChar()) {
-				tokenType = token.REAL
+				tokenType = token.Real
 				literal = append(literal, l.ch)
 				l.readChar()
 				literal = append(literal, l.readNumber()...)
@@ -78,12 +78,12 @@ func (l *Lexer) AdvanceToken() token.Token {
 			tok = l.newToken(tokenType, tokenLiteral)
 
 			// Handle spacing identifier
-			if tokenType == token.IDENT && !l.isPreviousIdent {
+			if tokenType == token.Ident && !l.isPreviousIdent {
 
 				l.isPreviousIdent = true
 				nextToken := l.AdvanceToken()
 
-				for nextToken.Type == token.IDENT {
+				for nextToken.Type == token.Ident {
 					appendToken(&tok, nextToken)
 					nextToken = l.AdvanceToken()
 				}
@@ -96,12 +96,12 @@ func (l *Lexer) AdvanceToken() token.Token {
 
 		} else {
 			l.Errors.AddSyntaxError("Ký tự `"+string(l.ch)+"` không hợp lệ", token.Token{
-				Type:    token.ILLEGAL,
+				Type:    token.Illegal,
 				Literal: []rune{l.ch},
 				Line:    l.line,
 				Row:     l.row,
 			})
-			tok = l.newSingleToken(token.ILLEGAL)
+			tok = l.newSingleToken(token.Illegal)
 		}
 	}
 

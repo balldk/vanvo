@@ -25,7 +25,7 @@ func (p *Parser) parseExpression(precedence int) ast.Expression {
 	}
 	leftExp := prefix()
 
-	for !p.peekTokenIs(token.SEMICOLON) && precedence < p.peekPrecedence() {
+	for !p.peekTokenIs(token.Semicolon) && precedence < p.peekPrecedence() {
 		infix := p.infixParseFns[p.peekToken.Type]
 		if infix == nil {
 			p.syntaxError("toán tử trung tố không tồn tại")
@@ -70,7 +70,7 @@ func (p *Parser) parseReal() ast.Expression {
 }
 
 func (p *Parser) parseBoolean() ast.Expression {
-	return &ast.Boolean{Tok: p.curToken, Value: p.curTokenIs(token.TRUE)}
+	return &ast.Boolean{Tok: p.curToken, Value: p.curTokenIs(token.True)}
 }
 
 func (p *Parser) parseInterval() ast.Expression {
@@ -80,7 +80,7 @@ func (p *Parser) parseInterval() ast.Expression {
 	lower := p.parseExpression(LOWEST)
 
 	p.advanceToken()
-	if p.curTokenIs(token.COMMA) { // real interval
+	if p.curTokenIs(token.Comma) { // real interval
 		p.advanceToken()
 
 		seg := &ast.RealInterval{
@@ -88,11 +88,11 @@ func (p *Parser) parseInterval() ast.Expression {
 			Lower: lower,
 			Upper: p.parseExpression(LOWEST),
 		}
-		if p.expectPeek(token.RBRACKET) {
+		if p.expectPeek(token.RBracket) {
 			return seg
 		}
 
-	} else if p.curTokenIs(token.DOTDOT) { // int interval
+	} else if p.curTokenIs(token.DotDot) { // int interval
 		p.advanceToken()
 
 		seg := &ast.IntInterval{
@@ -100,7 +100,7 @@ func (p *Parser) parseInterval() ast.Expression {
 			Lower: lower,
 			Upper: p.parseExpression(LOWEST),
 		}
-		if p.expectPeek(token.RBRACKET) {
+		if p.expectPeek(token.RBracket) {
 			return seg
 		}
 	}
@@ -116,7 +116,7 @@ func (p *Parser) parseIfExpression() ast.Expression {
 	expression.Condition = p.parseExpression(LOWEST)
 	expression.Consequence = p.parseBlockStatement()
 
-	if p.peekTokenIs(token.ELSE) {
+	if p.peekTokenIs(token.Else) {
 		p.advanceToken()
 
 		expression.Alternative = p.parseBlockStatement()
@@ -134,7 +134,7 @@ func (p *Parser) parseCallExpression(fn ast.Expression) ast.Expression {
 func (p *Parser) parseCallArguments() []ast.Expression {
 	args := []ast.Expression{}
 
-	if p.peekTokenIs(token.RPAREN) {
+	if p.peekTokenIs(token.RParen) {
 		p.advanceToken()
 		return args
 	}
@@ -142,16 +142,16 @@ func (p *Parser) parseCallArguments() []ast.Expression {
 	p.advanceToken()
 	args = append(args, p.parseExpression(LOWEST))
 
-	for p.peekTokenIs(token.COMMA) {
+	for p.peekTokenIs(token.Comma) {
 		p.advanceToken()
 		p.advanceToken()
-		if p.curTokenIs(token.RPAREN) {
+		if p.curTokenIs(token.RParen) {
 			return args
 		}
 		args = append(args, p.parseExpression(LOWEST))
 	}
 
-	if !p.expectPeek(token.RPAREN) {
+	if !p.expectPeek(token.RParen) {
 		return nil
 	}
 

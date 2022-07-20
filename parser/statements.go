@@ -6,14 +6,14 @@ import (
 )
 
 func (p *Parser) parseStatement() ast.Statement {
-	if p.curTokenIs(token.IDENT) && p.peekTokenIs(token.ASSIGN) {
+	if p.curTokenIs(token.Ident) && p.peekTokenIs(token.Assign) {
 		return p.parseAssignStatement()
 	}
 
 	switch p.curToken.Type {
-	case token.LET:
+	case token.Let:
 		return p.parseLetStatement()
-	case token.IMPLY:
+	case token.Imply:
 		return p.parseImplyStatement()
 	default:
 		return p.parseExpressionStatement()
@@ -31,7 +31,7 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 	stmt := &ast.LetStatement{Tok: p.curToken}
 
 	// Tên biến
-	if !p.expectPeek(token.IDENT) {
+	if !p.expectPeek(token.Ident) {
 		p.Errors.AddSyntaxError("Sau 'cho' phải là một tên định danh", p.curToken)
 	}
 	stmt.Ident = &ast.Identifier{Tok: p.curToken, Value: p.curToken.Literal}
@@ -39,7 +39,7 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 	hasAssign := false
 
 	// Nếu có lệnh gán
-	if p.peekTokenIs(token.ASSIGN) {
+	if p.peekTokenIs(token.Assign) {
 		hasAssign = true
 		p.advanceToken()
 		p.advanceToken()
@@ -48,7 +48,7 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 	}
 
 	// Nếu có mệnh đề 'thuộc'
-	if p.peekTokenIs(token.BELONG) {
+	if p.peekTokenIs(token.Belong) {
 		p.advanceToken()
 		p.advanceToken()
 
@@ -74,11 +74,11 @@ func (p *Parser) parseBlockStatement() *ast.BlockStatement {
 	block := &ast.BlockStatement{Tok: p.curToken}
 	block.Statements = []ast.Statement{}
 
-	if !p.expectPeek(token.LBRACE) {
+	if !p.expectPeek(token.LBrace) {
 		return nil
 	}
 
-	for !p.curTokenIs(token.RBRACE) && !p.curTokenIs(token.EOF) {
+	for !p.curTokenIs(token.RBrace) && !p.curTokenIs(token.EOF) {
 		stmt := p.parseStatement()
 		if stmt != nil {
 			block.Statements = append(block.Statements, stmt)
@@ -86,7 +86,7 @@ func (p *Parser) parseBlockStatement() *ast.BlockStatement {
 		p.advanceToken()
 	}
 
-	if !p.expectCur(token.RBRACE) {
+	if !p.expectCur(token.RBrace) {
 		return nil
 	}
 

@@ -14,32 +14,32 @@ func New(l *lexer.Lexer, errors *errorhandler.ErrorList) *Parser {
 		Errors: errors,
 	}
 	p.prefixParseFns = make(map[token.TokenType]prefixParseFn)
-	p.registerPrefix(token.IDENT, p.parseIdentifier)
-	p.registerPrefix(token.INT, p.parseInt)
-	p.registerPrefix(token.REAL, p.parseReal)
-	p.registerPrefix(token.TRUE, p.parseBoolean)
-	p.registerPrefix(token.FALSE, p.parseBoolean)
-	p.registerPrefix(token.BANG, p.parsePrefixExpression)
-	p.registerPrefix(token.MINUS, p.parsePrefixExpression)
-	p.registerPrefix(token.PLUS, p.parsePrefixExpression)
-	p.registerPrefix(token.LPAREN, p.parseGroupedExpression)
-	p.registerPrefix(token.LBRACKET, p.parseInterval)
-	p.registerPrefix(token.IF, p.parseIfExpression)
+	p.registerPrefix(token.Ident, p.parseIdentifier)
+	p.registerPrefix(token.Int, p.parseInt)
+	p.registerPrefix(token.Real, p.parseReal)
+	p.registerPrefix(token.True, p.parseBoolean)
+	p.registerPrefix(token.False, p.parseBoolean)
+	p.registerPrefix(token.Bang, p.parsePrefixExpression)
+	p.registerPrefix(token.Minus, p.parsePrefixExpression)
+	p.registerPrefix(token.Plus, p.parsePrefixExpression)
+	p.registerPrefix(token.LParen, p.parseGroupedExpression)
+	p.registerPrefix(token.LBracket, p.parseInterval)
+	p.registerPrefix(token.If, p.parseIfExpression)
 
 	p.infixParseFns = make(map[token.TokenType]infixParseFn)
-	p.registerInfix(token.PLUS, p.parseInfixExpression)
-	p.registerInfix(token.MINUS, p.parseInfixExpression)
-	p.registerInfix(token.SLASH, p.parseInfixExpression)
-	p.registerInfix(token.ASTERISK, p.parseInfixExpression)
-	p.registerInfix(token.DOT, p.parseInfixExpression)
-	p.registerInfix(token.HAT, p.parseInfixExpression)
-	p.registerInfix(token.EQ, p.parseInfixExpression)
-	p.registerInfix(token.NEQ, p.parseInfixExpression)
-	p.registerInfix(token.LESS, p.parseInfixExpression)
-	p.registerInfix(token.GREATER, p.parseInfixExpression)
-	p.registerInfix(token.LESS_EQ, p.parseInfixExpression)
-	p.registerInfix(token.GREATER_EQ, p.parseInfixExpression)
-	p.registerInfix(token.LPAREN, p.parseCallExpression)
+	p.registerInfix(token.Plus, p.parseInfixExpression)
+	p.registerInfix(token.Minus, p.parseInfixExpression)
+	p.registerInfix(token.Slash, p.parseInfixExpression)
+	p.registerInfix(token.Asterisk, p.parseInfixExpression)
+	p.registerInfix(token.Dot, p.parseInfixExpression)
+	p.registerInfix(token.Hat, p.parseInfixExpression)
+	p.registerInfix(token.Equal, p.parseInfixExpression)
+	p.registerInfix(token.NotEqual, p.parseInfixExpression)
+	p.registerInfix(token.Less, p.parseInfixExpression)
+	p.registerInfix(token.Greater, p.parseInfixExpression)
+	p.registerInfix(token.LessEqual, p.parseInfixExpression)
+	p.registerInfix(token.GreaterEqual, p.parseInfixExpression)
+	p.registerInfix(token.LParen, p.parseCallExpression)
 
 	p.advanceToken()
 	p.advanceToken()
@@ -92,11 +92,11 @@ func (p *Parser) peekTokenIs(t token.TokenType) bool {
 }
 
 func (p *Parser) peekIsStatementSeperator() bool {
-	return p.peekTokenIs(token.SEMICOLON) || p.peekTokenIs(token.ENDLINE) || p.peekTokenIs(token.EOF)
+	return p.peekTokenIs(token.Semicolon) || p.peekTokenIs(token.Endline) || p.peekTokenIs(token.EOF)
 }
 
 func (p *Parser) curIsStatementSeperator() bool {
-	return p.curTokenIs(token.SEMICOLON) || p.curTokenIs(token.ENDLINE) || p.curTokenIs(token.EOF)
+	return p.curTokenIs(token.Semicolon) || p.curTokenIs(token.Endline) || p.curTokenIs(token.EOF)
 }
 
 func (p *Parser) expectPeek(t token.TokenType) bool {

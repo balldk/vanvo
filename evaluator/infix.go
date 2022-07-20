@@ -11,7 +11,7 @@ func (ev *Evaluator) evalInfixExpression(
 ) object.Object {
 
 	switch operator.Type {
-	case token.PLUS:
+	case token.Plus:
 		return ev.evalAddition(left, right)
 	}
 	return NULL

@@ -6,30 +6,30 @@ import (
 
 var TOKEN_TABLE = map[string]token.TokenType{
 	"":   token.EOF,
-	"=":  token.ASSIGN,
-	"!":  token.BANG,
-	"+":  token.PLUS,
-	"-":  token.MINUS,
-	"*":  token.ASTERISK,
-	"/":  token.SLASH,
-	"^":  token.HAT,
-	">":  token.GREATER,
-	"<":  token.EQ,
-	"(":  token.LPAREN,
-	")":  token.RPAREN,
-	"{":  token.LBRACE,
-	"}":  token.RBRACE,
-	"[":  token.LBRACKET,
-	"]":  token.RBRACKET,
-	".":  token.DOT,
-	"..": token.DOTDOT,
-	",":  token.COMMA,
-	":":  token.COLON,
-	";":  token.SEMICOLON,
-	"==": token.EQ,
-	"<=": token.LESS_EQ,
-	">=": token.GREATER_EQ,
-	"=>": token.IMPLY,
+	"=":  token.Assign,
+	"!":  token.Bang,
+	"+":  token.Plus,
+	"-":  token.Minus,
+	"*":  token.Asterisk,
+	"/":  token.Slash,
+	"^":  token.Hat,
+	">":  token.Greater,
+	"<":  token.Equal,
+	"(":  token.LParen,
+	")":  token.RParen,
+	"{":  token.LBrace,
+	"}":  token.RBrace,
+	"[":  token.LBracket,
+	"]":  token.RBracket,
+	".":  token.Dot,
+	"..": token.DotDot,
+	",":  token.Comma,
+	":":  token.Colon,
+	";":  token.Semicolon,
+	"==": token.Equal,
+	"<=": token.LessEqual,
+	">=": token.GreaterEqual,
+	"=>": token.Imply,
 }
 
 func (l *Lexer) lookupToken() token.Token {
@@ -53,5 +53,5 @@ func (l *Lexer) lookupToken() token.Token {
 		}
 	}
 
-	return token.Token{Type: token.ILLEGAL}
+	return token.Token{Type: token.Illegal}
 }

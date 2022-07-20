@@ -7,11 +7,11 @@ import (
 
 func (ev *Evaluator) evalPrefixExpression(operator token.Token, right object.Object) object.Object {
 	switch operator.Type {
-	case token.BANG:
+	case token.Bang:
 		return ev.evalBangPrefix(right)
-	case token.MINUS:
+	case token.Minus:
 		return ev.evalMinusPrefix(right)
-	case token.PLUS:
+	case token.Plus:
 		return ev.evalPlusPrefix(right)
 	default:
 		return NULL

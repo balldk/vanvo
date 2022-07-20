@@ -11,7 +11,8 @@ import (
 type ErrorType string
 
 const (
-	SYNTAX_ERROR = "Lỗi cú pháp"
+	SYNTAX_ERROR  = "Lỗi cú pháp"
+	RUNTIME_ERROR = "Lỗi"
 )
 
 type Error struct {
@@ -62,8 +63,17 @@ func (eh *ErrorList) AddSyntaxError(message string, tok token.Token) {
 	eh.AddError(err)
 }
 
+func (eh *ErrorList) AddRuntimeError(message string, tok token.Token) {
+	err := NewError(RUNTIME_ERROR, message, tok)
+	eh.AddError(err)
+}
+
 func (eh *ErrorList) Length() int {
 	return len(eh.Errors)
+}
+
+func (eh *ErrorList) NotEmpty() bool {
+	return len(eh.Errors) > 0
 }
 
 func (el *ErrorList) String() string {
