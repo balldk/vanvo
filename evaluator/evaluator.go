@@ -39,6 +39,11 @@ func (ev *Evaluator) Eval(node ast.Node) object.Object {
 		right := ev.Eval(node.Right)
 		return ev.evalPrefixExpression(node.Operator, right)
 
+	case *ast.InfixExpression:
+		left := ev.Eval(node.Left)
+		right := ev.Eval(node.Right)
+		return ev.evalInfixExpression(node.Operator, left, right)
+
 	case *ast.Int:
 		return &object.Int{Value: node.Value}
 

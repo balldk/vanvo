@@ -1,6 +1,7 @@
 package evaluator
 
 import (
+	"fmt"
 	"vila/object"
 	"vila/token"
 )
@@ -12,16 +13,30 @@ func (ev *Evaluator) evalInfixExpression(
 
 	switch operator.Type {
 	case token.Plus:
-		return ev.evalAddition(left, right)
+		return ev.evalAddition(operator, left, right)
+	case token.Minus:
+		return NULL
+	case token.Asterisk:
+		return NULL
+	case token.Slash:
+		return NULL
+	case token.Hat:
+		return NULL
 	}
 	return NULL
 }
 
-func (ev *Evaluator) evalAddition(left, right object.Object) object.Object {
+func (ev *Evaluator) evalAddition(operator token.Token, left, right object.Object) object.Object {
+	errMsg := fmt.Sprintf("Không thể cộng `%v` với `%v`", left.Type(), right.Type())
+
 	if left, ok1 := left.(object.Additive); ok1 {
-		if right, ok2 := right.(object.Additive); ok2 {
-			left.Add(right)
+		value := left.Add(right)
+		if value == nil {
+			ev.runtimeError(errMsg, operator)
 		}
+
+		return value
 	}
-	return NULL
+
+	return ev.runtimeError(errMsg, operator)
 }
