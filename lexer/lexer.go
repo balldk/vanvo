@@ -15,7 +15,7 @@ type Lexer struct {
 	isPreviousIdent bool
 	tempNextToken   token.Token
 	line            int
-	row             int
+	column          int
 }
 
 func New(input string, errors *errorhandler.ErrorList) *Lexer {
@@ -24,7 +24,7 @@ func New(input string, errors *errorhandler.ErrorList) *Lexer {
 		Errors:          errors,
 		readPosition:    0,
 		line:            1,
-		row:             0,
+		column:          0,
 		isPreviousIdent: false,
 		tempNextToken:   token.Token{},
 	}
@@ -55,7 +55,7 @@ func (l *Lexer) AdvanceToken() token.Token {
 	case '\n':
 		tok = l.newSingleToken(token.Endline)
 		l.line += 1
-		l.row = 0
+		l.column = 0
 	case 0:
 		tok = l.newToken(token.EOF, []rune{})
 	default:
@@ -99,7 +99,7 @@ func (l *Lexer) AdvanceToken() token.Token {
 				Type:    token.Illegal,
 				Literal: []rune{l.ch},
 				Line:    l.line,
-				Row:     l.row,
+				Column:  l.column,
 			})
 			tok = l.newSingleToken(token.Illegal)
 		}
@@ -114,7 +114,7 @@ func (l *Lexer) newToken(tokenType token.TokenType, tokenLiteral []rune) token.T
 		Type:    tokenType,
 		Literal: tokenLiteral,
 		Line:    l.line,
-		Row:     l.row - len(tokenLiteral),
+		Column:  l.column - len(tokenLiteral),
 	}
 }
 
@@ -123,7 +123,7 @@ func (l *Lexer) newSingleToken(tokenType token.TokenType) token.Token {
 		Type:    tokenType,
 		Literal: []rune{l.ch},
 		Line:    l.line,
-		Row:     l.row,
+		Column:  l.column,
 	}
 }
 
@@ -135,7 +135,7 @@ func (l *Lexer) readChar() {
 	}
 	l.position = l.readPosition
 	l.readPosition += 1
-	l.row += 1
+	l.column += 1
 }
 
 func (l *Lexer) readWord() []rune {
@@ -153,11 +153,11 @@ func (l *Lexer) readString() []rune {
 
 		if l.ch == 0 || l.ch == '\n' || l.ch == ';' {
 			l.Errors.AddSyntaxError("thiếu dấu \" kết thúc chuỗi", token.Token{
-				Line: l.line,
-				Row:  l.row,
+				Line:   l.line,
+				Column: l.column,
 			})
 			l.line++
-			l.row = 0
+			l.column = 0
 			break
 
 		} else if l.ch == '"' {

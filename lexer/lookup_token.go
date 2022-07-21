@@ -42,14 +42,14 @@ func (l *Lexer) lookupToken() token.Token {
 			Type:    tokenType,
 			Literal: []rune(doubleCh),
 			Line:    l.line,
-			Row:     l.row,
+			Column:  l.column,
 		}
 	} else if tokenType, ok := TOKEN_TABLE[ch]; ok {
 		return token.Token{
 			Type:    tokenType,
 			Literal: []rune(ch),
 			Line:    l.line,
-			Row:     l.row,
+			Column:  l.column,
 		}
 	}
 

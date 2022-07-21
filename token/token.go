@@ -60,12 +60,12 @@ const (
 type Token struct {
 	Type    TokenType
 	Line    int
-	Row     int
+	Column  int
 	Literal []rune
 }
 
 func (t Token) String() string {
-	return fmt.Sprintf("{ Literal: %s, Type: %v, Line: %d, Row: %d }", string(t.Literal), t.Type, t.Line, t.Row)
+	return fmt.Sprintf("{ Literal: %s, Type: %v, Line: %d, Column: %d }", string(t.Literal), t.Type, t.Line, t.Column)
 }
 
 var keywords = keywordsWithoutDiacritic(map[string]TokenType{

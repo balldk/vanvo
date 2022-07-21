@@ -102,7 +102,7 @@ func (el *ErrorList) String() string {
 				blue.Fprint(&buf, i+1, " | ")
 				white.Fprintln(&buf, line)
 				blue.Fprint(&buf, " ", " | ")
-				white.Fprint(&buf, strings.Repeat(" ", err.Token.Row-1))
+				white.Fprint(&buf, strings.Repeat(" ", err.Token.Column-1))
 
 				for j := 0; j < max(1, len(err.Token.Literal)); j++ {
 					red.Fprint(&buf, "^")
