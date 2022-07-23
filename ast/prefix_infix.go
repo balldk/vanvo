@@ -10,14 +10,18 @@ type PrefixExpression struct {
 	Right    Expression
 }
 
-func (pe *PrefixExpression) Token() token.Token {
+func (pe *PrefixExpression) FromToken() token.Token {
 	return pe.Operator
+}
+
+func (pe *PrefixExpression) ToToken() token.Token {
+	return pe.Right.ToToken()
 }
 
 func (pe *PrefixExpression) String() string {
 	var out bytes.Buffer
 
-	out.WriteString("(")
+	out.WriteString("(Prefix: ")
 	out.WriteString(string(pe.Operator.Literal))
 	out.WriteString(pe.Right.String())
 	out.WriteString(")")
@@ -26,23 +30,26 @@ func (pe *PrefixExpression) String() string {
 }
 
 type InfixExpression struct {
+	Token    token.Token
 	Left     Expression
 	Operator token.Token
 	Right    Expression
 }
 
-func (ie *InfixExpression) Token() token.Token {
-	return ie.Operator
+func (ie *InfixExpression) FromToken() token.Token {
+	return ie.Left.FromToken()
+}
+
+func (ie *InfixExpression) ToToken() token.Token {
+	return ie.Right.ToToken()
 }
 
 func (ie *InfixExpression) String() string {
 	var out bytes.Buffer
 
-	out.WriteString("(")
-	out.WriteString(ie.Left.String())
-	out.WriteString(" " + string(ie.Operator.Literal) + " ")
-	out.WriteString(ie.Right.String())
-	out.WriteString(")")
+	out.WriteString("{ Operator: " + string(ie.Operator.Literal) + "\n")
+	out.WriteString("Left: " + ie.Left.String() + "\n")
+	out.WriteString("Right: " + ie.Right.String() + " }")
 
 	return out.String()
 }

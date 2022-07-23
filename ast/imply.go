@@ -6,18 +6,22 @@ import (
 )
 
 type ImplyStatement struct {
-	Tok   token.Token
+	Token token.Token
 	Value Expression
 }
 
-func (is *ImplyStatement) Token() token.Token {
-	return is.Tok
+func (is *ImplyStatement) FromToken() token.Token {
+	return is.Token
+}
+
+func (is *ImplyStatement) ToToken() token.Token {
+	return is.Value.ToToken()
 }
 
 func (is *ImplyStatement) String() string {
 	var out bytes.Buffer
 
-	out.WriteString(string(is.Tok.Literal) + " ")
+	out.WriteString(string(is.Token.Literal) + " ")
 
 	if is.Value != nil {
 		out.WriteString(is.Value.String())

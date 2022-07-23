@@ -4,7 +4,8 @@ import "vila/token"
 
 type Node interface {
 	String() string
-	Token() token.Token
+	FromToken() token.Token
+	ToToken() token.Token
 }
 
 type Statement interface {
@@ -16,12 +17,15 @@ type Expression interface {
 }
 
 type ExpressionStatement struct {
-	Tok        token.Token
 	Expression Expression
 }
 
-func (r *ExpressionStatement) Token() token.Token {
-	return r.Tok
+func (r *ExpressionStatement) FromToken() token.Token {
+	return r.Expression.FromToken()
+}
+
+func (r *ExpressionStatement) ToToken() token.Token {
+	return r.Expression.ToToken()
 }
 
 func (es *ExpressionStatement) String() string {

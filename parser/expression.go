@@ -40,11 +40,11 @@ func (p *Parser) parseExpression(precedence int) ast.Expression {
 }
 
 func (p *Parser) parseIdentifier() ast.Expression {
-	return &ast.Identifier{Tok: p.curToken, Value: p.curToken.Literal}
+	return &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
 }
 
 func (p *Parser) parseInt() ast.Expression {
-	i := &ast.Int{Tok: p.curToken}
+	i := &ast.Int{Token: p.curToken}
 
 	value, err := strconv.ParseInt(string(p.curToken.Literal), 0, 64)
 	if err != nil {
@@ -57,7 +57,7 @@ func (p *Parser) parseInt() ast.Expression {
 }
 
 func (p *Parser) parseReal() ast.Expression {
-	re := &ast.Real{Tok: p.curToken}
+	re := &ast.Real{Token: p.curToken}
 
 	value, err := strconv.ParseFloat(string(p.curToken.Literal), 64)
 	if err != nil {
@@ -70,12 +70,12 @@ func (p *Parser) parseReal() ast.Expression {
 }
 
 func (p *Parser) parseBoolean() ast.Expression {
-	return &ast.Boolean{Tok: p.curToken, Value: p.curTokenIs(token.True)}
+	return &ast.Boolean{Token: p.curToken, Value: p.curTokenIs(token.True)}
 }
 
 func (p *Parser) parseInterval() ast.Expression {
 	p.advanceToken()
-	tok := p.curToken
+	leftBracket := p.curToken
 
 	lower := p.parseExpression(LOWEST)
 
@@ -84,11 +84,12 @@ func (p *Parser) parseInterval() ast.Expression {
 		p.advanceToken()
 
 		seg := &ast.RealInterval{
-			Tok:   tok,
-			Lower: lower,
-			Upper: p.parseExpression(LOWEST),
+			LeftBracket: leftBracket,
+			Lower:       lower,
+			Upper:       p.parseExpression(LOWEST),
 		}
 		if p.expectPeek(token.RBracket) {
+			seg.RightBracket = p.curToken
 			return seg
 		}
 
@@ -96,11 +97,12 @@ func (p *Parser) parseInterval() ast.Expression {
 		p.advanceToken()
 
 		seg := &ast.IntInterval{
-			Tok:   tok,
-			Lower: lower,
-			Upper: p.parseExpression(LOWEST),
+			LeftBracket: leftBracket,
+			Lower:       lower,
+			Upper:       p.parseExpression(LOWEST),
 		}
 		if p.expectPeek(token.RBracket) {
+			seg.RightBracket = p.curToken
 			return seg
 		}
 	}
@@ -110,7 +112,7 @@ func (p *Parser) parseInterval() ast.Expression {
 }
 
 func (p *Parser) parseIfExpression() ast.Expression {
-	expression := &ast.IfExpression{Tok: p.curToken}
+	expression := &ast.IfExpression{Token: p.curToken}
 
 	p.advanceToken()
 	expression.Condition = p.parseExpression(LOWEST)
@@ -126,8 +128,10 @@ func (p *Parser) parseIfExpression() ast.Expression {
 }
 
 func (p *Parser) parseCallExpression(fn ast.Expression) ast.Expression {
-	exp := &ast.CallExpression{Tok: p.curToken, Function: fn}
+	exp := &ast.CallExpression{Function: fn}
 	exp.Arguments = p.parseCallArguments()
+	exp.RightParen = p.curToken
+
 	return exp
 }
 

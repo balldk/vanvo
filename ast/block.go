@@ -6,12 +6,17 @@ import (
 )
 
 type BlockStatement struct {
-	Tok        token.Token
+	LeftBrace  token.Token
+	RightBrace token.Token
 	Statements []Statement
 }
 
-func (bs *BlockStatement) Token() token.Token {
-	return bs.Tok
+func (bs *BlockStatement) FromToken() token.Token {
+	return bs.LeftBrace
+}
+
+func (bs *BlockStatement) ToToken() token.Token {
+	return bs.RightBrace
 }
 
 func (bs *BlockStatement) String() string {

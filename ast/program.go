@@ -9,7 +9,17 @@ type Program struct {
 	Statements []Statement
 }
 
-func (p *Program) Token() token.Token {
+func (p *Program) FromToken() token.Token {
+	if len(p.Statements) > 0 {
+		return p.Statements[0].FromToken()
+	}
+	return token.Token{}
+}
+
+func (p *Program) ToToken() token.Token {
+	if len(p.Statements) > 0 {
+		return p.Statements[len(p.Statements)-1].ToToken()
+	}
 	return token.Token{}
 }
 

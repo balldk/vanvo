@@ -6,13 +6,18 @@ import (
 )
 
 type RealInterval struct {
-	Tok   token.Token
-	Lower Expression
-	Upper Expression
+	LeftBracket  token.Token
+	RightBracket token.Token
+	Lower        Expression
+	Upper        Expression
 }
 
-func (r *RealInterval) Token() token.Token {
-	return r.Tok
+func (r *RealInterval) FromToken() token.Token {
+	return r.LeftBracket
+}
+
+func (r *RealInterval) ToToken() token.Token {
+	return r.RightBracket
 }
 
 func (ri *RealInterval) String() string {
@@ -28,13 +33,18 @@ func (ri *RealInterval) String() string {
 }
 
 type IntInterval struct {
-	Tok   token.Token
-	Lower Expression
-	Upper Expression
+	LeftBracket  token.Token
+	RightBracket token.Token
+	Lower        Expression
+	Upper        Expression
 }
 
-func (ii *IntInterval) Token() token.Token {
-	return ii.Tok
+func (ii *IntInterval) FromToken() token.Token {
+	return ii.LeftBracket
+}
+
+func (ii *IntInterval) ToToken() token.Token {
+	return ii.RightBracket
 }
 
 func (ii *IntInterval) String() string {

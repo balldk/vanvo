@@ -3,12 +3,16 @@ package ast
 import "vila/token"
 
 type Identifier struct {
-	Tok   token.Token
+	Token token.Token
 	Value []rune
 }
 
-func (i *Identifier) Token() token.Token {
-	return i.Tok
+func (i *Identifier) FromToken() token.Token {
+	return i.Token
+}
+
+func (i *Identifier) ToToken() token.Token {
+	return i.Token
 }
 
 func (i *Identifier) String() string {

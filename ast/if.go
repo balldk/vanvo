@@ -6,14 +6,21 @@ import (
 )
 
 type IfExpression struct {
-	Tok         token.Token
+	Token       token.Token
 	Condition   Expression
 	Consequence *BlockStatement
 	Alternative *BlockStatement
 }
 
-func (ie *IfExpression) Token() token.Token {
-	return ie.Tok
+func (ie *IfExpression) FromToken() token.Token {
+	return ie.Token
+}
+
+func (ie *IfExpression) ToToken() token.Token {
+	if ie.Alternative != nil {
+		return ie.Alternative.ToToken()
+	}
+	return ie.Consequence.ToToken()
 }
 
 func (ie *IfExpression) String() string {

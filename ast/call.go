@@ -7,13 +7,17 @@ import (
 )
 
 type CallExpression struct {
-	Tok       token.Token
-	Function  Expression
-	Arguments []Expression
+	RightParen token.Token
+	Function   Expression
+	Arguments  []Expression
 }
 
-func (ce *CallExpression) Token() token.Token {
-	return ce.Tok
+func (ce *CallExpression) FromToken() token.Token {
+	return ce.Function.FromToken()
+}
+
+func (ce *CallExpression) ToToken() token.Token {
+	return ce.RightParen
 }
 
 func (ce *CallExpression) String() string {
