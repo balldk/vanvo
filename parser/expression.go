@@ -105,9 +105,10 @@ func (p *Parser) parseInterval() ast.Expression {
 			seg.RightBracket = p.curToken
 			return seg
 		}
+	} else {
+		p.invalidSyntax()
 	}
 
-	p.invalidSyntax()
 	return nil
 }
 

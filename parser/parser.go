@@ -91,10 +91,6 @@ func (p *Parser) peekTokenIs(t token.TokenType) bool {
 	return p.peekToken.Type == t
 }
 
-func (p *Parser) peekIsStatementSeperator() bool {
-	return p.peekTokenIs(token.Semicolon) || p.peekTokenIs(token.Endline) || p.peekTokenIs(token.EOF)
-}
-
 func (p *Parser) curIsStatementSeperator() bool {
 	return p.curTokenIs(token.Semicolon) || p.curTokenIs(token.Endline) || p.curTokenIs(token.EOF)
 }
