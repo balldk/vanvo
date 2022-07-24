@@ -9,7 +9,6 @@ import (
 	"vila/evaluator"
 	"vila/lexer"
 	"vila/parser"
-	"vila/token"
 
 	"github.com/chzyer/readline"
 	"github.com/fatih/color"
@@ -34,15 +33,21 @@ func main() {
 		if err != nil {
 			fmt.Println("Can't read file:", filepath)
 		} else {
-			lexerErr := errorhandler.NewErrorList(input, filepath)
-			l := lexer.New(input, lexerErr)
+			errors := errorhandler.NewTokenErrorList(input, filepath)
 
-			for tok := l.AdvanceToken(); tok.Type != token.EOF; tok = l.AdvanceToken() {
-				fmt.Println(tok)
-			}
-			if lexerErr.Length() > 0 {
-				fmt.Print(lexerErr)
-				return
+			l := lexer.New(input, errors)
+			p := parser.New(l, errors)
+			ev := evaluator.New(errors)
+
+			program := p.ParseProgram()
+
+			value := ev.Eval(program)
+
+			if errors.NotEmpty() {
+				fmt.Print(errors)
+
+			} else {
+				fmt.Println(value.Display())
 			}
 		}
 		return
@@ -65,25 +70,18 @@ func main() {
 			break
 		}
 
-		lexerErr := errorhandler.NewErrorList(line, "")
-		parserErr := errorhandler.NewErrorList(line, "")
-		evaluatorErr := errorhandler.NewErrorList(line, "")
+		errors := errorhandler.NewTokenErrorList(line, "")
 
-		l := lexer.New(line, lexerErr)
-		p := parser.New(l, parserErr)
-		ev := evaluator.New(evaluatorErr)
+		l := lexer.New(line, errors)
+		p := parser.New(l, errors)
+		ev := evaluator.New(errors)
 
 		program := p.ParseProgram()
+
 		value := ev.Eval(program)
 
-		if lexerErr.NotEmpty() {
-			fmt.Print(lexerErr)
-
-		} else if parserErr.NotEmpty() {
-			fmt.Print(parserErr)
-
-		} else if evaluatorErr.NotEmpty() {
-			fmt.Print(evaluatorErr)
+		if errors.NotEmpty() {
+			fmt.Print(errors)
 
 		} else {
 			fmt.Println(value.Display())

@@ -95,7 +95,7 @@ func (l *Lexer) AdvanceToken() token.Token {
 			return tok
 
 		} else {
-			l.Errors.AddSyntaxError("Ký tự `"+string(l.ch)+"` không hợp lệ", token.Token{
+			l.Errors.AddLexerError("Ký tự `"+string(l.ch)+"` không hợp lệ", token.Token{
 				Type:    token.Illegal,
 				Literal: []rune{l.ch},
 				Line:    l.line,
@@ -152,7 +152,7 @@ func (l *Lexer) readString() []rune {
 		l.readChar()
 
 		if l.ch == 0 || l.ch == '\n' || l.ch == ';' {
-			l.Errors.AddSyntaxError("thiếu dấu \" kết thúc chuỗi", token.Token{
+			l.Errors.AddLexerError("thiếu dấu \" kết thúc chuỗi", token.Token{
 				Line:   l.line,
 				Column: l.column,
 			})

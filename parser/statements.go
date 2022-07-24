@@ -32,7 +32,7 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 
 	// Tên biến
 	if !p.expectPeek(token.Ident) {
-		p.Errors.AddSyntaxError("Sau 'cho' phải là một tên định danh", p.curToken)
+		p.Errors.AddParserError("Sau `cho` phải là một tên định danh", p.curToken)
 	}
 	stmt.Ident = &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
 
@@ -55,7 +55,7 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 		stmt.SetType = p.parseExpression(LOWEST)
 
 	} else if !hasAssign {
-		p.Errors.AddSyntaxError("Khai báo biến phải có giá trị khởi tạo hoặc miền xác định", p.curToken)
+		p.Errors.AddParserError("Khai báo biến phải có giá trị khởi tạo hoặc miền xác định", p.curToken)
 	}
 
 	return stmt

@@ -118,11 +118,11 @@ func (p *Parser) expectCur(t token.TokenType) bool {
 }
 
 func (p *Parser) syntaxError(message string) {
-	p.Errors.AddSyntaxError(message, p.curToken)
+	p.Errors.AddParserError(message, p.curToken)
 }
 
 func (p *Parser) invalidSyntax() {
-	p.Errors.AddSyntaxError("Cú pháp không hợp lệ", p.curToken)
+	p.Errors.AddParserError("Cú pháp không hợp lệ", p.curToken)
 }
 
 func (p *Parser) expectError(tokType token.TokenType) {
