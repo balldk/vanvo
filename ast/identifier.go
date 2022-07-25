@@ -4,7 +4,7 @@ import "vila/token"
 
 type Identifier struct {
 	Token token.Token
-	Value []rune
+	Value string
 }
 
 func (i *Identifier) FromToken() token.Token {
