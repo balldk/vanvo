@@ -9,9 +9,9 @@ import (
 )
 
 func testEval(t *testing.T, input string) object.Object {
-	lexerErr := errorhandler.NewErrorList(input, "")
-	parserErr := errorhandler.NewErrorList(input, "")
-	evaluatorErr := errorhandler.NewErrorList(input, "")
+	lexerErr := errorhandler.NewTokenErrorList(input, "")
+	parserErr := errorhandler.NewTokenErrorList(input, "")
+	evaluatorErr := errorhandler.NewTokenErrorList(input, "")
 
 	l := lexer.New(input, lexerErr)
 	p := parser.New(l, parserErr)
@@ -51,6 +51,8 @@ func TestEvalInteger(t *testing.T) {
 		{"-3", -3},
 		{"--3", 3},
 		{"-3 + 4", 1},
+		{"10 - 4", 6},
+		{"-10 * 4 - 3 + 7", -36},
 	}
 
 	for _, test := range tests {
@@ -80,6 +82,7 @@ func TestEvalReal(t *testing.T) {
 		{"--3.14", 3.14},
 		{"-3.14", -3.14},
 		{"3 + 0.14", 3.14},
+		{"-3 * 5 -1.59 + 6", -10.59},
 	}
 
 	for _, test := range tests {

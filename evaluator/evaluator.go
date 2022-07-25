@@ -39,7 +39,7 @@ func (ev *Evaluator) evalNode() object.Object {
 	switch node := node.(type) {
 
 	case *ast.Program:
-		return ev.evalStatements(node.Statements)
+		return ev.evalProgram(node)
 
 	case *ast.ExpressionStatement:
 		return ev.Eval(node.Expression)
@@ -54,10 +54,14 @@ func (ev *Evaluator) evalNode() object.Object {
 		return ev.evalInfixExpression(node.Operator, left, right)
 
 	case *ast.BlockStatement:
-		return ev.evalStatements(node.Statements)
+		return ev.evalBlockStatement(node.Statements)
 
 	case *ast.IfExpression:
 		return ev.evalIfExpression(node)
+
+	case *ast.ImplyStatement:
+		val := ev.Eval(node.Value)
+		return &object.Imply{Value: val}
 
 	case *ast.Int:
 		return &object.Int{Value: node.Value}
@@ -73,11 +77,28 @@ func (ev *Evaluator) evalNode() object.Object {
 	return NULL
 }
 
-func (ev *Evaluator) evalStatements(stmts []ast.Statement) object.Object {
+func (ev *Evaluator) evalProgram(program *ast.Program) object.Object {
+	var result object.Object
+
+	for _, statement := range program.Statements {
+		result = ev.Eval(statement)
+
+		if returnValue, ok := result.(*object.Imply); ok {
+			return returnValue.Value
+		}
+	}
+	return result
+}
+
+func (ev *Evaluator) evalBlockStatement(stmts []ast.Statement) object.Object {
 	var result object.Object
 
 	for _, statement := range stmts {
 		result = ev.Eval(statement)
+
+		if result.Type() == object.IMPLY_OBJ {
+			return result
+		}
 	}
 
 	return result
