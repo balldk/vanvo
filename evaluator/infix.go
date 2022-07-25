@@ -31,7 +31,10 @@ func (ev *Evaluator) evalAddition(operator token.Token, left, right object.Objec
 
 	if left, ok := left.(object.Additive); ok {
 		value := left.Add(right)
-		return SomeObject(value)
+		if value == nil {
+			return ev.runtimeError(errMsg)
+		}
+		return value
 	}
 
 	return ev.runtimeError(errMsg)
@@ -42,7 +45,10 @@ func (ev *Evaluator) evalSubtraction(operator token.Token, left, right object.Ob
 
 	if left, ok := left.(object.Subtractive); ok {
 		value := left.Subtract(right)
-		return SomeObject(value)
+		if value == nil {
+			return ev.runtimeError(errMsg)
+		}
+		return value
 	}
 
 	return ev.runtimeError(errMsg)
@@ -53,7 +59,10 @@ func (ev *Evaluator) evalMultiplication(operator token.Token, left, right object
 
 	if left, ok := left.(object.Multiplicative); ok {
 		value := left.Multiply(right)
-		return SomeObject(value)
+		if value == nil {
+			return ev.runtimeError(errMsg)
+		}
+		return value
 	}
 
 	return ev.runtimeError(errMsg)
@@ -64,7 +73,10 @@ func (ev *Evaluator) evalDivision(operator token.Token, left, right object.Objec
 
 	if left, ok := left.(object.Division); ok {
 		value := left.Divide(right)
-		return SomeObject(value)
+		if value == nil {
+			return ev.runtimeError(errMsg)
+		}
+		return value
 	}
 
 	return ev.runtimeError(errMsg)
