@@ -1,10 +1,10 @@
 package evaluator
 
 import (
+	"fmt"
 	"vila/ast"
 	"vila/errorhandler"
 	"vila/object"
-	"vila/token"
 )
 
 var (
@@ -20,9 +20,18 @@ func New(errors *errorhandler.ErrorList) *Evaluator {
 
 type Evaluator struct {
 	Errors *errorhandler.ErrorList
+	Node   ast.Node
 }
 
 func (ev *Evaluator) Eval(node ast.Node) object.Object {
+	newev := New(ev.Errors)
+	newev.Node = node
+	return newev.evalNode()
+}
+
+func (ev *Evaluator) evalNode() object.Object {
+	node := ev.Node
+
 	if ev.Errors.NotEmpty() {
 		return NULL
 	}
@@ -43,6 +52,12 @@ func (ev *Evaluator) Eval(node ast.Node) object.Object {
 		left := ev.Eval(node.Left)
 		right := ev.Eval(node.Right)
 		return ev.evalInfixExpression(node.Operator, left, right)
+
+	case *ast.BlockStatement:
+		return ev.evalStatements(node.Statements)
+
+	case *ast.IfExpression:
+		return ev.evalIfExpression(node)
 
 	case *ast.Int:
 		return &object.Int{Value: node.Value}
@@ -68,6 +83,46 @@ func (ev *Evaluator) evalStatements(stmts []ast.Statement) object.Object {
 	return result
 }
 
+func (ev *Evaluator) evalIfExpression(ie *ast.IfExpression) object.Object {
+	condition := ev.Eval(ie.Condition)
+
+	if ev.isTruthy(condition) {
+		return ev.Eval(ie.Consequence)
+	} else if ie.Alternative != nil {
+		return ev.Eval(ie.Alternative)
+	} else {
+		return NULL
+	}
+}
+
+func (ev *Evaluator) isTruthy(obj object.Object) bool {
+	switch obj := obj.(type) {
+	case *object.Null:
+		return false
+	case *object.Boolean:
+		return obj.Value
+	case *object.Int:
+		if obj.Value == 0 {
+			return false
+		}
+		return true
+	case *object.Real:
+		if obj.Value == 0 {
+			return false
+		}
+		return true
+	case *object.Quotient:
+		if obj.Numer.Value == 0 {
+			return false
+		}
+		return true
+	default:
+		errMsg := fmt.Sprintf("Không thể đặt `%s` làm điều kiện", obj.Type())
+		ev.runtimeError(errMsg)
+		return false
+	}
+}
+
 func boolRef(val bool) *object.Boolean {
 	if val {
 		return TRUE
@@ -75,7 +130,7 @@ func boolRef(val bool) *object.Boolean {
 	return FALSE
 }
 
-func (ev *Evaluator) runtimeError(msg string, tok token.Token) object.Object {
-	ev.Errors.AddRuntimeError(msg, tok)
+func (ev *Evaluator) runtimeError(msg string) object.Object {
+	ev.Errors.AddRuntimeError(msg, ev.Node)
 	return NULL
 }
