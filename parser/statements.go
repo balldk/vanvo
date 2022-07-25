@@ -29,7 +29,7 @@ func (p *Parser) checkEndStatement() {
 		return
 	}
 	p.advanceToken()
-	if !p.curIsStatementSeperator() {
+	if !p.curIsStatementSeperator() && !p.curTokenIs(token.RBrace) {
 		p.invalidSyntax()
 	}
 	p.skipEndline()

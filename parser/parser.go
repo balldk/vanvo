@@ -61,7 +61,6 @@ type Parser struct {
 func (p *Parser) advanceToken() {
 	p.curToken = p.peekToken
 	p.peekToken = p.l.AdvanceToken()
-	// p.skipEndline()
 }
 
 func (p *Parser) ParseProgram() *ast.Program {
