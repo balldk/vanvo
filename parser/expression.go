@@ -25,7 +25,7 @@ func (p *Parser) parseExpression(precedence int) ast.Expression {
 	}
 	leftExp := prefix()
 
-	for !p.peekTokenIs(token.Semicolon) && precedence < p.peekPrecedence() {
+	for !p.peekIsStatementSeperator() && precedence < p.peekPrecedence() {
 		infix := p.infixParseFns[p.peekToken.Type]
 		if infix == nil {
 			p.syntaxError("toán tử trung tố không tồn tại")

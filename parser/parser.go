@@ -88,6 +88,10 @@ func (p *Parser) curIsStatementSeperator() bool {
 	return p.curTokenIs(token.Semicolon) || p.curTokenIs(token.Endline) || p.curTokenIs(token.EOF)
 }
 
+func (p *Parser) peekIsStatementSeperator() bool {
+	return p.peekTokenIs(token.Semicolon) || p.peekTokenIs(token.Endline) || p.peekTokenIs(token.EOF)
+}
+
 func (p *Parser) expectPeek(t token.TokenType) bool {
 	if p.peekTokenIs(t) {
 		p.advanceToken()
