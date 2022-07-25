@@ -6,6 +6,9 @@ import (
 )
 
 func (p *Parser) parseStatement() ast.Statement {
+	p.skipEndline()
+	defer p.checkEndStatement()
+
 	if p.curTokenIs(token.Ident) && p.peekTokenIs(token.Assign) {
 		return p.parseAssignStatement()
 	}
@@ -18,6 +21,18 @@ func (p *Parser) parseStatement() ast.Statement {
 	default:
 		return p.parseExpressionStatement()
 	}
+}
+
+func (p *Parser) checkEndStatement() {
+	if p.curIsStatementSeperator() {
+		p.skipEndline()
+		return
+	}
+	p.advanceToken()
+	if !p.curIsStatementSeperator() {
+		p.invalidSyntax()
+	}
+	p.skipEndline()
 }
 
 func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
@@ -71,22 +86,21 @@ func (p *Parser) parseImplyStatement() *ast.ImplyStatement {
 }
 
 func (p *Parser) parseBlockStatement() *ast.BlockStatement {
-	block := &ast.BlockStatement{LeftBrace: p.curToken}
-	block.Statements = []ast.Statement{}
-
 	if !p.expectPeek(token.LBrace) {
 		return nil
 	}
 
+	block := &ast.BlockStatement{LeftBrace: p.curToken}
+	block.Statements = []ast.Statement{}
+	p.advanceToken()
+
 	for !p.curTokenIs(token.RBrace) && !p.curTokenIs(token.EOF) {
 		stmt := p.parseStatement()
-		if stmt != nil {
-			block.Statements = append(block.Statements, stmt)
-		}
-		p.advanceToken()
+		block.Statements = append(block.Statements, stmt)
 	}
 
 	block.RightBrace = p.curToken
+
 	if !p.expectCur(token.RBrace) {
 		return nil
 	}

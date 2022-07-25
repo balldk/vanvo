@@ -119,9 +119,7 @@ func (p *Parser) parseIfExpression() ast.Expression {
 	expression.Condition = p.parseExpression(LOWEST)
 	expression.Consequence = p.parseBlockStatement()
 
-	if p.peekTokenIs(token.Else) {
-		p.advanceToken()
-
+	if p.curTokenIs(token.Else) {
 		expression.Alternative = p.parseBlockStatement()
 	}
 

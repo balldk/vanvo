@@ -61,6 +61,7 @@ type Parser struct {
 func (p *Parser) advanceToken() {
 	p.curToken = p.peekToken
 	p.peekToken = p.l.AdvanceToken()
+	// p.skipEndline()
 }
 
 func (p *Parser) ParseProgram() *ast.Program {
@@ -69,15 +70,7 @@ func (p *Parser) ParseProgram() *ast.Program {
 
 	for p.curToken.Type != token.EOF {
 		stmt := p.parseStatement()
-
-		if stmt != nil {
-			program.Statements = append(program.Statements, stmt)
-		}
-		p.advanceToken()
-		if !p.curIsStatementSeperator() {
-			p.invalidSyntax()
-		}
-		p.advanceToken()
+		program.Statements = append(program.Statements, stmt)
 	}
 
 	return program
@@ -114,6 +107,12 @@ func (p *Parser) expectCur(t token.TokenType) bool {
 		p.expectError(t)
 		p.advanceToken()
 		return false
+	}
+}
+
+func (p *Parser) skipEndline() {
+	for p.curIsStatementSeperator() && p.curToken.Type != token.EOF {
+		p.advanceToken()
 	}
 }
 
