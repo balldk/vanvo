@@ -126,8 +126,8 @@ func (el *ErrorList) printTokenErrors(buf *bytes.Buffer, errors []TokenError) {
 	}
 }
 
-func (el *ErrorList) printEvalErrors(buf *bytes.Buffer) {
-	for index, err := range el.EvalErrors {
+func (el *ErrorList) printNodeErrors(buf *bytes.Buffer, errors []NodeError) {
+	for index, err := range errors {
 		node := el.EvalErrors[index].Node
 		fromTok := node.FromToken()
 		toTok := node.ToToken()
@@ -180,10 +180,10 @@ func (el *ErrorList) String() string {
 		el.printTokenErrors(&buf, el.LexerErrors)
 
 	} else if len(el.ParserErrors) > 0 {
-		el.printTokenErrors(&buf, el.ParserErrors)
+		el.printTokenErrors(&buf, el.ParserErrors[:1])
 
 	} else if len(el.EvalErrors) > 0 {
-		el.printEvalErrors(&buf)
+		el.printNodeErrors(&buf, el.EvalErrors[:1])
 	}
 
 	return buf.String()
