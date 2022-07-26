@@ -10,8 +10,9 @@ import (
 
 func New(l *lexer.Lexer, errors *errorhandler.ErrorList) *Parser {
 	p := &Parser{
-		l:      l,
-		Errors: errors,
+		l:             l,
+		Errors:        errors,
+		peekPeekToken: token.Token{Type: ""},
 	}
 	p.prefixParseFns = make(map[token.TokenType]prefixParseFn)
 	p.registerPrefix(token.Ident, p.parseIdentifier)
@@ -51,16 +52,28 @@ type Parser struct {
 	l      *lexer.Lexer
 	Errors *errorhandler.ErrorList
 
-	curToken  token.Token
-	peekToken token.Token
+	curToken      token.Token
+	peekToken     token.Token
+	peekPeekToken token.Token
 
 	prefixParseFns map[token.TokenType]prefixParseFn
 	infixParseFns  map[token.TokenType]infixParseFn
 }
 
 func (p *Parser) advanceToken() {
-	p.curToken = p.peekToken
-	p.peekToken = p.l.AdvanceToken()
+	if p.peekPeekToken.Type != "" {
+		p.curToken = p.peekToken
+		p.peekToken = p.peekPeekToken
+		p.peekPeekToken = token.Token{Type: ""}
+	} else {
+		p.curToken = p.peekToken
+		p.peekToken = p.l.AdvanceToken()
+	}
+}
+
+func (p *Parser) insertPeekToken(tok token.Token) {
+	p.peekPeekToken = p.peekToken
+	p.peekToken = tok
 }
 
 func (p *Parser) ParseProgram() *ast.Program {

@@ -53,6 +53,15 @@ func (p *Parser) parseInt() ast.Expression {
 
 	i.Value = value
 
+	if p.peekTokenIs(token.Ident) {
+		p.insertPeekToken(token.Token{
+			Type:    token.Asterisk,
+			Literal: []rune("*"),
+			Line:    p.peekToken.Line,
+			Column:  p.peekToken.Column,
+		})
+	}
+
 	return i
 }
 
@@ -65,6 +74,15 @@ func (p *Parser) parseReal() ast.Expression {
 	}
 
 	re.Value = value
+
+	if p.peekTokenIs(token.Ident) {
+		p.insertPeekToken(token.Token{
+			Type:    token.Asterisk,
+			Literal: []rune("*"),
+			Line:    p.peekToken.Line,
+			Column:  p.peekToken.Column,
+		})
+	}
 
 	return re
 }

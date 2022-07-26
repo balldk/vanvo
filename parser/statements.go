@@ -51,9 +51,14 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 	}
 	stmt.Ident = &ast.Identifier{Token: p.curToken, Value: string(p.curToken.Literal)}
 
+	// If this is function
+	// if p.peekTokenIs(token.LParen) {
+	// 	return p.parseFunction()
+	// }
+
 	hasAssign := false
 
-	// Nếu có lệnh gán
+	// If has assign
 	if p.peekTokenIs(token.Assign) {
 		hasAssign = true
 		p.advanceToken()
@@ -62,7 +67,7 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 		stmt.Value = p.parseExpression(LOWEST)
 	}
 
-	// Nếu có mệnh đề 'thuộc'
+	// If has belong clause
 	if p.peekTokenIs(token.Belong) {
 		p.advanceToken()
 		p.advanceToken()
