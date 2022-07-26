@@ -51,7 +51,7 @@ type ErrorList struct {
 	EvalErrors   []NodeError
 }
 
-func NewTokenErrorList(input string, filepath string) *ErrorList {
+func NewErrorList(input string, filepath string) *ErrorList {
 	return &ErrorList{
 		LexerErrors:  []TokenError{},
 		ParserErrors: []TokenError{},
