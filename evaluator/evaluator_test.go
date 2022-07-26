@@ -9,23 +9,18 @@ import (
 )
 
 func testEval(t *testing.T, input string) object.Object {
-	lexerErr := errorhandler.NewTokenErrorList(input, "")
-	parserErr := errorhandler.NewTokenErrorList(input, "")
-	evaluatorErr := errorhandler.NewTokenErrorList(input, "")
+	errors := errorhandler.NewErrorList(input, "")
+	env := object.NewEnvironment()
 
-	l := lexer.New(input, lexerErr)
-	p := parser.New(l, parserErr)
-	ev := New(evaluatorErr)
+	l := lexer.New(input, errors)
+	p := parser.New(l, errors)
+	ev := New(env, errors)
 
 	program := p.ParseProgram()
 	value := ev.Eval(program)
 
-	if lexerErr.NotEmpty() {
-		t.Fatalf("input %q has errors: \n%s", input, lexerErr)
-	} else if parserErr.NotEmpty() {
-		t.Fatalf("input %q has errors: \n%s", input, parserErr)
-	} else if evaluatorErr.NotEmpty() {
-		t.Fatalf("input %q has errors: \n%s", input, evaluatorErr)
+	if errors.NotEmpty() {
+		t.Fatalf("input %q has errors: \n%s", input, errors)
 	}
 
 	return value

@@ -8,23 +8,28 @@ import (
 )
 
 var (
-	NULL  = &object.Null{}
-	TRUE  = &object.Boolean{Value: true}
-	FALSE = &object.Boolean{Value: false}
+	NULL  = object.NULL
+	TRUE  = object.TRUE
+	FALSE = object.FALSE
 )
 
-func New(errors *errorhandler.ErrorList) *Evaluator {
-	ev := &Evaluator{Errors: errors}
+func New(env *object.Environment, errors *errorhandler.ErrorList) *Evaluator {
+	ev := &Evaluator{Errors: errors, Env: env}
 	return ev
 }
 
 type Evaluator struct {
 	Errors *errorhandler.ErrorList
 	Node   ast.Node
+	Env    *object.Environment
 }
 
-func (ev *Evaluator) Eval(node ast.Node) object.Object {
-	newev := New(ev.Errors)
+func (ev *Evaluator) Eval(node ast.Node, envs ...*object.Environment) object.Object {
+	env := ev.Env
+	if len(envs) > 0 {
+		env = envs[0]
+	}
+	newev := New(env, ev.Errors)
 	newev.Node = node
 	return newev.evalNode()
 }
@@ -63,6 +68,13 @@ func (ev *Evaluator) evalNode() object.Object {
 		val := ev.Eval(node.Value)
 		return &object.Imply{Value: val}
 
+	case *ast.LetStatement:
+		val := ev.Eval(node.Value)
+		ev.Env.Set(node.Ident.Value, val)
+
+	case *ast.Identifier:
+		return ev.evalIdentifier(node)
+
 	case *ast.Int:
 		return &object.Int{Value: node.Value}
 
@@ -92,9 +104,10 @@ func (ev *Evaluator) evalProgram(program *ast.Program) object.Object {
 
 func (ev *Evaluator) evalBlockStatement(stmts []ast.Statement) object.Object {
 	var result object.Object
+	env := object.NewEnclosedEnvironment(ev.Env)
 
 	for _, statement := range stmts {
-		result = ev.Eval(statement)
+		result = ev.Eval(statement, env)
 
 		if result.Type() == object.IMPLY_OBJ {
 			return result
@@ -102,6 +115,16 @@ func (ev *Evaluator) evalBlockStatement(stmts []ast.Statement) object.Object {
 	}
 
 	return result
+}
+
+func (ev *Evaluator) evalIdentifier(node *ast.Identifier) object.Object {
+	val, ok := ev.Env.Get(node.Value)
+	if !ok {
+		errMsg := fmt.Sprintf("Biến `%s` chưa được định nghĩa", node.Value)
+		return ev.runtimeError(errMsg)
+	}
+
+	return val
 }
 
 func (ev *Evaluator) evalIfExpression(ie *ast.IfExpression) object.Object {
