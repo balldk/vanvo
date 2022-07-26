@@ -84,7 +84,7 @@ func (i *Int) Divide(right Object) Object {
 		return CANT_OPERATE
 	}
 }
-func (i *Int) Equal(right Object) Object {
+func (i *Int) Equal(right Object) *Boolean {
 	switch right := right.(type) {
 	case *Int:
 		return Condition(i.Value == right.Value)
@@ -96,7 +96,7 @@ func (i *Int) Equal(right Object) Object {
 		return INCOMPARABLE
 	}
 }
-func (i *Int) Less(right Object) Object {
+func (i *Int) Less(right Object) *Boolean {
 	switch right := right.(type) {
 	case *Int:
 		return Condition(i.Value < right.Value)
@@ -171,7 +171,7 @@ func (r *Real) Divide(right Object) Object {
 		return CANT_OPERATE
 	}
 }
-func (r *Real) Equal(right Object) Object {
+func (r *Real) Equal(right Object) *Boolean {
 	switch right := right.(type) {
 	case *Int:
 		return right.Equal(r)
@@ -183,7 +183,7 @@ func (r *Real) Equal(right Object) Object {
 		return INCOMPARABLE
 	}
 }
-func (r *Real) Less(right Object) Object {
+func (r *Real) Less(right Object) *Boolean {
 	switch right := right.(type) {
 	case *Int:
 		return Condition(r.Value < right.ToReal().Value)
@@ -281,7 +281,7 @@ func (q *Quotient) Divide(right Object) Object {
 		return CANT_OPERATE
 	}
 }
-func (q *Quotient) Equal(right Object) Object {
+func (q *Quotient) Equal(right Object) *Boolean {
 	switch right := right.(type) {
 	case *Int:
 		return q.Equal(right.ToQuotient())
@@ -293,7 +293,7 @@ func (q *Quotient) Equal(right Object) Object {
 		return INCOMPARABLE
 	}
 }
-func (q *Quotient) Less(right Object) Object {
+func (q *Quotient) Less(right Object) *Boolean {
 	switch right := right.(type) {
 	case *Int:
 		return q.Less(right.ToQuotient())
