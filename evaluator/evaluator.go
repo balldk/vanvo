@@ -8,9 +8,10 @@ import (
 )
 
 var (
-	NULL  = object.NULL
-	TRUE  = object.TRUE
-	FALSE = object.FALSE
+	NULL         = object.NULL
+	TRUE         = object.TRUE
+	FALSE        = object.FALSE
+	INCOMPARABLE = object.INCOMPARABLE
 )
 
 func New(env *object.Environment, errors *errorhandler.ErrorList) *Evaluator {

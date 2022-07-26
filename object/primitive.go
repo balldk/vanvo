@@ -3,11 +3,21 @@ package object
 import "fmt"
 
 const (
-	INT_OBJ      = "Số Nguyên"
-	REAL_OBJ     = "Số Thực"
-	QUOTIENT_OBJ = "Số Hữu Tỉ"
-	BOOL_OBJ     = "Logic"
-	NULL_OBJ     = "Rỗng"
+	IntObj          = "Số Nguyên"
+	RealObj         = "Số Thực"
+	QuotientObj     = "Số Hữu Tỉ"
+	BoolObj         = "Logic"
+	NullObj         = "Rỗng"
+	IncomparableObj = "Không thể so sánh được"
+	CantOperateObj  = "Không thể thực hiện phép tính"
+)
+
+var (
+	NULL         = &Null{}
+	TRUE         = &Boolean{Value: true}
+	FALSE        = &Boolean{Value: false}
+	INCOMPARABLE = &Boolean{Value: false}
+	CANT_OPERATE = &CantOperate{}
 )
 
 func NewInt(value int64) *Int {
@@ -18,7 +28,7 @@ type Int struct {
 	Value int64
 }
 
-func (i *Int) Type() ObjectType { return INT_OBJ }
+func (i *Int) Type() ObjectType { return IntObj }
 func (i *Int) Display() string  { return fmt.Sprint(i.Value) }
 func (i *Int) ToReal() *Real {
 	return &Real{Value: float64(i.Value)}
@@ -35,7 +45,7 @@ func (i *Int) Add(right Object) Object {
 	case *Quotient:
 		return right.Add(i)
 	default:
-		return nil
+		return CANT_OPERATE
 	}
 }
 func (i *Int) Subtract(right Object) Object {
@@ -47,7 +57,7 @@ func (i *Int) Subtract(right Object) Object {
 	case *Quotient:
 		return i.ToQuotient().Subtract(right)
 	default:
-		return nil
+		return CANT_OPERATE
 	}
 }
 func (i *Int) Multiply(right Object) Object {
@@ -59,7 +69,7 @@ func (i *Int) Multiply(right Object) Object {
 	case *Quotient:
 		return right.Multiply(i)
 	default:
-		return nil
+		return CANT_OPERATE
 	}
 }
 func (i *Int) Divide(right Object) Object {
@@ -71,7 +81,31 @@ func (i *Int) Divide(right Object) Object {
 	case *Quotient:
 		return i.ToQuotient().Divide(right)
 	default:
-		return nil
+		return CANT_OPERATE
+	}
+}
+func (i *Int) Equal(right Object) Object {
+	switch right := right.(type) {
+	case *Int:
+		return Condition(i.Value == right.Value)
+	case *Real:
+		return Condition(i.ToReal().Value == right.Value)
+	case *Quotient:
+		return right.Equal(i)
+	default:
+		return INCOMPARABLE
+	}
+}
+func (i *Int) Less(right Object) Object {
+	switch right := right.(type) {
+	case *Int:
+		return Condition(i.Value < right.Value)
+	case *Real:
+		return Condition(i.ToReal().Value < right.Value)
+	case *Quotient:
+		return Condition(i.ToReal().Value < right.ToReal().Value)
+	default:
+		return INCOMPARABLE
 	}
 }
 
@@ -87,7 +121,7 @@ type Real struct {
 	Value float64
 }
 
-func (r *Real) Type() ObjectType { return REAL_OBJ }
+func (r *Real) Type() ObjectType { return RealObj }
 func (r *Real) Display() string  { return fmt.Sprint(r.Value) }
 func (r *Real) Add(right Object) Object {
 	switch right := right.(type) {
@@ -98,7 +132,7 @@ func (r *Real) Add(right Object) Object {
 	case *Quotient:
 		return right.Add(r)
 	default:
-		return nil
+		return CANT_OPERATE
 	}
 }
 func (r *Real) Subtract(right Object) Object {
@@ -110,7 +144,7 @@ func (r *Real) Subtract(right Object) Object {
 	case *Quotient:
 		return NewReal(r.Value - right.ToReal().Value)
 	default:
-		return nil
+		return CANT_OPERATE
 	}
 }
 func (r *Real) Multiply(right Object) Object {
@@ -122,7 +156,7 @@ func (r *Real) Multiply(right Object) Object {
 	case *Quotient:
 		return right.Multiply(r)
 	default:
-		return nil
+		return CANT_OPERATE
 	}
 }
 func (r *Real) Divide(right Object) Object {
@@ -134,7 +168,31 @@ func (r *Real) Divide(right Object) Object {
 	case *Quotient:
 		return NewReal(r.Value / right.ToReal().Value)
 	default:
-		return nil
+		return CANT_OPERATE
+	}
+}
+func (r *Real) Equal(right Object) Object {
+	switch right := right.(type) {
+	case *Int:
+		return right.Equal(r)
+	case *Real:
+		return Condition(r.Value == right.Value)
+	case *Quotient:
+		return right.Equal(r)
+	default:
+		return INCOMPARABLE
+	}
+}
+func (r *Real) Less(right Object) Object {
+	switch right := right.(type) {
+	case *Int:
+		return Condition(r.Value < right.ToReal().Value)
+	case *Real:
+		return Condition(r.Value < right.Value)
+	case *Quotient:
+		return Condition(r.Value < right.ToReal().Value)
+	default:
+		return INCOMPARABLE
 	}
 }
 
@@ -160,7 +218,7 @@ type Quotient struct {
 	Denom *Int
 }
 
-func (q *Quotient) Type() ObjectType { return QUOTIENT_OBJ }
+func (q *Quotient) Type() ObjectType { return QuotientObj }
 func (q *Quotient) Display() string {
 	if q.Denom.Value == 1 {
 		return q.Numer.Display()
@@ -183,7 +241,7 @@ func (q *Quotient) Add(right Object) Object {
 		numer := NewInt(q.Numer.Value*right.Denom.Value + right.Numer.Value*q.Denom.Value)
 		return NewQuotient(numer, q.Denom.Multiply(right.Denom).(*Int))
 	default:
-		return nil
+		return CANT_OPERATE
 	}
 }
 func (q *Quotient) Subtract(right Object) Object {
@@ -196,7 +254,7 @@ func (q *Quotient) Subtract(right Object) Object {
 		numer := NewInt(q.Numer.Value*right.Denom.Value - right.Numer.Value*q.Denom.Value)
 		return NewQuotient(numer, NewInt(q.Denom.Value*right.Denom.Value))
 	default:
-		return nil
+		return CANT_OPERATE
 	}
 }
 func (q *Quotient) Multiply(right Object) Object {
@@ -208,7 +266,7 @@ func (q *Quotient) Multiply(right Object) Object {
 	case *Quotient:
 		return NewQuotient(NewInt(q.Numer.Value*right.Numer.Value), NewInt(q.Denom.Value*right.Denom.Value))
 	default:
-		return nil
+		return CANT_OPERATE
 	}
 }
 func (q *Quotient) Divide(right Object) Object {
@@ -220,23 +278,68 @@ func (q *Quotient) Divide(right Object) Object {
 	case *Quotient:
 		return q.Multiply(right.Inverse())
 	default:
-		return nil
+		return CANT_OPERATE
+	}
+}
+func (q *Quotient) Equal(right Object) Object {
+	switch right := right.(type) {
+	case *Int:
+		return q.Equal(right.ToQuotient())
+	case *Real:
+		return Condition(q.ToReal().Value == right.Value)
+	case *Quotient:
+		return Condition(q.Numer.Value == right.Numer.Value && q.Denom.Value == right.Denom.Value)
+	default:
+		return INCOMPARABLE
+	}
+}
+func (q *Quotient) Less(right Object) Object {
+	switch right := right.(type) {
+	case *Int:
+		return q.Less(right.ToQuotient())
+	case *Real:
+		return Condition(q.ToReal().Value < right.Value)
+	case *Quotient:
+		return Condition(q.ToReal().Value < right.ToReal().Value)
+	default:
+		return INCOMPARABLE
 	}
 }
 
 type Null struct{}
 
-func (n *Null) Type() ObjectType { return NULL_OBJ }
+func (n *Null) Type() ObjectType { return NullObj }
 func (n *Null) Display() string  { return "rỗng" }
 
 type Boolean struct {
 	Value bool
 }
 
-func (b *Boolean) Type() ObjectType { return BOOL_OBJ }
+func (b *Boolean) Type() ObjectType { return BoolObj }
 func (b *Boolean) Display() string {
 	if b.Value {
 		return "đúng"
 	}
 	return "sai"
+}
+func (b *Boolean) Not() *Boolean {
+	return Condition(!b.Value)
+}
+func (b *Boolean) And(right *Boolean) *Boolean {
+	return Condition(b.Value && right.Value)
+}
+func (b *Boolean) Or(right *Boolean) *Boolean {
+	return Condition(b.Value || right.Value)
+}
+
+type CantOperate struct{}
+
+func (*CantOperate) Type() ObjectType { return CantOperateObj }
+func (*CantOperate) Display() string  { return CantOperateObj }
+
+func Condition(condition bool) *Boolean {
+	if condition {
+		return TRUE
+	}
+	return FALSE
 }

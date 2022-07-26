@@ -14,7 +14,7 @@ var TOKEN_TABLE = map[string]token.TokenType{
 	"/":  token.Slash,
 	"^":  token.Hat,
 	">":  token.Greater,
-	"<":  token.Equal,
+	"<":  token.Less,
 	"(":  token.LParen,
 	")":  token.RParen,
 	"{":  token.LBrace,
