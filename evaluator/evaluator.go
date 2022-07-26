@@ -121,7 +121,7 @@ func (ev *Evaluator) evalBlockStatement(stmts []ast.Statement) object.Object {
 func (ev *Evaluator) evalIdentifier(node *ast.Identifier) object.Object {
 	val, ok := ev.Env.Get(node.Value)
 	if !ok {
-		errMsg := fmt.Sprintf("Biến `%s` chưa được định nghĩa", node.Value)
+		errMsg := fmt.Sprintf("'%s' chưa được định nghĩa", node.Value)
 		return ev.runtimeError(errMsg)
 	}
 

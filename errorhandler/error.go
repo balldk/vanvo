@@ -135,6 +135,11 @@ func (el *ErrorList) printNodeErrors(buf *bytes.Buffer, errors []NodeError) {
 		fromLine := max(1, fromTok.Line-1)
 		toLine := min(toTok.Line, len(el.lines))
 
+		showLineNoError := false
+		if fromTok.Line < toTok.Line {
+			showLineNoError = true
+		}
+
 		el.printErrorMessage(buf, err.Type, err.Message)
 
 		for i := fromLine - 1; i < toLine; i++ {
@@ -143,20 +148,22 @@ func (el *ErrorList) printNodeErrors(buf *bytes.Buffer, errors []NodeError) {
 			if i+1 == fromTok.Line {
 				el.printLine(buf, i+1, true)
 				if fromTok.Line != toTok.Line {
-					el.underline(buf, fromTok.Column-1, len(line)-i+1)
+					el.underline(buf, fromTok.Column-1, len(line)-fromTok.Column+1)
+					buf.WriteString("\n")
 				} else {
 					el.underline(buf, fromTok.Column-1, toTok.Column-fromTok.Column+len(toTok.Literal))
 				}
 
 			} else if i+1 == toTok.Line {
 				el.printLine(buf, i+1, true)
-				el.underline(buf, 0, toTok.Column+len(toTok.Literal))
+				el.underline(buf, 0, toTok.Column+len(toTok.Literal)-1)
 
 			} else if fromTok.Line < i+1 && i+1 < toTok.Line {
 				el.printLine(buf, i+1, true)
 				el.underline(buf, 0, len(line))
+				buf.WriteString("\n")
 			} else {
-				el.printLine(buf, i+1, false)
+				el.printLine(buf, i+1, showLineNoError)
 			}
 		}
 		buf.WriteString("\n")
