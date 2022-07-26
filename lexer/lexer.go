@@ -51,7 +51,7 @@ func (l *Lexer) AdvanceToken() token.Token {
 
 	switch l.ch {
 	case '"':
-		tok = l.newToken(token.String, l.readString())
+		tok = l.newToken(token.String, l.consumeString())
 	case '\n':
 		tok = l.newSingleToken(token.Endline)
 		l.line += 1
@@ -61,19 +61,19 @@ func (l *Lexer) AdvanceToken() token.Token {
 	default:
 		if isDigit(l.ch) {
 			tokenType := token.TokenType(token.Int)
-			literal := l.readNumber()
+			literal := l.consumeNumber()
 
 			if l.ch == '.' && isDigit(l.peekChar()) {
 				tokenType = token.Real
 				literal = append(literal, l.ch)
 				l.readChar()
-				literal = append(literal, l.readNumber()...)
+				literal = append(literal, l.consumeNumber()...)
 			}
 			tok = l.newToken(tokenType, literal)
 			return tok
 
 		} else if isLetter(l.ch) {
-			tokenLiteral := l.readWord()
+			tokenLiteral := l.consumeIdent()
 			tokenType := token.LookupKeyword(tokenLiteral)
 			tok = l.newToken(tokenType, tokenLiteral)
 
@@ -138,7 +138,7 @@ func (l *Lexer) readChar() {
 	l.column += 1
 }
 
-func (l *Lexer) readWord() []rune {
+func (l *Lexer) consumeIdent() []rune {
 	pos := l.position
 	for isLetter(l.ch) {
 		l.readChar()
@@ -146,7 +146,7 @@ func (l *Lexer) readWord() []rune {
 	return l.input[pos:l.position]
 }
 
-func (l *Lexer) readString() []rune {
+func (l *Lexer) consumeString() []rune {
 	pos := l.position + 1
 	for {
 		l.readChar()
@@ -167,7 +167,7 @@ func (l *Lexer) readString() []rune {
 	return l.input[pos:l.position]
 }
 
-func (l *Lexer) readNumber() []rune {
+func (l *Lexer) consumeNumber() []rune {
 	pos := l.position
 	for isDigit(l.ch) {
 		l.readChar()
