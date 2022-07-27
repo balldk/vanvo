@@ -72,9 +72,17 @@ func (ev *Evaluator) evalNode() object.Object {
 		val := ev.Eval(node.Value)
 		return &object.Imply{Value: val}
 
+	case *ast.AssignStatement:
+		val := ev.Eval(node.Value)
+		obj := ev.Env.Set(node.Ident.Value, val)
+		if obj == nil {
+			errMsg := fmt.Sprintf("`%s` chưa được khai báo", node.Ident.Value)
+			return ev.runtimeError(errMsg)
+		}
+
 	case *ast.LetStatement:
 		val := ev.Eval(node.Value)
-		ev.Env.Set(node.Ident.Value, val)
+		ev.Env.SetInScope(node.Ident.Value, val)
 
 	case *ast.Identifier:
 		return ev.evalIdentifier(node)
