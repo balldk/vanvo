@@ -54,7 +54,7 @@ func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
 func (p *Parser) parseLetStatement() *ast.LetStatement {
 	stmt := &ast.LetStatement{Token: p.curToken}
 
-	// Tên biến
+	// Identifier
 	if !p.expectPeek(token.Ident) {
 		p.Errors.AddParserError("Sau `cho` phải là một tên định danh", p.curToken)
 	}
@@ -121,11 +121,21 @@ func (p *Parser) parseBlockStatement() *ast.BlockStatement {
 	p.identLevel++
 	curLevel := p.identLevel
 
+	if p.curTokenIs(token.Endline) && len(p.curToken.Literal)/4 < curLevel {
+		p.skipEndline()
+		p.invalidIndent()
+	}
+	if p.curTokenIs(token.EOF) {
+		p.syntaxError("Thiếu mệnh đề sau điều kiện")
+	}
+
 	for p.identLevel == curLevel && !p.curTokenIs(token.EOF) {
 		stmt := p.parseStatement()
 		block.Statements = append(block.Statements, stmt)
 		p.updateIdentLevel()
 	}
+
+	p.identLevel--
 
 	return block
 }

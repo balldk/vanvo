@@ -147,13 +147,13 @@ func (p *Parser) updateIdentLevel() {
 	if p.curTokenIs(token.Endline) {
 		length := len(p.curToken.Literal)
 		if length%IDENT_SIZE != 0 {
-			p.invalidIdent()
+			p.invalidIndent()
 			return
 		}
 
 		level := length / 4
 		if level > p.identLevel {
-			p.invalidIdent()
+			p.invalidIndent()
 			return
 		}
 		p.identLevel = level
@@ -169,7 +169,7 @@ func (p *Parser) invalidSyntax() {
 	p.Errors.AddParserError("Cú pháp không hợp lệ", p.curToken)
 }
 
-func (p *Parser) invalidIdent() {
+func (p *Parser) invalidIndent() {
 	p.syntaxError("Thụt dòng không hợp lệ")
 }
 
