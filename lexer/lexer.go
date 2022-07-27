@@ -53,10 +53,11 @@ func (l *Lexer) AdvanceToken() token.Token {
 	case '"':
 		tok = l.newToken(token.String, l.consumeString())
 	case '\n':
-		tok = l.newSingleToken(token.Endline)
-		tok.Literal = l.consumeSpace()
 		l.line += 1
 		l.column = 0
+		tok = l.newSingleToken(token.Endline)
+		tok.Literal = l.consumeSpace()
+		tok.Column = 1
 	case 0:
 		tok = l.newToken(token.EOF, []rune{})
 	default:
