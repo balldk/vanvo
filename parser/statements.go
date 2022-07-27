@@ -12,6 +12,10 @@ func (p *Parser) parseStatement() ast.Statement {
 
 	if p.curTokenIs(token.Ident) && p.peekTokenIs(token.Assign) {
 		stmt = p.parseAssignStatement()
+		p.checkEndStatement()
+		p.updateIdentLevel()
+
+		return stmt
 	}
 
 	switch p.curToken.Type {
