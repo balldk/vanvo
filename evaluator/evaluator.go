@@ -59,19 +59,33 @@ func (ev *Evaluator) evalNode() object.Object {
 		right := ev.Eval(node.Right)
 		return ev.evalInfixExpression(node.Operator, left, right)
 
+	case *ast.GroupExpression:
+		return ev.evalBlockStatement(node.Statements)
+
 	case *ast.BlockStatement:
 		return ev.evalBlockStatement(node.Statements)
 
 	case *ast.IfExpression:
 		return ev.evalIfExpression(node)
 
+	case *ast.IfStatement:
+		return ev.evalIfStatement(node)
+
 	case *ast.ImplyStatement:
 		val := ev.Eval(node.Value)
 		return &object.Imply{Value: val}
 
+	case *ast.AssignStatement:
+		val := ev.Eval(node.Value)
+		obj := ev.Env.Set(node.Ident.Value, val)
+		if obj == nil {
+			errMsg := fmt.Sprintf("`%s` chưa được khai báo", node.Ident.Value)
+			return ev.runtimeError(errMsg)
+		}
+
 	case *ast.LetStatement:
 		val := ev.Eval(node.Value)
-		ev.Env.Set(node.Ident.Value, val)
+		ev.Env.SetInScope(node.Ident.Value, val)
 
 	case *ast.Identifier:
 		return ev.evalIdentifier(node)
@@ -129,6 +143,18 @@ func (ev *Evaluator) evalIdentifier(node *ast.Identifier) object.Object {
 }
 
 func (ev *Evaluator) evalIfExpression(ie *ast.IfExpression) object.Object {
+	condition := ev.Eval(ie.Condition)
+
+	if ev.isTruthy(condition) {
+		return ev.Eval(ie.Consequence)
+	} else if ie.Alternative != nil {
+		return ev.Eval(ie.Alternative)
+	} else {
+		return NULL
+	}
+}
+
+func (ev *Evaluator) evalIfStatement(ie *ast.IfStatement) object.Object {
 	condition := ev.Eval(ie.Condition)
 
 	if ev.isTruthy(condition) {

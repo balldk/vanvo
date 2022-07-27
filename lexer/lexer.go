@@ -53,9 +53,11 @@ func (l *Lexer) AdvanceToken() token.Token {
 	case '"':
 		tok = l.newToken(token.String, l.consumeString())
 	case '\n':
-		tok = l.newSingleToken(token.Endline)
 		l.line += 1
 		l.column = 0
+		tok = l.newSingleToken(token.Endline)
+		tok.Literal = l.consumeSpace()
+		tok.Column = 1
 	case 0:
 		tok = l.newToken(token.EOF, []rune{})
 	default:
@@ -173,6 +175,19 @@ func (l *Lexer) consumeNumber() []rune {
 		l.readChar()
 	}
 	return l.input[pos:l.position]
+}
+
+func (l *Lexer) consumeSpace() []rune {
+	spaces := []rune{}
+	for l.peekChar() == ' ' || l.peekChar() == '\t' {
+		if l.peekChar() == ' ' {
+			spaces = append(spaces, ' ')
+		} else if l.peekChar() == '\t' {
+			spaces = append(spaces, []rune("    ")...)
+		}
+		l.readChar()
+	}
+	return spaces
 }
 
 func (l *Lexer) peekChar() rune {
