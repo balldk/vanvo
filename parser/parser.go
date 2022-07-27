@@ -131,7 +131,12 @@ func (p *Parser) expectCur(t token.TokenType) bool {
 }
 
 func (p *Parser) skipEndline() {
-	for p.curIsStatementSeperator() && p.peekIsStatementSeperator() && !p.curTokenIs(token.EOF) {
+	// skip semicolon
+	for p.curTokenIs(token.Semicolon) {
+		p.advanceToken()
+	}
+	// skip consecutive endline
+	for p.curTokenIs(token.Endline) && p.peekTokenIs(token.Endline) {
 		p.advanceToken()
 	}
 }
