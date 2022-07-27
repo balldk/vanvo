@@ -65,6 +65,9 @@ func (ev *Evaluator) evalNode() object.Object {
 	case *ast.IfExpression:
 		return ev.evalIfExpression(node)
 
+	case *ast.IfStatement:
+		return ev.evalIfStatement(node)
+
 	case *ast.ImplyStatement:
 		val := ev.Eval(node.Value)
 		return &object.Imply{Value: val}
@@ -129,6 +132,18 @@ func (ev *Evaluator) evalIdentifier(node *ast.Identifier) object.Object {
 }
 
 func (ev *Evaluator) evalIfExpression(ie *ast.IfExpression) object.Object {
+	condition := ev.Eval(ie.Condition)
+
+	if ev.isTruthy(condition) {
+		return ev.Eval(ie.Consequence)
+	} else if ie.Alternative != nil {
+		return ev.Eval(ie.Alternative)
+	} else {
+		return NULL
+	}
+}
+
+func (ev *Evaluator) evalIfStatement(ie *ast.IfStatement) object.Object {
 	condition := ev.Eval(ie.Condition)
 
 	if ev.isTruthy(condition) {

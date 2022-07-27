@@ -6,33 +6,38 @@ import (
 )
 
 func (p *Parser) parseStatement() ast.Statement {
-	p.skipEndline()
-	defer p.checkEndStatement()
+	p.updateIdentLevel()
+
+	var stmt ast.Statement
 
 	if p.curTokenIs(token.Ident) && p.peekTokenIs(token.Assign) {
-		return p.parseAssignStatement()
+		stmt = p.parseAssignStatement()
 	}
 
 	switch p.curToken.Type {
 	case token.Let:
-		return p.parseLetStatement()
+		stmt = p.parseLetStatement()
+	case token.If:
+		stmt = p.parseIfStatement()
+		p.updateIdentLevel()
+		return stmt
 	case token.Imply:
-		return p.parseImplyStatement()
+		stmt = p.parseImplyStatement()
 	default:
-		return p.parseExpressionStatement()
+		stmt = p.parseExpressionStatement()
 	}
+
+	p.checkEndStatement()
+	p.updateIdentLevel()
+
+	return stmt
 }
 
 func (p *Parser) checkEndStatement() {
-	if p.curIsStatementSeperator() {
-		p.skipEndline()
-		return
-	}
 	p.advanceToken()
-	if !p.curIsStatementSeperator() && !p.curTokenIs(token.RBrace) {
+	if !p.curIsStatementSeperator() && !p.curTokenIs(token.RParen) {
 		p.invalidSyntax()
 	}
-	p.skipEndline()
 }
 
 func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
@@ -90,24 +95,32 @@ func (p *Parser) parseImplyStatement() *ast.ImplyStatement {
 	return stmt
 }
 
+func (p *Parser) parseIfStatement() *ast.IfStatement {
+	stmt := &ast.IfStatement{Token: p.curToken}
+	p.advanceToken()
+
+	stmt.Condition = p.parseExpression(LOWEST)
+	stmt.Consequence = p.parseBlockStatement()
+
+	return stmt
+}
+
 func (p *Parser) parseBlockStatement() *ast.BlockStatement {
-	if !p.expectPeek(token.LBrace) {
+	if !p.expectPeek(token.Colon) {
 		return nil
 	}
 
-	block := &ast.BlockStatement{LeftBrace: p.curToken}
+	block := &ast.BlockStatement{Colon: p.curToken}
 	block.Statements = []ast.Statement{}
 	p.advanceToken()
 
-	for !p.curTokenIs(token.RBrace) && !p.curTokenIs(token.EOF) {
+	p.identLevel++
+	curLevel := p.identLevel
+
+	for p.identLevel == curLevel && !p.curTokenIs(token.EOF) {
 		stmt := p.parseStatement()
 		block.Statements = append(block.Statements, stmt)
-	}
-
-	block.RightBrace = p.curToken
-
-	if !p.expectCur(token.RBrace) {
-		return nil
+		p.updateIdentLevel()
 	}
 
 	return block

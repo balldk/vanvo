@@ -9,6 +9,7 @@ import (
 const (
 	_ int = iota
 	LOWEST
+	IF
 	EQUAL   // ==
 	COMPARE // > or <
 	SUM     // +
@@ -130,18 +131,41 @@ func (p *Parser) parseInterval() ast.Expression {
 	return nil
 }
 
-func (p *Parser) parseIfExpression() ast.Expression {
-	expression := &ast.IfExpression{Token: p.curToken}
+func (p *Parser) parseIfExpression(left ast.Expression) ast.Expression {
+	expression := &ast.IfExpression{Token: p.curToken, Consequence: left}
 
 	p.advanceToken()
 	expression.Condition = p.parseExpression(LOWEST)
-	expression.Consequence = p.parseBlockStatement()
 
-	if p.curTokenIs(token.Else) {
-		expression.Alternative = p.parseBlockStatement()
+	if p.expectPeek(token.Else) {
+		p.advanceToken()
+		expression.Alternative = p.parseExpression(LOWEST)
 	}
 
 	return expression
+}
+
+func (p *Parser) parseGroupExpression() ast.Expression {
+	block := &ast.GroupExpression{LeftParen: p.curToken}
+	block.Statements = []ast.Statement{}
+
+	if !p.expectCur(token.LParen) {
+		return nil
+	}
+
+	for !p.curTokenIs(token.RParen) && !p.curTokenIs(token.EOF) {
+		stmt := p.parseStatement()
+		block.Statements = append(block.Statements, stmt)
+	}
+
+	if !p.curTokenIs(token.RParen) {
+		p.expectError(token.RParen)
+		return nil
+	}
+
+	block.RightParen = p.curToken
+
+	return block
 }
 
 func (p *Parser) parseCallExpression(fn ast.Expression) ast.Expression {

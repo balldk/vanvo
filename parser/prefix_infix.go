@@ -6,6 +6,7 @@ import (
 )
 
 var precedences = map[token.TokenType]int{
+	token.If:           IF,
 	token.Equal:        EQUAL,
 	token.NotEqual:     EQUAL,
 	token.Less:         COMPARE,

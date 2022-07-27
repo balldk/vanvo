@@ -8,10 +8,13 @@ import (
 	"vila/token"
 )
 
+const IDENT_SIZE = 4
+
 func New(l *lexer.Lexer, errors *errorhandler.ErrorList) *Parser {
 	p := &Parser{
 		l:             l,
 		Errors:        errors,
+		identLevel:    0,
 		peekPeekToken: token.Token{Type: ""},
 	}
 	p.prefixParseFns = make(map[token.TokenType]prefixParseFn)
@@ -23,9 +26,8 @@ func New(l *lexer.Lexer, errors *errorhandler.ErrorList) *Parser {
 	p.registerPrefix(token.Bang, p.parsePrefixExpression)
 	p.registerPrefix(token.Minus, p.parsePrefixExpression)
 	p.registerPrefix(token.Plus, p.parsePrefixExpression)
-	p.registerPrefix(token.LParen, p.parseGroupedExpression)
+	p.registerPrefix(token.LParen, p.parseGroupExpression)
 	p.registerPrefix(token.LBracket, p.parseInterval)
-	p.registerPrefix(token.If, p.parseIfExpression)
 
 	p.infixParseFns = make(map[token.TokenType]infixParseFn)
 	p.registerInfix(token.Plus, p.parseInfixExpression)
@@ -41,6 +43,7 @@ func New(l *lexer.Lexer, errors *errorhandler.ErrorList) *Parser {
 	p.registerInfix(token.LessEqual, p.parseInfixExpression)
 	p.registerInfix(token.GreaterEqual, p.parseInfixExpression)
 	p.registerInfix(token.LParen, p.parseCallExpression)
+	p.registerInfix(token.If, p.parseIfExpression)
 
 	p.advanceToken()
 	p.advanceToken()
@@ -49,8 +52,9 @@ func New(l *lexer.Lexer, errors *errorhandler.ErrorList) *Parser {
 }
 
 type Parser struct {
-	l      *lexer.Lexer
-	Errors *errorhandler.ErrorList
+	l          *lexer.Lexer
+	Errors     *errorhandler.ErrorList
+	identLevel int
 
 	curToken      token.Token
 	peekToken     token.Token
@@ -127,7 +131,27 @@ func (p *Parser) expectCur(t token.TokenType) bool {
 }
 
 func (p *Parser) skipEndline() {
-	for p.curIsStatementSeperator() && p.curToken.Type != token.EOF {
+	for p.curIsStatementSeperator() && p.peekIsStatementSeperator() && !p.curTokenIs(token.EOF) {
+		p.advanceToken()
+	}
+}
+
+func (p *Parser) updateIdentLevel() {
+	p.skipEndline()
+
+	if p.curTokenIs(token.Endline) {
+		length := len(p.curToken.Literal)
+		if length%IDENT_SIZE != 0 {
+			p.invalidIdent()
+			return
+		}
+
+		level := length / 4
+		if level > p.identLevel {
+			p.invalidIdent()
+			return
+		}
+		p.identLevel = level
 		p.advanceToken()
 	}
 }
@@ -138,6 +162,10 @@ func (p *Parser) syntaxError(message string) {
 
 func (p *Parser) invalidSyntax() {
 	p.Errors.AddParserError("Cú pháp không hợp lệ", p.curToken)
+}
+
+func (p *Parser) invalidIdent() {
+	p.syntaxError("Thụt dòng không hợp lệ")
 }
 
 func (p *Parser) expectError(tokType token.TokenType) {
