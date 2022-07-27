@@ -59,6 +59,9 @@ func (ev *Evaluator) evalNode() object.Object {
 		right := ev.Eval(node.Right)
 		return ev.evalInfixExpression(node.Operator, left, right)
 
+	case *ast.GroupExpression:
+		return ev.evalBlockStatement(node.Statements)
+
 	case *ast.BlockStatement:
 		return ev.evalBlockStatement(node.Statements)
 

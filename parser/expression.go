@@ -153,6 +153,10 @@ func (p *Parser) parseGroupExpression() ast.Expression {
 		return nil
 	}
 
+	if p.curTokenIs(token.Endline) {
+		p.identLevel++
+	}
+
 	for !p.curTokenIs(token.RParen) && !p.curTokenIs(token.EOF) {
 		stmt := p.parseStatement()
 		block.Statements = append(block.Statements, stmt)
