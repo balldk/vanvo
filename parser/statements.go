@@ -168,8 +168,6 @@ func (p *Parser) parseBlockStatement() *ast.BlockStatement {
 		p.updateIdentLevel()
 	}
 
-	p.identLevel--
-
 	return block
 }
 
