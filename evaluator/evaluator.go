@@ -204,12 +204,21 @@ func (ev *Evaluator) evalCallExpression(call *ast.CallExpression) object.Object 
 			return ev.unwrapImply(val)
 
 		} else {
-			errMsg := fmt.Sprintf("'%s' không phải là hàm", fnName.Value)
-			return ev.runtimeError(errMsg)
+			// errMsg := fmt.Sprintf("'%s' không phải là hàm", fnName.Value)
+			// return ev.runtimeError(errMsg)
+			left := ev.Eval(call.Function)
+			right := ev.Eval(call.Arguments[0])
+			return ev.evalMultiplication(left, right)
 		}
 
 	default:
-		return NULL
+		if len(call.Arguments) == 1 {
+			left := ev.Eval(call.Function)
+			right := ev.Eval(call.Arguments[0])
+			return ev.evalMultiplication(left, right)
+		}
+
+		return ev.runtimeError("Biểu thức không hợp lệ")
 	}
 }
 

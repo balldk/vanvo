@@ -19,46 +19,46 @@ func (ev *Evaluator) evalInfixExpression(
 
 	switch operator.Type {
 	case token.Plus:
-		return ev.evalAddition(operator, left, right)
+		return ev.evalAddition(left, right)
 
 	case token.Minus:
-		return ev.evalSubtraction(operator, left, right)
+		return ev.evalSubtraction(left, right)
 
 	case token.Asterisk:
-		return ev.evalMultiplication(operator, left, right)
+		return ev.evalMultiplication(left, right)
 
 	case token.Slash:
-		return ev.evalDivision(operator, left, right)
+		return ev.evalDivision(left, right)
 
 	case token.Equal:
-		return ev.evalEquality(operator, left, right)
+		return ev.evalEquality(left, right)
 
 	case token.Less:
-		return ev.evalLess(operator, left, right)
+		return ev.evalLess(left, right)
 
 	case token.Greater:
-		return ev.evalLess(operator, right, left)
+		return ev.evalLess(right, left)
 
 	case token.LessEqual:
-		if ev.evalLess(operator, left, right) == TRUE {
+		if ev.evalLess(left, right) == TRUE {
 			return TRUE
 		}
-		return ev.evalEquality(operator, left, right)
+		return ev.evalEquality(left, right)
 
 	case token.GreaterEqual:
-		if ev.evalLess(operator, right, left) == TRUE {
+		if ev.evalLess(right, left) == TRUE {
 			return TRUE
 		}
-		return ev.evalEquality(operator, left, right)
+		return ev.evalEquality(left, right)
 
 	case token.Hat:
-		return ev.evalExponent(operator, left, right)
+		return ev.evalExponent(left, right)
 	}
 
 	return NULL
 }
 
-func (ev *Evaluator) evalAddition(operator token.Token, left, right object.Object) object.Object {
+func (ev *Evaluator) evalAddition(left, right object.Object) object.Object {
 	errMsg := fmt.Sprintf("Không thể cộng `%v` với `%v`", left.Type(), right.Type())
 
 	if left, ok := left.(object.Additive); ok {
@@ -72,7 +72,7 @@ func (ev *Evaluator) evalAddition(operator token.Token, left, right object.Objec
 	return ev.runtimeError(errMsg)
 }
 
-func (ev *Evaluator) evalSubtraction(operator token.Token, left, right object.Object) object.Object {
+func (ev *Evaluator) evalSubtraction(left, right object.Object) object.Object {
 	errMsg := fmt.Sprintf("Không thể trừ `%v` với `%v`", left.Type(), right.Type())
 
 	if left, ok := left.(object.Subtractive); ok {
@@ -86,7 +86,7 @@ func (ev *Evaluator) evalSubtraction(operator token.Token, left, right object.Ob
 	return ev.runtimeError(errMsg)
 }
 
-func (ev *Evaluator) evalMultiplication(operator token.Token, left, right object.Object) object.Object {
+func (ev *Evaluator) evalMultiplication(left, right object.Object) object.Object {
 	errMsg := fmt.Sprintf("Không thể nhân `%v` với `%v`", left.Type(), right.Type())
 
 	if left, ok := left.(object.Multiplicative); ok {
@@ -100,7 +100,7 @@ func (ev *Evaluator) evalMultiplication(operator token.Token, left, right object
 	return ev.runtimeError(errMsg)
 }
 
-func (ev *Evaluator) evalDivision(operator token.Token, left, right object.Object) object.Object {
+func (ev *Evaluator) evalDivision(left, right object.Object) object.Object {
 	errMsg := fmt.Sprintf("Không thể chia `%v` với `%v`", left.Type(), right.Type())
 
 	if left, ok := left.(object.Division); ok {
@@ -117,7 +117,7 @@ func (ev *Evaluator) evalDivision(operator token.Token, left, right object.Objec
 	return ev.runtimeError(errMsg)
 }
 
-func (ev *Evaluator) evalExponent(operator token.Token, left, right object.Object) object.Object {
+func (ev *Evaluator) evalExponent(left, right object.Object) object.Object {
 	errMsg := fmt.Sprintf("Không thể mũ `%v` với `%v`", left.Type(), right.Type())
 
 	if left, ok := left.(object.Exponential); ok {
@@ -131,7 +131,7 @@ func (ev *Evaluator) evalExponent(operator token.Token, left, right object.Objec
 	return ev.runtimeError(errMsg)
 }
 
-func (ev *Evaluator) evalEquality(operator token.Token, left, right object.Object) *object.Boolean {
+func (ev *Evaluator) evalEquality(left, right object.Object) *object.Boolean {
 	errMsg := fmt.Sprintf("Không thể so sánh `%v` với `%v`", left.Type(), right.Type())
 
 	if left, ok := left.(object.Equal); ok {
@@ -147,7 +147,7 @@ func (ev *Evaluator) evalEquality(operator token.Token, left, right object.Objec
 	return INCOMPARABLE
 }
 
-func (ev *Evaluator) evalLess(operator token.Token, left, right object.Object) *object.Boolean {
+func (ev *Evaluator) evalLess(left, right object.Object) *object.Boolean {
 	errMsg := fmt.Sprintf("Không thể so sánh `%v` với `%v`", left.Type(), right.Type())
 
 	if left, ok := left.(object.StrictOrder); ok {
