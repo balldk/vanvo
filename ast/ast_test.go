@@ -8,7 +8,7 @@ import (
 func TestString(t *testing.T) {
 	program := &Program{
 		Statements: []Statement{
-			&LetStatement{
+			&VarDeclareStatement{
 				Token: token.Token{Type: token.Let, Literal: []rune("cho")},
 				Ident: &Identifier{
 					Token: token.Token{Type: token.Ident, Literal: []rune("myName")},
