@@ -139,6 +139,10 @@ func (p *Parser) parseIfStatement() *ast.IfStatement {
 	stmt.Condition = p.parseExpression(LOWEST)
 	stmt.Consequence = p.parseBlockStatement()
 
+	if p.curTokenIs(token.Else) {
+		stmt.Alternative = p.parseBlockStatement()
+	}
+
 	return stmt
 }
 
