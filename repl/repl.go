@@ -3,11 +3,11 @@ package repl
 import (
 	"bytes"
 	"fmt"
-	"vila/errorhandler"
-	"vila/evaluator"
-	"vila/lexer"
-	"vila/object"
-	"vila/parser"
+	"vila/pkg/errorhandler"
+	"vila/pkg/evaluator"
+	"vila/pkg/lexer"
+	"vila/pkg/object"
+	"vila/pkg/parser"
 
 	"github.com/chzyer/readline"
 	"github.com/fatih/color"
