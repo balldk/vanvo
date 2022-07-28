@@ -391,6 +391,18 @@ func (b *Boolean) And(right *Boolean) *Boolean {
 func (b *Boolean) Or(right *Boolean) *Boolean {
 	return Condition(b.Value || right.Value)
 }
+func (b *Boolean) Equal(right Object) *Boolean {
+	switch right := right.(type) {
+	case *Boolean:
+		return Condition(b.Value == right.Value)
+	case *Int:
+		isFalse := b == FALSE && right.Value == 0
+		isTrue := b == TRUE && right.Value == 1
+		return Condition(isFalse || isTrue)
+	default:
+		return FALSE
+	}
+}
 
 type CantOperate struct{}
 
