@@ -10,6 +10,12 @@ func (ev *Evaluator) evalInfixExpression(
 	operator token.Token,
 	left, right object.Object,
 ) object.Object {
+	if left, isImply := left.(*object.Imply); isImply {
+		return left
+	}
+	if right, isImply := right.(*object.Imply); isImply {
+		return right
+	}
 
 	switch operator.Type {
 	case token.Plus:

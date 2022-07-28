@@ -83,9 +83,18 @@ func (ev *Evaluator) evalNode() object.Object {
 			return ev.runtimeError(errMsg)
 		}
 
-	case *ast.LetStatement:
+	case *ast.VarDeclareStatement:
 		val := ev.Eval(node.Value)
 		ev.Env.SetInScope(node.Ident.Value, val)
+
+	case *ast.FunctionDeclareStatement:
+		params := node.Params
+		body := node.Body
+		fn := &object.Function{Params: params, Body: body}
+		ev.Env.SetInScope(node.Ident.Value, fn)
+
+	case *ast.CallExpression:
+		return ev.evalCallExpression(node)
 
 	case *ast.Identifier:
 		return ev.evalIdentifier(node)
@@ -166,6 +175,54 @@ func (ev *Evaluator) evalIfStatement(ie *ast.IfStatement) object.Object {
 	}
 }
 
+func (ev *Evaluator) evalCallExpression(call *ast.CallExpression) object.Object {
+	switch fnName := call.Function.(type) {
+	case *ast.Identifier:
+		fn, isDeclared := ev.Env.Get(fnName.Value)
+		if !isDeclared {
+			errMsg := fmt.Sprintf("'%s' chưa được khởi tạo", fnName.Value)
+			return ev.runtimeError(errMsg)
+		}
+
+		if fn, isFunc := fn.(*object.Function); isFunc {
+			env := object.NewEnclosedEnvironment(ev.Env)
+			args := ev.evalExpressions(call.Arguments)
+
+			if len(args) < len(fn.Params) {
+				errMsg := fmt.Sprintf(
+					"'%s' Cần %d tham số, chỉ nhận được %d",
+					fnName.Value, len(fn.Params), len(args))
+
+				return ev.runtimeError(errMsg)
+			}
+
+			for index, param := range fn.Params {
+				env.SetInScope(param.Value, args[index])
+			}
+
+			val := ev.Eval(fn.Body, env)
+			return ev.unwrapImply(val)
+
+		} else {
+			errMsg := fmt.Sprintf("'%s' không phải là hàm", fnName.Value)
+			return ev.runtimeError(errMsg)
+		}
+
+	default:
+		return NULL
+	}
+}
+
+func (ev *Evaluator) evalExpressions(exps []ast.Expression) []object.Object {
+	var results []object.Object
+
+	for _, e := range exps {
+		result := ev.Eval(e)
+		results = append(results, result)
+	}
+	return results
+}
+
 func (ev *Evaluator) isTruthy(obj object.Object) bool {
 	switch obj := obj.(type) {
 	case *object.Null:
@@ -192,6 +249,14 @@ func (ev *Evaluator) isTruthy(obj object.Object) bool {
 		ev.runtimeError(errMsg)
 		return false
 	}
+}
+
+func (ev *Evaluator) unwrapImply(obj object.Object) object.Object {
+	if imply, ok := obj.(*object.Imply); ok {
+		return ev.unwrapImply(imply.Value)
+	}
+
+	return obj
 }
 
 func boolRef(val bool) *object.Boolean {

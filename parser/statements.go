@@ -44,26 +44,30 @@ func (p *Parser) checkEndStatement() {
 	}
 }
 
-func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
+func (p *Parser) parseExpressionStatement() ast.Statement {
 	stmt := &ast.ExpressionStatement{}
 	stmt.Expression = p.parseExpression(LOWEST)
 
 	return stmt
 }
 
-func (p *Parser) parseLetStatement() *ast.LetStatement {
-	stmt := &ast.LetStatement{Token: p.curToken}
+func (p *Parser) parseLetStatement() ast.Statement {
+	letToken := p.curToken
 
 	// Identifier
 	if !p.expectPeek(token.Ident) {
 		p.Errors.AddParserError("Sau `cho` phải là một tên định danh", p.curToken)
 	}
-	stmt.Ident = &ast.Identifier{Token: p.curToken, Value: string(p.curToken.Literal)}
+	ident := &ast.Identifier{Token: p.curToken, Value: string(p.curToken.Literal)}
 
-	// If this is function
-	// if p.peekTokenIs(token.LParen) {
-	// 	return p.parseFunction()
-	// }
+	// If declare function
+	if p.peekTokenIs(token.LParen) {
+		p.advanceToken()
+		return p.parseFunction(letToken, ident)
+	}
+
+	// Else declare variable
+	stmt := &ast.VarDeclareStatement{Token: letToken, Ident: ident}
 
 	hasAssign := false
 
@@ -88,6 +92,35 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 	}
 
 	return stmt
+}
+
+func (p *Parser) parseFunction(letToken token.Token, ident *ast.Identifier) *ast.FunctionDeclareStatement {
+	fn := &ast.FunctionDeclareStatement{Token: letToken, Ident: ident}
+
+	for p.peekTokenIs(token.Ident) {
+		p.advanceToken()
+		param := p.parseIdentifier().(*ast.Identifier)
+		fn.Params = append(fn.Params, param)
+
+		if p.peekTokenIs(token.RParen) {
+			p.advanceToken()
+			break
+		}
+		if !p.expectPeek(token.Comma) {
+			return nil
+		}
+	}
+	if !p.expectCur(token.RParen) {
+		return nil
+	}
+
+	if !p.expectCur(token.Assign) {
+		return nil
+	}
+
+	fn.Body = p.parseExpression(LOWEST)
+
+	return fn
 }
 
 func (p *Parser) parseImplyStatement() *ast.ImplyStatement {

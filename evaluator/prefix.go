@@ -6,6 +6,10 @@ import (
 )
 
 func (ev *Evaluator) evalPrefixExpression(operator token.Token, right object.Object) object.Object {
+	if right, isImply := right.(*object.Imply); isImply {
+		return right
+	}
+
 	switch operator.Type {
 	case token.Bang:
 		return ev.evalBangPrefix(right)
