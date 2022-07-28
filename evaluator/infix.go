@@ -107,6 +107,9 @@ func (ev *Evaluator) evalDivision(operator token.Token, left, right object.Objec
 		value := left.Divide(right)
 		if value == object.CANT_OPERATE {
 			return ev.runtimeError(errMsg)
+
+		} else if value == object.ZERO_DIVISION {
+			return ev.runtimeError("Không thể chia cho 0")
 		}
 		return value
 	}

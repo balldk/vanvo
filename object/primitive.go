@@ -16,11 +16,12 @@ const (
 )
 
 var (
-	NULL         = &Null{}
-	TRUE         = &Boolean{Value: true}
-	FALSE        = &Boolean{Value: false}
-	INCOMPARABLE = &Boolean{Value: false}
-	CANT_OPERATE = &CantOperate{}
+	NULL          = &Null{}
+	TRUE          = &Boolean{Value: true}
+	FALSE         = &Boolean{Value: false}
+	INCOMPARABLE  = &Boolean{Value: false}
+	ZERO_DIVISION = &Null{}
+	CANT_OPERATE  = &CantOperate{}
 )
 
 func NewInt(value int64) *Int {
@@ -78,8 +79,14 @@ func (i *Int) Multiply(right Object) Object {
 func (i *Int) Divide(right Object) Object {
 	switch right := right.(type) {
 	case *Int:
+		if right.Value == 0 {
+			return ZERO_DIVISION
+		}
 		return NewQuotient(i, right)
 	case *Real:
+		if right.Value == 0 {
+			return ZERO_DIVISION
+		}
 		return NewReal(float64(i.Value) / right.Value)
 	case *Quotient:
 		return i.ToQuotient().Divide(right)
@@ -177,10 +184,19 @@ func (r *Real) Multiply(right Object) Object {
 func (r *Real) Divide(right Object) Object {
 	switch right := right.(type) {
 	case *Int:
+		if right.Value == 0 {
+			return ZERO_DIVISION
+		}
 		return NewReal(r.Value / float64(right.Value))
 	case *Real:
+		if right.Value == 0 {
+			return ZERO_DIVISION
+		}
 		return NewReal(r.Value / right.Value)
 	case *Quotient:
+		if right.Numer.Value == 0 {
+			return ZERO_DIVISION
+		}
 		return NewReal(r.Value / right.ToReal().Value)
 	default:
 		return CANT_OPERATE
@@ -303,6 +319,9 @@ func (q *Quotient) Divide(right Object) Object {
 	case *Real:
 		return q.ToReal().Divide(right)
 	case *Quotient:
+		if right.Numer.Value == 0 {
+			return ZERO_DIVISION
+		}
 		return q.Multiply(right.Inverse())
 	default:
 		return CANT_OPERATE
