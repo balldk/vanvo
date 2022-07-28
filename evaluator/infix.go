@@ -52,7 +52,7 @@ func (ev *Evaluator) evalInfixExpression(
 		return ev.evalEquality(operator, left, right)
 
 	case token.Hat:
-		return NULL
+		return ev.evalExponent(operator, left, right)
 	}
 
 	return NULL
@@ -105,6 +105,20 @@ func (ev *Evaluator) evalDivision(operator token.Token, left, right object.Objec
 
 	if left, ok := left.(object.Division); ok {
 		value := left.Divide(right)
+		if value == object.CANT_OPERATE {
+			return ev.runtimeError(errMsg)
+		}
+		return value
+	}
+
+	return ev.runtimeError(errMsg)
+}
+
+func (ev *Evaluator) evalExponent(operator token.Token, left, right object.Object) object.Object {
+	errMsg := fmt.Sprintf("Không thể mũ `%v` với `%v`", left.Type(), right.Type())
+
+	if left, ok := left.(object.Exponential); ok {
+		value := left.Power(right)
 		if value == object.CANT_OPERATE {
 			return ev.runtimeError(errMsg)
 		}

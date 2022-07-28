@@ -20,6 +20,11 @@ type Division interface {
 	Divide(Object) Object
 }
 
+type Exponential interface {
+	Object
+	Power(Object) Object
+}
+
 type Equal interface {
 	Object
 	Equal(Object) *Boolean

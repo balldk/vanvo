@@ -1,6 +1,9 @@
 package object
 
-import "fmt"
+import (
+	"fmt"
+	"math"
+)
 
 const (
 	IntObj          = "Số Nguyên"
@@ -80,6 +83,18 @@ func (i *Int) Divide(right Object) Object {
 		return NewReal(float64(i.Value) / right.Value)
 	case *Quotient:
 		return i.ToQuotient().Divide(right)
+	default:
+		return CANT_OPERATE
+	}
+}
+func (i *Int) Power(right Object) Object {
+	switch right := right.(type) {
+	case *Int:
+		return &Int{Value: int64(math.Pow(float64(i.Value), float64(right.Value)))}
+	case *Real:
+		return &Real{Value: math.Pow(float64(i.Value), right.Value)}
+	case *Quotient:
+		return &Real{Value: math.Pow(float64(i.Value), right.ToReal().Value)}
 	default:
 		return CANT_OPERATE
 	}
@@ -171,6 +186,18 @@ func (r *Real) Divide(right Object) Object {
 		return CANT_OPERATE
 	}
 }
+func (r *Real) Power(right Object) Object {
+	switch right := right.(type) {
+	case *Int:
+		return &Real{Value: math.Pow(r.Value, float64(right.Value))}
+	case *Real:
+		return &Real{Value: math.Pow(r.Value, right.Value)}
+	case *Quotient:
+		return &Real{Value: math.Pow(r.Value, right.ToReal().Value)}
+	default:
+		return CANT_OPERATE
+	}
+}
 func (r *Real) Equal(right Object) *Boolean {
 	switch right := right.(type) {
 	case *Int:
@@ -223,7 +250,7 @@ func (q *Quotient) Display() string {
 	if q.Denom.Value == 1 {
 		return q.Numer.Display()
 	}
-	return fmt.Sprintf("(%d/%d)", q.Numer.Value, q.Denom.Value)
+	return fmt.Sprintf("%d/%d", q.Numer.Value, q.Denom.Value)
 }
 func (q *Quotient) ToReal() *Real {
 	return NewReal(float64(q.Numer.Value) / float64(q.Denom.Value))
@@ -277,6 +304,20 @@ func (q *Quotient) Divide(right Object) Object {
 		return q.ToReal().Divide(right)
 	case *Quotient:
 		return q.Multiply(right.Inverse())
+	default:
+		return CANT_OPERATE
+	}
+}
+func (q *Quotient) Power(right Object) Object {
+	switch right := right.(type) {
+	case *Int:
+		numer := q.Numer.Power(right).(*Int)
+		denom := q.Denom.Power(right).(*Int)
+		return NewQuotient(numer, denom)
+	case *Real:
+		return &Real{Value: math.Pow(q.ToReal().Value, right.Value)}
+	case *Quotient:
+		return &Real{Value: math.Pow(q.ToReal().Value, right.ToReal().Value)}
 	default:
 		return CANT_OPERATE
 	}
