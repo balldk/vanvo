@@ -135,7 +135,7 @@ func (p *Parser) parseImplyStatement() *ast.ImplyStatement {
 func (p *Parser) parseIfStatement() *ast.IfStatement {
 	stmt := &ast.IfStatement{}
 
-	// if branch
+	// 'if' branch
 	firstIf := &ast.IfBranch{Token: p.curToken}
 	p.advanceToken()
 
@@ -144,8 +144,8 @@ func (p *Parser) parseIfStatement() *ast.IfStatement {
 
 	stmt.Branches = append(stmt.Branches, firstIf)
 
-	// if else branch
-	if p.curTokenIs(token.ElseIf) {
+	// 'if else' branch
+	for p.curTokenIs(token.ElseIf) {
 		alt := &ast.IfBranch{Token: p.curToken}
 
 		p.advanceToken()
@@ -154,7 +154,7 @@ func (p *Parser) parseIfStatement() *ast.IfStatement {
 
 		stmt.Branches = append(stmt.Branches, alt)
 	}
-	// else branch
+	// 'else' branch
 	if p.curTokenIs(token.Else) {
 		alt := &ast.IfBranch{Token: p.curToken}
 		alt.Condition = &ast.Boolean{Value: true}
