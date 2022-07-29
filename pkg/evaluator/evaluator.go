@@ -85,12 +85,20 @@ func (ev *Evaluator) evalNode() object.Object {
 
 	case *ast.VarDeclareStatement:
 		val := ev.Eval(node.Value)
+		if _, ok := ev.Env.GetInScope(node.Ident.Value); ok {
+			errMsg := fmt.Sprintf("'%s' đã được khởi tạo", node.Ident.Value)
+			ev.runtimeError(errMsg)
+		}
 		ev.Env.SetInScope(node.Ident.Value, val)
 
 	case *ast.FunctionDeclareStatement:
 		params := node.Params
 		body := node.Body
 		fn := &object.Function{Params: params, Body: body}
+		if _, ok := ev.Env.GetInScope(node.Ident.Value); ok {
+			errMsg := fmt.Sprintf("'%s' đã được khởi tạo", node.Ident.Value)
+			ev.runtimeError(errMsg)
+		}
 		ev.Env.SetInScope(node.Ident.Value, fn)
 
 	case *ast.CallExpression:
@@ -164,15 +172,15 @@ func (ev *Evaluator) evalIfExpression(ie *ast.IfExpression) object.Object {
 }
 
 func (ev *Evaluator) evalIfStatement(ie *ast.IfStatement) object.Object {
-	condition := ev.Eval(ie.Condition)
+	for _, branch := range ie.Branches {
 
-	if ev.isTruthy(condition) {
-		return ev.Eval(ie.Consequence)
-	} else if ie.Alternative != nil {
-		return ev.Eval(ie.Alternative)
-	} else {
-		return NULL
+		condition := ev.Eval(branch.Condition)
+		if ev.isTruthy(condition) {
+			return ev.Eval(branch.Consequence)
+		}
 	}
+
+	return NULL
 }
 
 func (ev *Evaluator) evalCallExpression(call *ast.CallExpression) object.Object {

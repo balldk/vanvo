@@ -73,7 +73,7 @@ func (p *Parser) advanceToken() {
 		p.curToken = p.peekToken
 		p.peekToken = p.l.AdvanceToken()
 	}
-	fmt.Println(p.curToken)
+	// fmt.Println(p.curToken)
 }
 
 func (p *Parser) insertPeekToken(tok token.Token) {

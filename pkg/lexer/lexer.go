@@ -90,6 +90,13 @@ func (l *Lexer) AdvanceToken() token.Token {
 					nextToken = l.AdvanceToken()
 				}
 
+				// handle "còn nếu" token
+				if nextToken.Type == token.If && (string(tok.Literal) == "còn" || string(tok.Literal) == "con") {
+					appendToken(&tok, nextToken)
+					l.isPreviousIdent = false
+					return tok
+				}
+
 				l.isPreviousIdent = false
 				l.tempNextToken = nextToken
 			}

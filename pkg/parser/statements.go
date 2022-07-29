@@ -133,14 +133,34 @@ func (p *Parser) parseImplyStatement() *ast.ImplyStatement {
 }
 
 func (p *Parser) parseIfStatement() *ast.IfStatement {
-	stmt := &ast.IfStatement{Token: p.curToken}
+	stmt := &ast.IfStatement{}
+
+	// if branch
+	firstIf := &ast.IfBranch{Token: p.curToken}
 	p.advanceToken()
 
-	stmt.Condition = p.parseExpression(LOWEST)
-	stmt.Consequence = p.parseBlockStatement()
+	firstIf.Condition = p.parseExpression(LOWEST)
+	firstIf.Consequence = p.parseBlockStatement()
 
+	stmt.Branches = append(stmt.Branches, firstIf)
+
+	// if else branch
+	if p.curTokenIs(token.ElseIf) {
+		alt := &ast.IfBranch{Token: p.curToken}
+
+		p.advanceToken()
+		alt.Condition = p.parseExpression(LOWEST)
+		alt.Consequence = p.parseBlockStatement()
+
+		stmt.Branches = append(stmt.Branches, alt)
+	}
+	// else branch
 	if p.curTokenIs(token.Else) {
-		stmt.Alternative = p.parseBlockStatement()
+		alt := &ast.IfBranch{Token: p.curToken}
+		alt.Condition = &ast.Boolean{Value: true}
+		alt.Consequence = p.parseBlockStatement()
+
+		stmt.Branches = append(stmt.Branches, alt)
 	}
 
 	return stmt

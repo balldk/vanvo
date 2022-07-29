@@ -1,40 +1,37 @@
 package ast
 
 import (
-	"bytes"
 	"vila/pkg/token"
 )
 
-type IfStatement struct {
+type IfBranch struct {
 	Token       token.Token
 	Condition   Expression
 	Consequence *BlockStatement
-	Alternative *BlockStatement
+}
+
+func (ib *IfBranch) FromToken() token.Token {
+	return ib.Token
+}
+
+func (ib *IfBranch) ToToken() token.Token {
+	return ib.Consequence.ToToken()
+}
+
+func (ib *IfBranch) String() string { return "" }
+
+type IfStatement struct {
+	Branches []*IfBranch
 }
 
 func (is *IfStatement) FromToken() token.Token {
-	return is.Token
+	return is.Branches[0].FromToken()
 }
 
 func (is *IfStatement) ToToken() token.Token {
-	if is.Alternative != nil {
-		return is.Alternative.ToToken()
-	}
-	return is.Consequence.ToToken()
+	return is.Branches[len(is.Branches)-1].FromToken()
 }
 
 func (is *IfStatement) String() string {
-	var out bytes.Buffer
-
-	out.WriteString("nếu ")
-	out.WriteString(is.Condition.String())
-	out.WriteString(" ")
-	out.WriteString(is.Consequence.String())
-
-	if is.Alternative != nil {
-		out.WriteString("còn không ")
-		out.WriteString(is.Alternative.String())
-	}
-
-	return out.String()
+	return ""
 }
