@@ -30,13 +30,11 @@ func runFromFile() {
 	} else {
 		env := object.NewEnvironment()
 
-		value, errors := evaluator.EvalFromInput(input, path, env)
+		_, errors := evaluator.EvalFromInput(input, path, env)
 
 		if errors.NotEmpty() {
 			fmt.Print(errors)
 
-		} else if value == evaluator.NO_PRINT {
-			fmt.Println(value.Display())
 		}
 	}
 }

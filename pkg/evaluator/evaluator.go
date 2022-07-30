@@ -123,6 +123,9 @@ func (ev *Evaluator) evalNode() object.Object {
 		}
 		ev.Env.SetInScope(node.Ident.Value, fn)
 
+	case *ast.OutputStatement:
+		ev.evalOutputStatement(node)
+
 	case *ast.CallExpression:
 		return ev.evalCallExpression(node)
 
@@ -261,6 +264,14 @@ func (ev *Evaluator) evalExpressions(exps []ast.Expression) []object.Object {
 		results = append(results, result)
 	}
 	return results
+}
+
+func (ev *Evaluator) evalOutputStatement(stmt *ast.OutputStatement) {
+	for _, value := range stmt.Values {
+		evaluated := ev.Eval(value)
+		fmt.Print(evaluated.Display(), " ")
+	}
+	fmt.Println()
 }
 
 func (ev *Evaluator) isTruthy(obj object.Object) bool {

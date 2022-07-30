@@ -190,20 +190,28 @@ func (p *Parser) parseCallArguments() []ast.Expression {
 	}
 
 	p.advanceToken()
-	args = append(args, p.parseExpression(LOWEST))
-
-	for p.peekTokenIs(token.Comma) {
-		p.advanceToken()
-		p.advanceToken()
-		if p.curTokenIs(token.RParen) {
-			return args
-		}
-		args = append(args, p.parseExpression(LOWEST))
-	}
+	args = p.parseExpressionList()
 
 	if !p.expectPeek(token.RParen) {
 		return nil
 	}
 
 	return args
+}
+
+func (p *Parser) parseExpressionList() []ast.Expression {
+	exps := []ast.Expression{}
+
+	exps = append(exps, p.parseExpression(LOWEST))
+
+	for p.peekTokenIs(token.Comma) {
+		p.advanceToken()
+		p.advanceToken()
+		if p.curTokenIs(token.RParen) {
+			return exps
+		}
+		exps = append(exps, p.parseExpression(LOWEST))
+	}
+
+	return exps
 }

@@ -27,6 +27,8 @@ func (p *Parser) parseStatement() ast.Statement {
 		return stmt
 	case token.Imply:
 		stmt = p.parseImplyStatement()
+	case token.Output:
+		stmt = p.parseOutputStatement()
 	default:
 		stmt = p.parseExpressionStatement()
 	}
@@ -203,6 +205,14 @@ func (p *Parser) parseAssignStatement() *ast.AssignStatement {
 	p.advanceToken()
 
 	stmt.Value = p.parseExpression(LOWEST)
+
+	return stmt
+}
+
+func (p *Parser) parseOutputStatement() *ast.OutputStatement {
+	stmt := &ast.OutputStatement{Token: p.curToken}
+	p.advanceToken()
+	stmt.Values = p.parseExpressionList()
 
 	return stmt
 }
