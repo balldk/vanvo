@@ -3,11 +3,8 @@ package repl
 import (
 	"bytes"
 	"fmt"
-	"vila/pkg/errorhandler"
 	"vila/pkg/evaluator"
-	"vila/pkg/lexer"
 	"vila/pkg/object"
-	"vila/pkg/parser"
 
 	"github.com/chzyer/readline"
 	"github.com/fatih/color"
@@ -34,20 +31,12 @@ func Start() {
 			break
 		}
 
-		errors := errorhandler.NewErrorList(line, "")
-
-		l := lexer.New(line, errors)
-		p := parser.New(l, errors)
-		ev := evaluator.New(env, errors)
-
-		program := p.ParseProgram()
-
-		value := ev.Eval(program)
+		value, errors := evaluator.EvalFromInput(line, "", env)
 
 		if errors.NotEmpty() {
 			fmt.Print(errors)
 
-		} else {
+		} else if value != evaluator.NO_PRINT {
 			fmt.Println(value.Display())
 		}
 	}

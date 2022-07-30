@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"vila/pkg/ast"
 	"vila/pkg/errorhandler"
+	"vila/pkg/lexer"
 	"vila/pkg/object"
+	"vila/pkg/parser"
 )
 
 var (
@@ -12,7 +14,27 @@ var (
 	TRUE         = object.TRUE
 	FALSE        = object.FALSE
 	INCOMPARABLE = object.INCOMPARABLE
+	NO_PRINT     = &object.Null{}
 )
+
+func EvalFromInput(
+	input string,
+	path string,
+	env *object.Environment,
+) (object.Object, *errorhandler.ErrorList) {
+
+	errors := errorhandler.NewErrorList(input, path)
+
+	l := lexer.New(input, errors)
+	p := parser.New(l, errors)
+	ev := New(env, errors)
+
+	program := p.ParseProgram()
+
+	value := ev.Eval(program)
+
+	return value, errors
+}
 
 func New(env *object.Environment, errors *errorhandler.ErrorList) *Evaluator {
 	ev := &Evaluator{Errors: errors, Env: env}
@@ -118,11 +140,12 @@ func (ev *Evaluator) evalNode() object.Object {
 
 	}
 
-	return NULL
+	return NO_PRINT
 }
 
 func (ev *Evaluator) evalProgram(program *ast.Program) object.Object {
 	var result object.Object
+	result = NO_PRINT
 
 	for _, statement := range program.Statements {
 		result = ev.Eval(statement)

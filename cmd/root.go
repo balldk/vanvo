@@ -6,16 +6,13 @@ import (
 	"os"
 	"path/filepath"
 	"vila/cmd/repl"
-	"vila/pkg/errorhandler"
 	"vila/pkg/evaluator"
-	"vila/pkg/lexer"
 	"vila/pkg/object"
-	"vila/pkg/parser"
 )
 
 func errRecover() {
 	if r := recover(); r != nil {
-		fmt.Print("")
+		fmt.Print("Lỗi hệ thống")
 	}
 }
 
@@ -31,28 +28,21 @@ func runFromFile() {
 	if err != nil {
 		fmt.Printf("Không thể mở file: '%s'\n", path)
 	} else {
-		errors := errorhandler.NewErrorList(input, path)
 		env := object.NewEnvironment()
 
-		l := lexer.New(input, errors)
-		p := parser.New(l, errors)
-		ev := evaluator.New(env, errors)
-
-		program := p.ParseProgram()
-
-		value := ev.Eval(program)
+		value, errors := evaluator.EvalFromInput(input, path, env)
 
 		if errors.NotEmpty() {
 			fmt.Print(errors)
 
-		} else {
+		} else if value == evaluator.NO_PRINT {
 			fmt.Println(value.Display())
 		}
 	}
 }
 
 func Execute() {
-	// defer errRecover()
+	defer errRecover()
 	initConfig()
 
 	if len(os.Args) > 1 {
