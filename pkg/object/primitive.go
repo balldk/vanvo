@@ -72,6 +72,8 @@ func (i *Int) Multiply(right Object) Object {
 		return NewReal(float64(i.Value) * right.Value)
 	case *Quotient:
 		return right.Multiply(i)
+	case *String:
+		return right.Multiply(i)
 	default:
 		return CANT_OPERATE
 	}

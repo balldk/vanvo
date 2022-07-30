@@ -67,6 +67,10 @@ func (p *Parser) parseInt() ast.Expression {
 	return i
 }
 
+func (p *Parser) parseString() ast.Expression {
+	return &ast.String{Token: p.curToken, Value: string(p.curToken.Literal)}
+}
+
 func (p *Parser) parseReal() ast.Expression {
 	re := &ast.Real{Token: p.curToken}
 

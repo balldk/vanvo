@@ -141,6 +141,9 @@ func (ev *Evaluator) evalNode() object.Object {
 	case *ast.Boolean:
 		return boolRef(node.Value)
 
+	case *ast.String:
+		return &object.String{Value: node.Value}
+
 	}
 
 	return NO_PRINT

@@ -21,6 +21,7 @@ func New(l *lexer.Lexer, errors *errorhandler.ErrorList) *Parser {
 	p.registerPrefix(token.Ident, p.parseIdentifier)
 	p.registerPrefix(token.Int, p.parseInt)
 	p.registerPrefix(token.Real, p.parseReal)
+	p.registerPrefix(token.String, p.parseString)
 	p.registerPrefix(token.True, p.parseBoolean)
 	p.registerPrefix(token.False, p.parseBoolean)
 	p.registerPrefix(token.Bang, p.parsePrefixExpression)
