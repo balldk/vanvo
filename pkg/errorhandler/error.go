@@ -2,10 +2,11 @@ package errorhandler
 
 import (
 	"bytes"
-	"github.com/fatih/color"
 	"strings"
 	"vila/pkg/ast"
 	"vila/pkg/token"
+
+	"github.com/fatih/color"
 )
 
 type ErrorType string
@@ -68,6 +69,11 @@ func (eh *ErrorList) AddLexerError(message string, tok token.Token) {
 func (eh *ErrorList) AddParserError(message string, tok token.Token) {
 	err := NewTokenError(SYNTAX_ERROR, message, tok)
 	eh.ParserErrors = append(eh.ParserErrors, err)
+}
+
+func (eh *ErrorList) AddParserErrorImportant(message string, tok token.Token) {
+	err := NewTokenError(SYNTAX_ERROR, message, tok)
+	eh.ParserErrors = append([]TokenError{err}, eh.ParserErrors...)
 }
 
 func (eh *ErrorList) AddRuntimeError(message string, node ast.Node) {
