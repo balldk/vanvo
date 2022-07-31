@@ -17,7 +17,7 @@ type Environment struct {
 }
 
 func (e *Environment) Get(name string) (Object, bool) {
-	obj, ok := e.store[name]
+	obj, ok := e.GetInScope(name)
 	if !ok && e.outer != nil {
 		obj, ok = e.outer.Get(name)
 	}
@@ -25,6 +25,10 @@ func (e *Environment) Get(name string) (Object, bool) {
 }
 
 func (e *Environment) GetInScope(name string) (Object, bool) {
+	if obj, ok := Builtins[name]; ok {
+		return obj, ok
+	}
+
 	obj, ok := e.store[name]
 	return obj, ok
 }

@@ -221,6 +221,11 @@ func (ev *Evaluator) evalCallExpression(call *ast.CallExpression) object.Object 
 			return ev.runtimeError(errMsg)
 		}
 
+		if fn, isBuiltin := fn.(*object.BuiltinFunc); isBuiltin {
+			args := ev.evalExpressions(call.Arguments)
+			return fn.Fn(args...)
+		}
+
 		if fn, isFunc := fn.(*object.Function); isFunc {
 			env := object.NewEnclosedEnvironment(ev.Env)
 			args := ev.evalExpressions(call.Arguments)

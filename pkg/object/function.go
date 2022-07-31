@@ -34,3 +34,12 @@ func (fn *Function) Display() string {
 
 	return out.String()
 }
+
+type BuiltinFunc struct {
+	Fn func(args ...Object) Object
+}
+
+func (fn *BuiltinFunc) Type() ObjectType { return FUNC_OBJ }
+func (fn *BuiltinFunc) Display() string {
+	return "<Hàm có sẵn>"
+}
