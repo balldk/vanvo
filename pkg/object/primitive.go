@@ -96,6 +96,17 @@ func (i *Int) Divide(right Object) Object {
 		return CANT_OPERATE
 	}
 }
+func (i *Int) Mod(right Object) Object {
+	switch right := right.(type) {
+	case *Int:
+		if right.Value == 0 {
+			return ZERO_DIVISION
+		}
+		return &Int{Value: i.Value % right.Value}
+	default:
+		return CANT_OPERATE
+	}
+}
 func (i *Int) Power(right Object) Object {
 	switch right := right.(type) {
 	case *Int:

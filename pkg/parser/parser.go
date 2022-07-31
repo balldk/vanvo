@@ -34,6 +34,7 @@ func New(l *lexer.Lexer, errors *errorhandler.ErrorList) *Parser {
 	p.registerInfix(token.Plus, p.parseInfixExpression)
 	p.registerInfix(token.Minus, p.parseInfixExpression)
 	p.registerInfix(token.Slash, p.parseInfixExpression)
+	p.registerInfix(token.Percent, p.parseInfixExpression)
 	p.registerInfix(token.Asterisk, p.parseInfixExpression)
 	p.registerInfix(token.Dot, p.parseInfixExpression)
 	p.registerInfix(token.Hat, p.parseInfixExpression)

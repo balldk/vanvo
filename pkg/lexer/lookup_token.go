@@ -12,6 +12,7 @@ var TOKEN_TABLE = map[string]token.TokenType{
 	"-":  token.Minus,
 	"*":  token.Asterisk,
 	"/":  token.Slash,
+	"%":  token.Percent,
 	"^":  token.Hat,
 	">":  token.Greater,
 	"<":  token.Less,

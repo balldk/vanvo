@@ -30,6 +30,9 @@ func (ev *Evaluator) evalInfixExpression(
 	case token.Slash:
 		return ev.evalDivision(left, right)
 
+	case token.Percent:
+		return ev.evalModulo(left, right)
+
 	case token.Equal:
 		return ev.evalEquality(left, right)
 
@@ -105,6 +108,23 @@ func (ev *Evaluator) evalDivision(left, right object.Object) object.Object {
 
 	if left, ok := left.(object.Division); ok {
 		value := left.Divide(right)
+		if value == object.CANT_OPERATE {
+			return ev.runtimeError(errMsg)
+
+		} else if value == object.ZERO_DIVISION {
+			return ev.runtimeError("Không thể chia cho 0")
+		}
+		return value
+	}
+
+	return ev.runtimeError(errMsg)
+}
+
+func (ev *Evaluator) evalModulo(left, right object.Object) object.Object {
+	errMsg := fmt.Sprintf("Không thể chia lấy dư `%v` với `%v`", left.Type(), right.Type())
+
+	if left, ok := left.(object.Modulo); ok {
+		value := left.Mod(right)
 		if value == object.CANT_OPERATE {
 			return ev.runtimeError(errMsg)
 

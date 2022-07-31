@@ -20,6 +20,11 @@ type Division interface {
 	Divide(Object) Object
 }
 
+type Modulo interface {
+	Object
+	Mod(Object) Object
+}
+
 type Exponential interface {
 	Object
 	Power(Object) Object
