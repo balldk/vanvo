@@ -33,6 +33,9 @@ func (ev *Evaluator) evalInfixExpression(
 	case token.Percent:
 		return ev.evalModulo(left, right)
 
+	case token.Dot:
+		return ev.evalDotProduct(left, right)
+
 	case token.Equal:
 		return ev.evalEquality(left, right)
 
@@ -130,6 +133,20 @@ func (ev *Evaluator) evalModulo(left, right object.Object) object.Object {
 
 		} else if value == object.ZERO_DIVISION {
 			return ev.runtimeError("Không thể chia cho 0")
+		}
+		return value
+	}
+
+	return ev.runtimeError(errMsg)
+}
+
+func (ev *Evaluator) evalDotProduct(left, right object.Object) object.Object {
+	errMsg := fmt.Sprintf("Không thể . `%v` với `%v`", left.Type(), right.Type())
+
+	if left, ok := left.(object.DotProduct); ok {
+		value := left.Dot(right)
+		if value == object.CANT_OPERATE {
+			return ev.runtimeError(errMsg)
 		}
 		return value
 	}

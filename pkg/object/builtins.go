@@ -6,8 +6,8 @@ import (
 
 var Builtins = map[string]Object{
 	"Pi": &Real{Value: math.Pi},
-	"Sum": &BuiltinFunc{
-		Fn: func(args ...Object) Object {
+	"Tổng": &Function{
+		Builtin: func(args ...Object) Object {
 			var s Additive
 			s = &Int{Value: 0}
 

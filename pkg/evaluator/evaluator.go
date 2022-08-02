@@ -116,7 +116,7 @@ func (ev *Evaluator) evalNode() object.Object {
 	case *ast.FunctionDeclareStatement:
 		params := node.Params
 		body := node.Body
-		fn := &object.Function{Params: params, Body: body}
+		fn := &object.Function{Ident: node.Ident, Params: params, Body: body}
 		if _, ok := ev.Env.GetInScope(node.Ident.Value); ok {
 			errMsg := fmt.Sprintf("'%s' đã được khởi tạo", node.Ident.Value)
 			ev.runtimeError(errMsg)
@@ -181,7 +181,7 @@ func (ev *Evaluator) evalBlockStatement(stmts []ast.Statement) object.Object {
 func (ev *Evaluator) evalIdentifier(node *ast.Identifier) object.Object {
 	val, ok := ev.Env.Get(node.Value)
 	if !ok {
-		errMsg := fmt.Sprintf("'%s' chưa được định nghĩa", node.Value)
+		errMsg := fmt.Sprintf("'%s' chưa được khởi tạo", node.Value)
 		return ev.runtimeError(errMsg)
 	}
 
@@ -213,55 +213,53 @@ func (ev *Evaluator) evalIfStatement(ie *ast.IfStatement) object.Object {
 }
 
 func (ev *Evaluator) evalCallExpression(call *ast.CallExpression) object.Object {
-	switch fnName := call.Function.(type) {
-	case *ast.Identifier:
-		fn, isDeclared := ev.Env.Get(fnName.Value)
-		if !isDeclared {
-			errMsg := fmt.Sprintf("'%s' chưa được khởi tạo", fnName.Value)
-			return ev.runtimeError(errMsg)
+	fn := ev.Eval(call.Function)
+	args := ev.evalExpressions(call.Arguments)
+
+	switch fn := fn.(type) {
+	case *object.Function:
+		res := ev.applyFunction(fn, args)
+		args = []object.Object{res}
+
+		for fn.LeftCompose != nil {
+			fn = fn.LeftCompose
+			res = ev.applyFunction(fn, args)
+			args = []object.Object{res}
 		}
 
-		if fn, isBuiltin := fn.(*object.BuiltinFunc); isBuiltin {
-			args := ev.evalExpressions(call.Arguments)
-			return fn.Fn(args...)
-		}
-
-		if fn, isFunc := fn.(*object.Function); isFunc {
-			env := object.NewEnclosedEnvironment(ev.Env)
-			args := ev.evalExpressions(call.Arguments)
-
-			if len(args) < len(fn.Params) {
-				errMsg := fmt.Sprintf(
-					"'%s' Cần %d tham số, chỉ nhận được %d",
-					fnName.Value, len(fn.Params), len(args))
-
-				return ev.runtimeError(errMsg)
-			}
-
-			for index, param := range fn.Params {
-				env.SetInScope(param.Value, args[index])
-			}
-
-			val := ev.Eval(fn.Body, env)
-			return ev.unwrapImply(val)
-
-		} else {
-			// errMsg := fmt.Sprintf("'%s' không phải là hàm", fnName.Value)
-			// return ev.runtimeError(errMsg)
-			left := ev.Eval(call.Function)
-			right := ev.Eval(call.Arguments[0])
-			return ev.evalMultiplication(left, right)
-		}
+		return res
 
 	default:
 		if len(call.Arguments) == 1 {
-			left := ev.Eval(call.Function)
 			right := ev.Eval(call.Arguments[0])
-			return ev.evalMultiplication(left, right)
+			return ev.evalMultiplication(fn, right)
 		}
 
 		return ev.runtimeError("Biểu thức không hợp lệ")
 	}
+}
+
+func (ev *Evaluator) applyFunction(fn *object.Function, args []object.Object) object.Object {
+	env := object.NewEnclosedEnvironment(ev.Env)
+
+	if fn.Builtin != nil {
+		return fn.Builtin(args...)
+	}
+
+	if len(args) != len(fn.Params) {
+		errMsg := fmt.Sprintf(
+			"'%s' cần %d tham số thay vì %d",
+			fn.Ident.Value, len(fn.Params), len(args))
+
+		return ev.runtimeError(errMsg)
+	}
+
+	for index, param := range fn.Params {
+		env.SetInScope(param.Value, args[index])
+	}
+
+	val := ev.Eval(fn.Body, env)
+	return ev.unwrapImply(val)
 }
 
 func (ev *Evaluator) evalExpressions(exps []ast.Expression) []object.Object {

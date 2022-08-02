@@ -25,6 +25,11 @@ type Modulo interface {
 	Mod(Object) Object
 }
 
+type DotProduct interface {
+	Object
+	Dot(Object) Object
+}
+
 type Exponential interface {
 	Object
 	Power(Object) Object

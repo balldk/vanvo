@@ -2,7 +2,6 @@ package object
 
 import (
 	"bytes"
-	"strings"
 	"vila/pkg/ast"
 )
 
@@ -11,35 +10,54 @@ const (
 )
 
 type Function struct {
-	Ident  ast.Identifier
+	Ident  *ast.Identifier
 	Params []*ast.Identifier
 	Body   ast.Expression
 	Env    *Environment
+
+	Builtin     func(args ...Object) Object
+	LeftCompose *Function
 }
 
 func (fn *Function) Type() ObjectType { return FUNC_OBJ }
 func (fn *Function) Display() string {
 	var out bytes.Buffer
 
-	params := []string{}
-	for _, p := range fn.Params {
-		params = append(params, p.String())
+	if fn.LeftCompose != nil {
+		out.WriteString("(")
 	}
 
 	out.WriteString(fn.Ident.Value)
+
+	tempFn := fn
+	for tempFn.LeftCompose != nil {
+		tempFn = tempFn.LeftCompose
+		out.WriteString("." + tempFn.Ident.Value)
+	}
+
+	if fn.LeftCompose != nil {
+		out.WriteString(")")
+	}
+
 	out.WriteString("(")
-	out.WriteString(strings.Join(params, ","))
-	out.WriteString(") = ")
-	out.WriteString(fn.Body.String())
+	for i, param := range fn.Params {
+		out.WriteString(param.Value)
+		if i != len(fn.Params)-1 {
+			out.WriteString(",")
+		}
+	}
+	out.WriteString(")")
 
 	return out.String()
 }
 
-type BuiltinFunc struct {
-	Fn func(args ...Object) Object
-}
-
-func (fn *BuiltinFunc) Type() ObjectType { return FUNC_OBJ }
-func (fn *BuiltinFunc) Display() string {
-	return "<Hàm có sẵn>"
+func (fn *Function) Dot(right Object) Object {
+	switch right := right.(type) {
+	case *Function:
+		newFn := *right
+		newFn.LeftCompose = fn
+		return &newFn
+	default:
+		return CANT_OPERATE
+	}
 }
