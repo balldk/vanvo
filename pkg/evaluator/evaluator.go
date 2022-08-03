@@ -2,6 +2,7 @@ package evaluator
 
 import (
 	"fmt"
+	"math/big"
 	"vila/pkg/ast"
 	"vila/pkg/errorhandler"
 	"vila/pkg/lexer"
@@ -133,10 +134,10 @@ func (ev *Evaluator) evalNode() object.Object {
 		return ev.evalIdentifier(node)
 
 	case *ast.Int:
-		return &object.Int{Value: node.Value}
+		return &object.Int{Value: big.NewInt(node.Value)}
 
 	case *ast.Real:
-		return &object.Real{Value: node.Value}
+		return &object.Real{Value: big.NewFloat(node.Value)}
 
 	case *ast.Boolean:
 		return boolRef(node.Value)
@@ -287,17 +288,17 @@ func (ev *Evaluator) isTruthy(obj object.Object) bool {
 	case *object.Boolean:
 		return obj.Value
 	case *object.Int:
-		if obj.Value == 0 {
+		if obj.Value.Cmp(object.IntZero) == 0 {
 			return false
 		}
 		return true
 	case *object.Real:
-		if obj.Value == 0 {
+		if obj.Value.Cmp(big.NewFloat(0)) == 0 {
 			return false
 		}
 		return true
 	case *object.Quotient:
-		if obj.Numer.Value == 0 {
+		if obj.Value.Num().Cmp(object.IntZero) == 0 {
 			return false
 		}
 		return true

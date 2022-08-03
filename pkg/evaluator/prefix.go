@@ -1,6 +1,7 @@
 package evaluator
 
 import (
+	"math/big"
 	"vila/pkg/object"
 	"vila/pkg/token"
 )
@@ -38,11 +39,9 @@ func (ev *Evaluator) evalBangPrefix(right object.Object) object.Object {
 func (ev *Evaluator) evalMinusPrefix(right object.Object) object.Object {
 	switch right := right.(type) {
 	case *object.Int:
-		right.Value = -right.Value
-		return right
+		return object.NewInt(new(big.Int).Neg(right.Value))
 	case *object.Real:
-		right.Value = -right.Value
-		return right
+		return object.NewReal(new(big.Float).Neg(right.Value))
 	default:
 		return NULL
 	}

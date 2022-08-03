@@ -26,7 +26,7 @@ func (s *String) Add(right Object) Object {
 func (s *String) Multiply(right Object) Object {
 	switch right := right.(type) {
 	case *Int:
-		return &String{Value: strings.Repeat(s.Value, int(right.Value))}
+		return &String{Value: strings.Repeat(s.Value, int(right.Value.Int64()))}
 	default:
 		return CANT_OPERATE
 	}

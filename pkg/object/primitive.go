@@ -2,7 +2,9 @@ package object
 
 import (
 	"fmt"
-	"math"
+	"math/big"
+
+	"github.com/ALTree/bigfloat"
 )
 
 const (
@@ -22,30 +24,34 @@ var (
 	INCOMPARABLE  = &Boolean{Value: false}
 	ZERO_DIVISION = &Null{}
 	CANT_OPERATE  = &CantOperate{}
+
+	IntZero = big.NewInt(0)
+	IntOne  = big.NewInt(1)
 )
 
-func NewInt(value int64) *Int {
+func NewInt(value *big.Int) *Int {
 	return &Int{Value: value}
 }
 
 type Int struct {
-	Value int64
+	Value *big.Int
 }
 
 func (i *Int) Type() ObjectType { return IntObj }
 func (i *Int) Display() string  { return fmt.Sprint(i.Value) }
 func (i *Int) ToReal() *Real {
-	return &Real{Value: float64(i.Value)}
+	return &Real{Value: new(big.Float).SetInt(i.Value)}
 }
 func (i *Int) ToQuotient() *Quotient {
-	return NewQuotient(i, NewInt(1))
+	return NewQuotient(i.Value, IntOne)
 }
 func (i *Int) Add(right Object) Object {
 	switch right := right.(type) {
 	case *Int:
-		return NewInt(i.Value + right.Value)
+		return NewInt(new(big.Int).Add(i.Value, right.Value))
 	case *Real:
-		return NewReal(float64(i.Value) + right.Value)
+		intVal := new(big.Float).SetInt(i.Value)
+		return NewReal(new(big.Float).Add(intVal, right.Value))
 	case *Quotient:
 		return right.Add(i)
 	default:
@@ -55,9 +61,10 @@ func (i *Int) Add(right Object) Object {
 func (i *Int) Subtract(right Object) Object {
 	switch right := right.(type) {
 	case *Int:
-		return NewInt(i.Value - right.Value)
+		return NewInt(new(big.Int).Sub(i.Value, right.Value))
 	case *Real:
-		return NewReal(float64(i.Value) - right.Value)
+		intVal := new(big.Float).SetInt(i.Value)
+		return NewReal(new(big.Float).Sub(intVal, right.Value))
 	case *Quotient:
 		return i.ToQuotient().Subtract(right)
 	default:
@@ -67,9 +74,10 @@ func (i *Int) Subtract(right Object) Object {
 func (i *Int) Multiply(right Object) Object {
 	switch right := right.(type) {
 	case *Int:
-		return NewInt(i.Value * right.Value)
+		return NewInt(new(big.Int).Mul(i.Value, right.Value))
 	case *Real:
-		return NewReal(float64(i.Value) * right.Value)
+		intVal := new(big.Float).SetInt(i.Value)
+		return NewReal(new(big.Float).Mul(intVal, right.Value))
 	case *Quotient:
 		return right.Multiply(i)
 	case *String:
@@ -81,15 +89,17 @@ func (i *Int) Multiply(right Object) Object {
 func (i *Int) Divide(right Object) Object {
 	switch right := right.(type) {
 	case *Int:
-		if right.Value == 0 {
+		if right.Value.Int64() == 0 {
 			return ZERO_DIVISION
 		}
-		return NewQuotient(i, right)
+		return NewQuotient(i.Value, right.Value)
 	case *Real:
-		if right.Value == 0 {
+		rightVal, _ := right.Value.Float64()
+		if rightVal == 0 {
 			return ZERO_DIVISION
 		}
-		return NewReal(float64(i.Value) / right.Value)
+		intVal := new(big.Float).SetInt(i.Value)
+		return NewReal(new(big.Float).Quo(intVal, right.Value))
 	case *Quotient:
 		return i.ToQuotient().Divide(right)
 	default:
@@ -99,10 +109,10 @@ func (i *Int) Divide(right Object) Object {
 func (i *Int) Mod(right Object) Object {
 	switch right := right.(type) {
 	case *Int:
-		if right.Value == 0 {
+		if right.Value.Int64() == 0 {
 			return ZERO_DIVISION
 		}
-		return &Int{Value: i.Value % right.Value}
+		return NewInt(new(big.Int).Mod(i.Value, right.Value))
 	default:
 		return CANT_OPERATE
 	}
@@ -110,11 +120,12 @@ func (i *Int) Mod(right Object) Object {
 func (i *Int) Power(right Object) Object {
 	switch right := right.(type) {
 	case *Int:
-		return &Int{Value: int64(math.Pow(float64(i.Value), float64(right.Value)))}
+		return NewInt(new(big.Int).Exp(i.Value, right.Value, nil))
 	case *Real:
-		return &Real{Value: math.Pow(float64(i.Value), right.Value)}
+		intVal := new(big.Float).SetInt(i.Value)
+		return NewReal(bigfloat.Pow(intVal, right.Value))
 	case *Quotient:
-		return &Real{Value: math.Pow(float64(i.Value), right.ToReal().Value)}
+		return NewReal(i.ToReal().Power(right.ToReal()).(*Real).Value)
 	default:
 		return CANT_OPERATE
 	}
@@ -122,11 +133,11 @@ func (i *Int) Power(right Object) Object {
 func (i *Int) Equal(right Object) *Boolean {
 	switch right := right.(type) {
 	case *Int:
-		return Condition(i.Value == right.Value)
+		return Condition(i.Value.Cmp(right.Value) == 0)
 	case *Real:
-		return Condition(i.ToReal().Value == right.Value)
+		return Condition(i.ToReal().Value.Cmp(right.Value) == 0)
 	case *Quotient:
-		return right.Equal(i)
+		return Condition(i.ToReal().Value.Cmp(right.ToReal().Value) == 0)
 	default:
 		return INCOMPARABLE
 	}
@@ -134,11 +145,11 @@ func (i *Int) Equal(right Object) *Boolean {
 func (i *Int) Less(right Object) *Boolean {
 	switch right := right.(type) {
 	case *Int:
-		return Condition(i.Value < right.Value)
+		return Condition(i.Value.Cmp(right.Value) == -1)
 	case *Real:
-		return Condition(i.ToReal().Value < right.Value)
+		return Condition(i.ToReal().Value.Cmp(right.Value) == -1)
 	case *Quotient:
-		return Condition(i.ToReal().Value < right.ToReal().Value)
+		return Condition(i.ToReal().Value.Cmp(right.ToReal().Value) == -1)
 	default:
 		return INCOMPARABLE
 	}
@@ -148,12 +159,12 @@ type Realness interface {
 	ToReal() *Real
 }
 
-func NewReal(value float64) *Real {
+func NewReal(value *big.Float) *Real {
 	return &Real{Value: value}
 }
 
 type Real struct {
-	Value float64
+	Value *big.Float
 }
 
 func (r *Real) Type() ObjectType { return RealObj }
@@ -163,7 +174,7 @@ func (r *Real) Add(right Object) Object {
 	case *Int:
 		return right.Add(r)
 	case *Real:
-		return NewReal(r.Value + right.Value)
+		return NewReal(new(big.Float).Add(r.Value, right.Value))
 	case *Quotient:
 		return right.Add(r)
 	default:
@@ -173,11 +184,12 @@ func (r *Real) Add(right Object) Object {
 func (r *Real) Subtract(right Object) Object {
 	switch right := right.(type) {
 	case *Int:
-		return NewReal(r.Value - float64(right.Value))
+		intVal := new(big.Float).SetInt(right.Value)
+		return NewReal(new(big.Float).Sub(r.Value, intVal))
 	case *Real:
-		return NewReal(r.Value - right.Value)
+		return NewReal(new(big.Float).Sub(r.Value, right.Value))
 	case *Quotient:
-		return NewReal(r.Value - right.ToReal().Value)
+		return NewReal(new(big.Float).Sub(r.Value, right.ToReal().Value))
 	default:
 		return CANT_OPERATE
 	}
@@ -187,7 +199,7 @@ func (r *Real) Multiply(right Object) Object {
 	case *Int:
 		return right.Multiply(r)
 	case *Real:
-		return NewReal(r.Value * right.Value)
+		return NewReal(new(big.Float).Mul(r.Value, right.Value))
 	case *Quotient:
 		return right.Multiply(r)
 	default:
@@ -197,20 +209,21 @@ func (r *Real) Multiply(right Object) Object {
 func (r *Real) Divide(right Object) Object {
 	switch right := right.(type) {
 	case *Int:
-		if right.Value == 0 {
+		if right.Value.Cmp(IntZero) == 0 {
 			return ZERO_DIVISION
 		}
-		return NewReal(r.Value / float64(right.Value))
+		return NewReal(new(big.Float).Quo(r.Value, right.ToReal().Value))
 	case *Real:
-		if right.Value == 0 {
+		rightVal, _ := right.Value.Float64()
+		if rightVal == 0 {
 			return ZERO_DIVISION
 		}
-		return NewReal(r.Value / right.Value)
+		return NewReal(new(big.Float).Quo(r.Value, right.Value))
 	case *Quotient:
-		if right.Numer.Value == 0 {
+		if right.Value.Num().Cmp(IntZero) == 0 {
 			return ZERO_DIVISION
 		}
-		return NewReal(r.Value / right.ToReal().Value)
+		return NewReal(new(big.Float).Quo(r.Value, right.ToReal().Value))
 	default:
 		return CANT_OPERATE
 	}
@@ -218,11 +231,12 @@ func (r *Real) Divide(right Object) Object {
 func (r *Real) Power(right Object) Object {
 	switch right := right.(type) {
 	case *Int:
-		return &Real{Value: math.Pow(r.Value, float64(right.Value))}
+		intVal := new(big.Float).SetInt(right.Value)
+		return NewReal(bigfloat.Pow(r.Value, intVal))
 	case *Real:
-		return &Real{Value: math.Pow(r.Value, right.Value)}
+		return NewReal(bigfloat.Pow(r.Value, right.Value))
 	case *Quotient:
-		return &Real{Value: math.Pow(r.Value, right.ToReal().Value)}
+		return NewReal(bigfloat.Pow(r.Value, right.ToReal().Value))
 	default:
 		return CANT_OPERATE
 	}
@@ -232,7 +246,7 @@ func (r *Real) Equal(right Object) *Boolean {
 	case *Int:
 		return right.Equal(r)
 	case *Real:
-		return Condition(r.Value == right.Value)
+		return Condition(r.Value.Cmp(right.Value) == 0)
 	case *Quotient:
 		return right.Equal(r)
 	default:
@@ -242,50 +256,41 @@ func (r *Real) Equal(right Object) *Boolean {
 func (r *Real) Less(right Object) *Boolean {
 	switch right := right.(type) {
 	case *Int:
-		return Condition(r.Value < right.ToReal().Value)
+		return Condition(r.Value.Cmp(right.ToReal().Value) == -1)
 	case *Real:
-		return Condition(r.Value < right.Value)
+		return Condition(r.Value.Cmp(right.Value) == -1)
 	case *Quotient:
-		return Condition(r.Value < right.ToReal().Value)
+		return Condition(r.Value.Cmp(right.ToReal().Value) == -1)
 	default:
 		return INCOMPARABLE
 	}
 }
 
-func NewQuotient(numer, denom *Int) *Quotient {
-	if denom.Value == 0 {
+func NewQuotient(numer, denom *big.Int) *Quotient {
+	if denom.Cmp(IntZero) == 0 {
 		return nil
 	}
-	q := &Quotient{Numer: numer, Denom: denom}
-
-	d := gcd(numer.Value, denom.Value)
-	q.Numer.Value = numer.Value / d
-	q.Denom.Value = denom.Value / d
-	if q.Denom.Value < 0 {
-		q.Numer.Value *= -1
-		q.Denom.Value *= -1
-	}
-
+	q := &Quotient{Value: new(big.Rat).SetFrac(numer, denom)}
 	return q
 }
 
 type Quotient struct {
-	Numer *Int
-	Denom *Int
+	Value *big.Rat
 }
 
 func (q *Quotient) Type() ObjectType { return QuotientObj }
 func (q *Quotient) Display() string {
-	if q.Denom.Value == 1 {
-		return q.Numer.Display()
+	if q.Value.Denom().Cmp(IntOne) == 0 {
+		return q.Value.Num().String()
 	}
-	return fmt.Sprintf("%d/%d", q.Numer.Value, q.Denom.Value)
+	return q.Value.String()
 }
 func (q *Quotient) ToReal() *Real {
-	return NewReal(float64(q.Numer.Value) / float64(q.Denom.Value))
+	val, _ := q.Value.Float64()
+	return NewReal(big.NewFloat(val))
 }
 func (q *Quotient) Inverse() *Quotient {
-	return NewQuotient(q.Denom, q.Numer)
+	return &Quotient{Value: new(big.Rat).Inv(q.Value)}
 }
 func (q *Quotient) Add(right Object) Object {
 	switch right := right.(type) {
@@ -294,8 +299,7 @@ func (q *Quotient) Add(right Object) Object {
 	case *Real:
 		return q.ToReal().Add(right)
 	case *Quotient:
-		numer := NewInt(q.Numer.Value*right.Denom.Value + right.Numer.Value*q.Denom.Value)
-		return NewQuotient(numer, q.Denom.Multiply(right.Denom).(*Int))
+		return &Quotient{Value: new(big.Rat).Add(q.Value, right.Value)}
 	default:
 		return CANT_OPERATE
 	}
@@ -307,8 +311,7 @@ func (q *Quotient) Subtract(right Object) Object {
 	case *Real:
 		return q.ToReal().Subtract(right)
 	case *Quotient:
-		numer := NewInt(q.Numer.Value*right.Denom.Value - right.Numer.Value*q.Denom.Value)
-		return NewQuotient(numer, NewInt(q.Denom.Value*right.Denom.Value))
+		return &Quotient{Value: new(big.Rat).Sub(q.Value, right.Value)}
 	default:
 		return CANT_OPERATE
 	}
@@ -320,7 +323,7 @@ func (q *Quotient) Multiply(right Object) Object {
 	case *Real:
 		return q.ToReal().Multiply(right)
 	case *Quotient:
-		return NewQuotient(NewInt(q.Numer.Value*right.Numer.Value), NewInt(q.Denom.Value*right.Denom.Value))
+		return &Quotient{Value: new(big.Rat).Mul(q.Value, right.Value)}
 	default:
 		return CANT_OPERATE
 	}
@@ -332,10 +335,10 @@ func (q *Quotient) Divide(right Object) Object {
 	case *Real:
 		return q.ToReal().Divide(right)
 	case *Quotient:
-		if right.Numer.Value == 0 {
+		if right.Value.Denom().Cmp(IntZero) == 0 {
 			return ZERO_DIVISION
 		}
-		return q.Multiply(right.Inverse())
+		return &Quotient{Value: new(big.Rat).Quo(q.Value, right.Value)}
 	default:
 		return CANT_OPERATE
 	}
@@ -343,13 +346,13 @@ func (q *Quotient) Divide(right Object) Object {
 func (q *Quotient) Power(right Object) Object {
 	switch right := right.(type) {
 	case *Int:
-		numer := q.Numer.Power(right).(*Int)
-		denom := q.Denom.Power(right).(*Int)
+		numer := new(big.Int).Exp(q.Value.Num(), right.Value, nil)
+		denom := new(big.Int).Exp(q.Value.Denom(), right.Value, nil)
 		return NewQuotient(numer, denom)
 	case *Real:
-		return &Real{Value: math.Pow(q.ToReal().Value, right.Value)}
+		return q.ToReal().Power(right)
 	case *Quotient:
-		return &Real{Value: math.Pow(q.ToReal().Value, right.ToReal().Value)}
+		return q.ToReal().Power(right.ToReal())
 	default:
 		return CANT_OPERATE
 	}
@@ -359,9 +362,11 @@ func (q *Quotient) Equal(right Object) *Boolean {
 	case *Int:
 		return q.Equal(right.ToQuotient())
 	case *Real:
-		return Condition(q.ToReal().Value == right.Value)
+		return q.ToReal().Equal(right)
 	case *Quotient:
-		return Condition(q.Numer.Value == right.Numer.Value && q.Denom.Value == right.Denom.Value)
+		numerEqual := q.Value.Num().Cmp(right.Value.Num()) == 0
+		denomEqual := q.Value.Denom().Cmp(right.Value.Denom()) == 0
+		return Condition(numerEqual && denomEqual)
 	default:
 		return INCOMPARABLE
 	}
@@ -371,9 +376,9 @@ func (q *Quotient) Less(right Object) *Boolean {
 	case *Int:
 		return q.Less(right.ToQuotient())
 	case *Real:
-		return Condition(q.ToReal().Value < right.Value)
+		return q.ToReal().Less(right)
 	case *Quotient:
-		return Condition(q.ToReal().Value < right.ToReal().Value)
+		return q.ToReal().Less(right.ToReal())
 	default:
 		return INCOMPARABLE
 	}
@@ -409,8 +414,8 @@ func (b *Boolean) Equal(right Object) *Boolean {
 	case *Boolean:
 		return Condition(b.Value == right.Value)
 	case *Int:
-		isFalse := b == FALSE && right.Value == 0
-		isTrue := b == TRUE && right.Value == 1
+		isFalse := b == FALSE && right.Value.Cmp(IntZero) == 0
+		isTrue := b == TRUE && right.Value.Cmp(IntOne) == 0
 		return Condition(isFalse || isTrue)
 	default:
 		return FALSE

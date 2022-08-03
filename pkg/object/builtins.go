@@ -2,14 +2,15 @@ package object
 
 import (
 	"math"
+	"math/big"
 )
 
 var Builtins = map[string]Object{
-	"Pi": &Real{Value: math.Pi},
+	"Pi": &Real{Value: big.NewFloat(math.Pi)},
 	"Tổng": &Function{
 		Builtin: func(args ...Object) Object {
 			var s Additive
-			s = &Int{Value: 0}
+			s = &Int{Value: IntZero}
 
 			for _, arg := range args {
 				if arg, ok := arg.(Additive); ok {
