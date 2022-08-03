@@ -31,3 +31,19 @@ func (s *String) Multiply(right Object) Object {
 		return CANT_OPERATE
 	}
 }
+func (s *String) Equal(right Object) *Boolean {
+	switch right := right.(type) {
+	case *String:
+		return Condition(s.Value == right.Value)
+	default:
+		return INCOMPARABLE
+	}
+}
+func (s *String) Less(right Object) *Boolean {
+	switch right := right.(type) {
+	case *String:
+		return Condition(s.Value < right.Value)
+	default:
+		return INCOMPARABLE
+	}
+}
