@@ -99,10 +99,15 @@ func (ev *Evaluator) evalNode() object.Object {
 		return &object.Imply{Value: val}
 
 	case *ast.AssignStatement:
+		if _, ok := object.Builtins[node.Ident.Value]; ok {
+			errMsg := fmt.Sprintf("Không thể gán giá trị cho '%s'", node.Ident.Value)
+			return ev.runtimeError(errMsg)
+		}
+
 		val := ev.Eval(node.Value)
 		obj := ev.Env.Set(node.Ident.Value, val)
 		if obj == nil {
-			errMsg := fmt.Sprintf("`%s` chưa được khai báo", node.Ident.Value)
+			errMsg := fmt.Sprintf("'%s' chưa được khai tạo", node.Ident.Value)
 			return ev.runtimeError(errMsg)
 		}
 
@@ -244,7 +249,16 @@ func (ev *Evaluator) applyFunction(fn *object.Function, args []object.Object) ob
 	env := object.NewEnclosedEnvironment(ev.Env)
 
 	if fn.Builtin != nil {
-		return fn.Builtin(args...)
+		res := fn.Builtin(args...)
+		if err, ok := res.(*object.Error); ok {
+			return ev.runtimeError(err.Message)
+		}
+		if err, ok := res.(*object.ArgumentError); ok {
+			errMsg := fmt.Sprintf("Cần %d tham số thay vì %d", err.Expected, err.Received)
+			return ev.runtimeError(errMsg)
+		}
+
+		return res
 	}
 
 	if len(args) != len(fn.Params) {

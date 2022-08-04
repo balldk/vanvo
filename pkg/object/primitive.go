@@ -169,6 +169,9 @@ type Real struct {
 
 func (r *Real) Type() ObjectType { return RealObj }
 func (r *Real) Display() string  { return fmt.Sprint(r.Value) }
+func (r *Real) ToReal() *Real {
+	return r
+}
 func (r *Real) Add(right Object) Object {
 	switch right := right.(type) {
 	case *Int:

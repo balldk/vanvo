@@ -21,6 +21,10 @@ type Function struct {
 
 func (fn *Function) Type() ObjectType { return FUNC_OBJ }
 func (fn *Function) Display() string {
+	if fn.Builtin != nil {
+		return "<Hàm cài đặt sẵn>"
+	}
+
 	var out bytes.Buffer
 
 	if fn.LeftCompose != nil {
