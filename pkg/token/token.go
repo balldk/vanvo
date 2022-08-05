@@ -27,7 +27,6 @@ const (
 	Hat      = "^"
 	Bang     = "!"
 	Dot      = "."
-	DotDot   = ".."
 
 	Equal        = "=="
 	NotEqual     = "!="
@@ -46,15 +45,17 @@ const (
 	Input  = "nhập"
 	Output = "xuất"
 
-	LParen    = "("
-	RParen    = ")"
-	LBrace    = "{"
-	RBrace    = "}"
-	LBracket  = "["
-	RBracket  = "]"
-	Comma     = ","
-	Colon     = ":"
-	Semicolon = ";"
+	LParen     = "("
+	RParen     = ")"
+	LBrace     = "{"
+	RBrace     = "}"
+	LBracket   = "["
+	RBracket   = "]"
+	Comma      = ","
+	Colon      = ":"
+	Semicolon  = ";"
+	DotDot     = ".."
+	SlashSlash = "//"
 )
 
 type Token struct {

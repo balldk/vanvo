@@ -45,6 +45,10 @@ func (l *Lexer) AdvanceToken() token.Token {
 	var tok token.Token
 
 	if tok = l.lookupToken(); tok.Type != token.Illegal {
+		if tok.Type == token.SlashSlash {
+			l.skipComment()
+			return l.AdvanceToken()
+		}
 		l.readChar()
 		return tok
 	}
@@ -207,6 +211,12 @@ func (l *Lexer) peekChar() rune {
 
 func (l *Lexer) skipWhiteSpace() {
 	for l.ch == ' ' || l.ch == '\t' || l.ch == '\r' {
+		l.readChar()
+	}
+}
+
+func (l *Lexer) skipComment() {
+	for l.ch != '\n' && l.ch != 0 {
 		l.readChar()
 	}
 }
