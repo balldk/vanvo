@@ -6,10 +6,17 @@ import (
 
 var VNALPHA = arrToMap([]rune("aAàÀảẢãÃáÁạẠăĂằẰẳẲẵẴắẮặẶâÂầẦẩẨẫẪấẤậẬbBcCdDđĐeEèÈẻẺẽẼéÉẹẸêÊềỀểỂễỄếẾệỆfFgGhHiIìÌỉỈĩĨíÍịỊjJkKlLmMnNoOòÒỏỎõÕóÓọỌôÔồỒổỔỗỖốỐộỘơƠờỜởỞỡỠớỚợỢpPqQrRsStTuUùÙủỦũŨúÚụỤưƯừỪửỬữỮứỨựỰvVwWxXyYỳỲỷỶỹỸýÝỵỴzZ"))
 
-func appendToken(tok1 *token.Token, tok2 token.Token) {
-	tok1.Literal = append(tok1.Literal, ' ')
-	tok1.Literal = append(tok1.Literal, tok2.Literal...)
-	tok1.Type = token.LookupKeyword(tok1.Literal)
+func mergeToken(tok1 token.Token, tok2 token.Token) token.Token {
+	if len(tok2.Literal) == 0 {
+		return tok1
+	}
+	tok := token.Token{}
+	tok.Literal = tok1.Literal
+	tok.Literal = append(tok.Literal, ' ')
+	tok.Literal = append(tok.Literal, tok2.Literal...)
+	tok.Type = token.LookupKeyword(tok.Literal)
+
+	return tok
 }
 
 func arrToMap(arr []rune) map[rune]bool {

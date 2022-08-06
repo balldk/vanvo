@@ -35,15 +35,16 @@ const (
 	LessEqual    = "<="
 	GreaterEqual = ">="
 
-	Let    = "cho"
-	If     = "nếu"
-	ElseIf = "còn nếu"
-	Else   = "còn không"
-	For    = "với"
-	Belong = "thuộc"
-	Imply  = "=>"
-	Input  = "nhập"
-	Output = "xuất"
+	Let     = "cho"
+	If      = "nếu"
+	ElseIf  = "còn nếu"
+	Else    = "còn không"
+	For     = "với"
+	ForEach = "với mỗi"
+	Belong  = "thuộc"
+	Imply   = "=>"
+	Input   = "nhập"
+	Output  = "xuất"
 
 	LParen     = "("
 	RParen     = ")"
@@ -77,6 +78,7 @@ var keywords = keywordsWithoutDiacritic(map[string]TokenType{
 	"đúng":      True,
 	"sai":       False,
 	"với":       For,
+	"với mỗi":   ForEach,
 	"thuộc":     Belong,
 	"nhập":      Input,
 	"xuất":      Output,

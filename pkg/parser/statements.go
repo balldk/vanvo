@@ -6,6 +6,7 @@ import (
 )
 
 func (p *Parser) parseStatement() ast.Statement {
+	defer p.updateIdentLevel()
 	p.updateIdentLevel()
 
 	var stmt ast.Statement
@@ -21,20 +22,26 @@ func (p *Parser) parseStatement() ast.Statement {
 	switch p.curToken.Type {
 	case token.Let:
 		stmt = p.parseLetStatement()
+
 	case token.If:
 		stmt = p.parseIfStatement()
-		p.updateIdentLevel()
 		return stmt
+
+	case token.ForEach:
+		stmt = p.parseForEachStatement()
+		return stmt
+
 	case token.Imply:
 		stmt = p.parseImplyStatement()
+
 	case token.Output:
 		stmt = p.parseOutputStatement()
+
 	default:
 		stmt = p.parseExpressionStatement()
 	}
 
 	p.checkEndStatement()
-	p.updateIdentLevel()
 
 	return stmt
 }
@@ -164,6 +171,16 @@ func (p *Parser) parseIfStatement() *ast.IfStatement {
 
 		stmt.Branches = append(stmt.Branches, alt)
 	}
+
+	return stmt
+}
+
+func (p *Parser) parseForEachStatement() *ast.ForEachStatement {
+	stmt := &ast.ForEachStatement{Token: p.curToken}
+	p.advanceToken()
+
+	stmt.Conditions = p.parseExpressionList()
+	stmt.Body = p.parseBlockStatement()
 
 	return stmt
 }

@@ -13,6 +13,7 @@ var precedences = map[token.TokenType]int{
 	token.Greater:      COMPARE,
 	token.LessEqual:    COMPARE,
 	token.GreaterEqual: COMPARE,
+	token.Belong:       BELONG,
 	token.Plus:         SUM,
 	token.Minus:        SUM,
 	token.Asterisk:     PRODUCT,

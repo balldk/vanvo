@@ -81,7 +81,22 @@ func (l *Lexer) AdvanceToken() token.Token {
 		} else if isLetter(l.ch) {
 			tokenLiteral := l.consumeIdent()
 			tokenType := token.LookupKeyword(tokenLiteral)
-			tok = l.newToken(tokenType, tokenLiteral)
+			tok := l.newToken(tokenType, tokenLiteral)
+
+			pos := l.position
+			column := l.column
+			l.skipWhiteSpace()
+
+			nextToken := l.newToken(token.Ident, l.consumeIdent())
+
+			doubleToken := mergeToken(tok, nextToken)
+
+			if doubleToken.Type != token.Ident {
+				return doubleToken
+			}
+			l.column = column - 1
+			l.readPosition = pos
+			l.readChar()
 
 			// Handle spacing identifier
 			if tokenType == token.Ident && !l.isPreviousIdent {
@@ -90,15 +105,8 @@ func (l *Lexer) AdvanceToken() token.Token {
 				nextToken := l.AdvanceToken()
 
 				for nextToken.Type == token.Ident {
-					appendToken(&tok, nextToken)
+					tok = mergeToken(tok, nextToken)
 					nextToken = l.AdvanceToken()
-				}
-
-				// handle "còn nếu" token
-				if nextToken.Type == token.If && (string(tok.Literal) == "còn" || string(tok.Literal) == "con") {
-					appendToken(&tok, nextToken)
-					l.isPreviousIdent = false
-					return tok
 				}
 
 				l.isPreviousIdent = false

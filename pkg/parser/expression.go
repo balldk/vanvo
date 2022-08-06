@@ -10,6 +10,7 @@ const (
 	_ int = iota
 	LOWEST
 	IF
+	BELONG
 	EQUAL   // ==
 	COMPARE // > or <
 	SUM     // +

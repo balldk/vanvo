@@ -36,6 +36,9 @@ func (ev *Evaluator) evalInfixExpression(
 	case token.Dot:
 		return ev.evalDotProduct(left, right)
 
+	case token.Hat:
+		return ev.evalExponent(left, right)
+
 	case token.Equal:
 		return ev.evalEquality(left, right)
 
@@ -57,8 +60,8 @@ func (ev *Evaluator) evalInfixExpression(
 		}
 		return ev.evalEquality(left, right)
 
-	case token.Hat:
-		return ev.evalExponent(left, right)
+	case token.Belong:
+		return ev.evalBelong(left, right)
 	}
 
 	return NULL
@@ -69,10 +72,7 @@ func (ev *Evaluator) evalAddition(left, right object.Object) object.Object {
 
 	if left, ok := left.(object.Additive); ok {
 		value := left.Add(right)
-		if value == object.CANT_OPERATE {
-			return ev.runtimeError(errMsg)
-		}
-		return value
+		return ev.someObject(value, errMsg)
 	}
 
 	return ev.runtimeError(errMsg)
@@ -83,10 +83,7 @@ func (ev *Evaluator) evalSubtraction(left, right object.Object) object.Object {
 
 	if left, ok := left.(object.Subtractive); ok {
 		value := left.Subtract(right)
-		if value == object.CANT_OPERATE {
-			return ev.runtimeError(errMsg)
-		}
-		return value
+		return ev.someObject(value, errMsg)
 	}
 
 	return ev.runtimeError(errMsg)
@@ -97,10 +94,7 @@ func (ev *Evaluator) evalMultiplication(left, right object.Object) object.Object
 
 	if left, ok := left.(object.Multiplicative); ok {
 		value := left.Multiply(right)
-		if value == object.CANT_OPERATE {
-			return ev.runtimeError(errMsg)
-		}
-		return value
+		return ev.someObject(value, errMsg)
 	}
 
 	return ev.runtimeError(errMsg)
@@ -111,13 +105,7 @@ func (ev *Evaluator) evalDivision(left, right object.Object) object.Object {
 
 	if left, ok := left.(object.Division); ok {
 		value := left.Divide(right)
-		if value == object.CANT_OPERATE {
-			return ev.runtimeError(errMsg)
-
-		} else if value == object.ZERO_DIVISION {
-			return ev.runtimeError("Không thể chia cho 0")
-		}
-		return value
+		return ev.someObject(value, errMsg)
 	}
 
 	return ev.runtimeError(errMsg)
@@ -128,13 +116,7 @@ func (ev *Evaluator) evalModulo(left, right object.Object) object.Object {
 
 	if left, ok := left.(object.Modulo); ok {
 		value := left.Mod(right)
-		if value == object.CANT_OPERATE {
-			return ev.runtimeError(errMsg)
-
-		} else if value == object.ZERO_DIVISION {
-			return ev.runtimeError("Không thể chia cho 0")
-		}
-		return value
+		return ev.someObject(value, errMsg)
 	}
 
 	return ev.runtimeError(errMsg)
@@ -145,10 +127,7 @@ func (ev *Evaluator) evalDotProduct(left, right object.Object) object.Object {
 
 	if left, ok := left.(object.DotProduct); ok {
 		value := left.Dot(right)
-		if value == object.CANT_OPERATE {
-			return ev.runtimeError(errMsg)
-		}
-		return value
+		return ev.someObject(value, errMsg)
 	}
 
 	return ev.runtimeError(errMsg)
@@ -159,10 +138,7 @@ func (ev *Evaluator) evalExponent(left, right object.Object) object.Object {
 
 	if left, ok := left.(object.Exponential); ok {
 		value := left.Power(right)
-		if value == object.CANT_OPERATE {
-			return ev.runtimeError(errMsg)
-		}
-		return value
+		return ev.someObject(value, errMsg)
 	}
 
 	return ev.runtimeError(errMsg)
@@ -173,11 +149,7 @@ func (ev *Evaluator) evalEquality(left, right object.Object) *object.Boolean {
 
 	if left, ok := left.(object.Equal); ok {
 		value := left.Equal(right)
-		if value == object.INCOMPARABLE {
-			ev.runtimeError(errMsg)
-			return INCOMPARABLE
-		}
-		return value
+		return ev.someObject(value, errMsg).(*object.Boolean)
 	}
 
 	ev.runtimeError(errMsg)
@@ -189,13 +161,33 @@ func (ev *Evaluator) evalLess(left, right object.Object) *object.Boolean {
 
 	if left, ok := left.(object.StrictOrder); ok {
 		value := left.Less(right)
-		if value == object.INCOMPARABLE {
-			ev.runtimeError(errMsg)
-			return INCOMPARABLE
-		}
-		return value
+		return ev.someObject(value, errMsg).(*object.Boolean)
 	}
 
 	ev.runtimeError(errMsg)
 	return INCOMPARABLE
+}
+
+func (ev *Evaluator) evalBelong(left, right object.Object) *object.Boolean {
+	errMsg := fmt.Sprintf("Vế phải của mệnh đề 'thuộc' phải là một '%s' thay vì '%s'",
+		object.SetObj, right.Type())
+
+	if right, ok := right.(object.Set); ok {
+		value := right.Contain(left)
+		return ev.someObject(value, errMsg).(*object.Boolean)
+	}
+
+	ev.runtimeError(errMsg)
+	return INCOMPARABLE
+}
+
+func (ev *Evaluator) someObject(obj object.Object, errMsg string) object.Object {
+	if obj == object.INCOMPARABLE || obj == object.CANT_OPERATE {
+		return ev.runtimeError(errMsg)
+	}
+	if obj == object.ZERO_DIVISION {
+		return ev.runtimeError("Không thể chia cho 0")
+	}
+
+	return obj
 }

@@ -15,6 +15,7 @@ var (
 	TRUE         = object.TRUE
 	FALSE        = object.FALSE
 	INCOMPARABLE = object.INCOMPARABLE
+	ENDLOOP      = object.ENDLOOP
 	NO_PRINT     = &object.Null{}
 )
 
@@ -94,6 +95,10 @@ func (ev *Evaluator) evalNode() object.Object {
 	case *ast.IfStatement:
 		return ev.evalIfStatement(node)
 
+	case *ast.ForEachStatement:
+		env := object.NewEnclosedEnvironment(ev.Env)
+		ev.evalForEachStatement(node, env, []ast.Expression{})
+
 	case *ast.ImplyStatement:
 		val := ev.Eval(node.Value)
 		return &object.Imply{Value: val}
@@ -150,6 +155,8 @@ func (ev *Evaluator) evalNode() object.Object {
 	case *ast.String:
 		return &object.String{Value: node.Value}
 
+	case *ast.IntInterval:
+		return ev.evalIntInterval(node)
 	}
 
 	return NO_PRINT
@@ -277,6 +284,24 @@ func (ev *Evaluator) applyFunction(fn *object.Function, args []object.Object) ob
 	return ev.unwrapImply(val)
 }
 
+func (ev *Evaluator) evalIntInterval(interval *ast.IntInterval) object.Object {
+	lowerObj := ev.Eval(interval.Lower)
+	upperObj := ev.Eval(interval.Upper)
+
+	lower, ok1 := lowerObj.(object.Realness)
+	upper, ok2 := upperObj.(object.Realness)
+	if !ok1 {
+		errMsg := fmt.Sprintf("Không thể dùng '%s' làm chặn dưới", lowerObj.Type())
+		return ev.runtimeError(errMsg)
+	}
+	if !ok2 {
+		errMsg := fmt.Sprintf("Không thể dùng '%s' làm chặn trên", lowerObj.Type())
+		return ev.runtimeError(errMsg)
+	}
+
+	return &object.IntInterval{Lower: lower.ToReal(), Upper: upper.ToReal()}
+}
+
 func (ev *Evaluator) evalExpressions(exps []ast.Expression) []object.Object {
 	var results []object.Object
 
@@ -338,7 +363,11 @@ func boolRef(val bool) *object.Boolean {
 	return FALSE
 }
 
-func (ev *Evaluator) runtimeError(msg string) object.Object {
-	ev.Errors.AddRuntimeError(msg, ev.Node)
+func (ev *Evaluator) runtimeError(msg string, asts ...ast.Node) object.Object {
+	node := ev.Node
+	if len(asts) > 0 {
+		node = asts[0]
+	}
+	ev.Errors.AddRuntimeError(msg, node)
 	return NULL
 }
