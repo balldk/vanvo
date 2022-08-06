@@ -35,6 +35,9 @@ const (
 	LessEqual    = "<="
 	GreaterEqual = ">="
 
+	And = "và"
+	Or  = "hay"
+
 	Let     = "cho"
 	If      = "nếu"
 	ElseIf  = "còn nếu"
@@ -80,6 +83,8 @@ var keywords = keywordsWithoutDiacritic(map[string]TokenType{
 	"với":       For,
 	"với mỗi":   ForEach,
 	"thuộc":     Belong,
+	"và":        And,
+	"hay":       Or,
 	"nhập":      Input,
 	"xuất":      Output,
 })

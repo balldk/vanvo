@@ -10,6 +10,7 @@ const (
 	_ int = iota
 	LOWEST
 	IF
+	CONJUNC // 'và', 'hay'
 	BELONG
 	EQUAL   // ==
 	COMPARE // > or <

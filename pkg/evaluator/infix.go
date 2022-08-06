@@ -60,6 +60,12 @@ func (ev *Evaluator) evalInfixExpression(
 		}
 		return ev.evalEquality(left, right)
 
+	case token.And:
+		return ev.evalAnd(left, right)
+
+	case token.Or:
+		return ev.evalOr(left, right)
+
 	case token.Belong:
 		return ev.evalBelong(left, right)
 	}
@@ -166,6 +172,20 @@ func (ev *Evaluator) evalLess(left, right object.Object) *object.Boolean {
 
 	ev.runtimeError(errMsg)
 	return INCOMPARABLE
+}
+
+func (ev *Evaluator) evalAnd(left, right object.Object) object.Object {
+	if !ev.isTruthy(left) {
+		return left
+	}
+	return right
+}
+
+func (ev *Evaluator) evalOr(left, right object.Object) object.Object {
+	if ev.isTruthy(left) {
+		return left
+	}
+	return right
 }
 
 func (ev *Evaluator) evalBelong(left, right object.Object) *object.Boolean {

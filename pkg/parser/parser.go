@@ -46,6 +46,8 @@ func New(l *lexer.Lexer, errors *errorhandler.ErrorList) *Parser {
 	p.registerInfix(token.LParen, p.parseCallExpression)
 	p.registerInfix(token.If, p.parseIfExpression)
 	p.registerInfix(token.Belong, p.parseInfixExpression)
+	p.registerInfix(token.And, p.parseInfixExpression)
+	p.registerInfix(token.Or, p.parseInfixExpression)
 
 	p.advanceToken()
 	p.advanceToken()

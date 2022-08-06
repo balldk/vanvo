@@ -7,13 +7,15 @@ import (
 
 var precedences = map[token.TokenType]int{
 	token.If:           IF,
+	token.And:          CONJUNC,
+	token.Or:           CONJUNC,
+	token.Belong:       BELONG,
 	token.Equal:        EQUAL,
 	token.NotEqual:     EQUAL,
 	token.Less:         COMPARE,
 	token.Greater:      COMPARE,
 	token.LessEqual:    COMPARE,
 	token.GreaterEqual: COMPARE,
-	token.Belong:       BELONG,
 	token.Plus:         SUM,
 	token.Minus:        SUM,
 	token.Asterisk:     PRODUCT,
