@@ -27,6 +27,10 @@ func (p *Parser) parseStatement() ast.Statement {
 		stmt = p.parseIfStatement()
 		return stmt
 
+	case token.For:
+		stmt = p.parseForStatement()
+		return stmt
+
 	case token.ForEach:
 		stmt = p.parseForEachStatement()
 		return stmt
@@ -171,6 +175,16 @@ func (p *Parser) parseIfStatement() *ast.IfStatement {
 
 		stmt.Branches = append(stmt.Branches, alt)
 	}
+
+	return stmt
+}
+
+func (p *Parser) parseForStatement() *ast.ForStatement {
+	stmt := &ast.ForStatement{Token: p.curToken}
+	p.advanceToken()
+
+	stmt.Conditions = p.parseExpressionList()
+	stmt.Body = p.parseBlockStatement()
 
 	return stmt
 }

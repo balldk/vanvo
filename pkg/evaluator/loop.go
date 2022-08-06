@@ -74,3 +74,15 @@ func (ev *Evaluator) evalForEachStatement(
 
 	return NULL
 }
+
+func (ev *Evaluator) evalForStatement(stmt *ast.ForStatement) object.Object {
+	for {
+		for _, cond := range stmt.Conditions {
+			check := ev.Eval(cond)
+			if !ev.isTruthy(check) {
+				return NULL
+			}
+		}
+		ev.Eval(stmt.Body)
+	}
+}

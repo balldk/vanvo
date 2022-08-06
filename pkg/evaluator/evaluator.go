@@ -95,6 +95,9 @@ func (ev *Evaluator) evalNode() object.Object {
 	case *ast.IfStatement:
 		return ev.evalIfStatement(node)
 
+	case *ast.ForStatement:
+		ev.evalForStatement(node)
+
 	case *ast.ForEachStatement:
 		env := object.NewEnclosedEnvironment(ev.Env)
 		ev.evalForEachStatement(node, env, []ast.Expression{})
