@@ -107,35 +107,13 @@ func (ev *Evaluator) evalNode() object.Object {
 		return &object.Imply{Value: val}
 
 	case *ast.AssignStatement:
-		if _, ok := object.Builtins[node.Ident.Value]; ok {
-			errMsg := fmt.Sprintf("Không thể gán giá trị cho '%s'", node.Ident.Value)
-			return ev.runtimeError(errMsg)
-		}
-
-		val := ev.Eval(node.Value)
-		obj := ev.Env.Set(node.Ident.Value, val)
-		if obj == nil {
-			errMsg := fmt.Sprintf("'%s' chưa được khai tạo", node.Ident.Value)
-			return ev.runtimeError(errMsg)
-		}
+		return ev.evalAssignStatement(node)
 
 	case *ast.VarDeclareStatement:
-		val := ev.Eval(node.Value)
-		if _, ok := ev.Env.GetInScope(node.Ident.Value); ok {
-			errMsg := fmt.Sprintf("'%s' đã được khởi tạo", node.Ident.Value)
-			ev.runtimeError(errMsg)
-		}
-		ev.Env.SetInScope(node.Ident.Value, val)
+		ev.evalVarDeclare(node)
 
 	case *ast.FunctionDeclareStatement:
-		params := node.Params
-		body := node.Body
-		fn := &object.Function{Ident: node.Ident, Params: params, Body: body}
-		if _, ok := ev.Env.GetInScope(node.Ident.Value); ok {
-			errMsg := fmt.Sprintf("'%s' đã được khởi tạo", node.Ident.Value)
-			ev.runtimeError(errMsg)
-		}
-		ev.Env.SetInScope(node.Ident.Value, fn)
+		ev.evalFunctionDeclare(node)
 
 	case *ast.OutputStatement:
 		ev.evalOutputStatement(node)
@@ -202,107 +180,6 @@ func (ev *Evaluator) evalIdentifier(node *ast.Identifier) object.Object {
 	}
 
 	return val
-}
-
-func (ev *Evaluator) evalIfExpression(ie *ast.IfExpression) object.Object {
-	condition := ev.Eval(ie.Condition)
-
-	if ev.isTruthy(condition) {
-		return ev.Eval(ie.Consequence)
-	} else if ie.Alternative != nil {
-		return ev.Eval(ie.Alternative)
-	} else {
-		return NULL
-	}
-}
-
-func (ev *Evaluator) evalIfStatement(ie *ast.IfStatement) object.Object {
-	for _, branch := range ie.Branches {
-
-		condition := ev.Eval(branch.Condition)
-		if ev.isTruthy(condition) {
-			return ev.Eval(branch.Consequence)
-		}
-	}
-
-	return NULL
-}
-
-func (ev *Evaluator) evalCallExpression(call *ast.CallExpression) object.Object {
-	fn := ev.Eval(call.Function)
-	args := ev.evalExpressions(call.Arguments)
-
-	switch fn := fn.(type) {
-	case *object.Function:
-		res := ev.applyFunction(fn, args)
-		args = []object.Object{res}
-
-		for fn.LeftCompose != nil {
-			fn = fn.LeftCompose
-			res = ev.applyFunction(fn, args)
-			args = []object.Object{res}
-		}
-
-		return res
-
-	default:
-		if len(call.Arguments) == 1 {
-			right := ev.Eval(call.Arguments[0])
-			return ev.evalMultiplication(fn, right)
-		}
-
-		return ev.runtimeError("Biểu thức không hợp lệ")
-	}
-}
-
-func (ev *Evaluator) applyFunction(fn *object.Function, args []object.Object) object.Object {
-	env := object.NewEnclosedEnvironment(ev.Env)
-
-	if fn.Builtin != nil {
-		res := fn.Builtin(args...)
-		if err, ok := res.(*object.Error); ok {
-			return ev.runtimeError(err.Message)
-		}
-		if err, ok := res.(*object.ArgumentError); ok {
-			errMsg := fmt.Sprintf("Cần %d tham số thay vì %d", err.Expected, err.Received)
-			return ev.runtimeError(errMsg)
-		}
-
-		return res
-	}
-
-	if len(args) != len(fn.Params) {
-		errMsg := fmt.Sprintf(
-			"'%s' cần %d tham số thay vì %d",
-			fn.Ident.Value, len(fn.Params), len(args))
-
-		return ev.runtimeError(errMsg)
-	}
-
-	for index, param := range fn.Params {
-		env.SetInScope(param.Value, args[index])
-	}
-
-	val := ev.Eval(fn.Body, env)
-	return ev.unwrapImply(val)
-}
-
-func (ev *Evaluator) evalIntInterval(interval *ast.IntInterval) object.Object {
-	lowerObj := ev.Eval(interval.Lower)
-	upperObj := ev.Eval(interval.Upper)
-
-	lower, ok1 := lowerObj.(object.Realness)
-	upper, ok2 := upperObj.(object.Realness)
-	if !ok1 {
-		errMsg := fmt.Sprintf("Không thể dùng '%s' làm chặn dưới", lowerObj.Type())
-		return ev.runtimeError(errMsg)
-	}
-	if !ok2 {
-		errMsg := fmt.Sprintf("Không thể dùng '%s' làm chặn trên", lowerObj.Type())
-		return ev.runtimeError(errMsg)
-	}
-
-	return &object.IntInterval{Lower: lower.ToReal(), Upper: upper.ToReal()}
 }
 
 func (ev *Evaluator) evalExpressions(exps []ast.Expression) []object.Object {
