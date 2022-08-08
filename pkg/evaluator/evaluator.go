@@ -138,6 +138,9 @@ func (ev *Evaluator) evalNode() object.Object {
 
 	case *ast.IntInterval:
 		return ev.evalIntInterval(node)
+
+	case *ast.RealInterval:
+		return ev.evalRealInterval(node)
 	}
 
 	return NO_PRINT

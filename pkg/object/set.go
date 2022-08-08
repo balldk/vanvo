@@ -71,11 +71,11 @@ func (interval *IntInterval) NextElement() Object {
 }
 
 type RealInterval struct {
-	Upper *Int
-	Lower *Int
+	Upper *Real
+	Lower *Real
 }
 
-func (interval *RealInterval) Type() string { return SetObj }
+func (interval *RealInterval) Type() ObjectType { return SetObj }
 func (interval *RealInterval) Display() string {
 	var out bytes.Buffer
 	out.WriteString("[")
