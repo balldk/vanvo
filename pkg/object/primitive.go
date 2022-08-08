@@ -25,8 +25,10 @@ var (
 	ZERO_DIVISION = &Null{}
 	CANT_OPERATE  = &CantOperate{}
 
-	IntZero = big.NewInt(0)
-	IntOne  = big.NewInt(1)
+	IntZero  = big.NewInt(0)
+	IntOne   = big.NewInt(1)
+	RealZero = big.NewFloat(0)
+	RealOne  = big.NewFloat(1)
 )
 
 func NewInt(value *big.Int) *Int {
@@ -42,6 +44,9 @@ func (i *Int) Display() string  { return fmt.Sprint(i.Value) }
 func (i *Int) ToReal() *Real {
 	return &Real{Value: new(big.Float).SetInt(i.Value)}
 }
+func (i *Int) ToComplex() *Complex {
+	return i.ToReal().ToComplex()
+}
 func (i *Int) ToQuotient() *Quotient {
 	return NewQuotient(i.Value, IntOne)
 }
@@ -53,6 +58,8 @@ func (i *Int) Add(right Object) Object {
 		intVal := new(big.Float).SetInt(i.Value)
 		return NewReal(new(big.Float).Add(intVal, right.Value))
 	case *Quotient:
+		return right.Add(i)
+	case *Complex:
 		return right.Add(i)
 	default:
 		return CANT_OPERATE
@@ -67,6 +74,8 @@ func (i *Int) Subtract(right Object) Object {
 		return NewReal(new(big.Float).Sub(intVal, right.Value))
 	case *Quotient:
 		return i.ToQuotient().Subtract(right)
+	case *Complex:
+		return i.ToComplex().Subtract(right)
 	default:
 		return CANT_OPERATE
 	}
@@ -79,6 +88,8 @@ func (i *Int) Multiply(right Object) Object {
 		intVal := new(big.Float).SetInt(i.Value)
 		return NewReal(new(big.Float).Mul(intVal, right.Value))
 	case *Quotient:
+		return right.Multiply(i)
+	case *Complex:
 		return right.Multiply(i)
 	case *String:
 		return right.Multiply(i)
@@ -102,6 +113,8 @@ func (i *Int) Divide(right Object) Object {
 		return NewReal(new(big.Float).Quo(intVal, right.Value))
 	case *Quotient:
 		return i.ToQuotient().Divide(right)
+	case *Complex:
+		return i.ToComplex().Divide(right)
 	default:
 		return CANT_OPERATE
 	}
@@ -172,6 +185,15 @@ func (r *Real) Display() string  { return fmt.Sprint(r.Value) }
 func (r *Real) ToReal() *Real {
 	return r
 }
+func (r *Real) ToComplex() *Complex {
+	return NewComplex(r, NewReal(RealZero))
+}
+func (r *Real) IsZero() bool {
+	if val, _ := r.Value.Float32(); val == 0 {
+		return true
+	}
+	return false
+}
 func (r *Real) Add(right Object) Object {
 	switch right := right.(type) {
 	case *Int:
@@ -179,6 +201,8 @@ func (r *Real) Add(right Object) Object {
 	case *Real:
 		return NewReal(new(big.Float).Add(r.Value, right.Value))
 	case *Quotient:
+		return right.Add(r)
+	case *Complex:
 		return right.Add(r)
 	default:
 		return CANT_OPERATE
@@ -193,6 +217,8 @@ func (r *Real) Subtract(right Object) Object {
 		return NewReal(new(big.Float).Sub(r.Value, right.Value))
 	case *Quotient:
 		return NewReal(new(big.Float).Sub(r.Value, right.ToReal().Value))
+	case *Complex:
+		return r.ToComplex().Subtract(right)
 	default:
 		return CANT_OPERATE
 	}
@@ -204,6 +230,8 @@ func (r *Real) Multiply(right Object) Object {
 	case *Real:
 		return NewReal(new(big.Float).Mul(r.Value, right.Value))
 	case *Quotient:
+		return right.Multiply(r)
+	case *Complex:
 		return right.Multiply(r)
 	default:
 		return CANT_OPERATE
@@ -227,6 +255,8 @@ func (r *Real) Divide(right Object) Object {
 			return ZERO_DIVISION
 		}
 		return NewReal(new(big.Float).Quo(r.Value, right.ToReal().Value))
+	case *Complex:
+		return r.ToComplex().Divide(right)
 	default:
 		return CANT_OPERATE
 	}
@@ -292,6 +322,9 @@ func (q *Quotient) ToReal() *Real {
 	val, _ := q.Value.Float64()
 	return NewReal(big.NewFloat(val))
 }
+func (q *Quotient) ToComplex() *Complex {
+	return q.ToReal().ToComplex()
+}
 func (q *Quotient) Inverse() *Quotient {
 	return &Quotient{Value: new(big.Rat).Inv(q.Value)}
 }
@@ -303,6 +336,8 @@ func (q *Quotient) Add(right Object) Object {
 		return q.ToReal().Add(right)
 	case *Quotient:
 		return &Quotient{Value: new(big.Rat).Add(q.Value, right.Value)}
+	case *Complex:
+		return right.Add(q)
 	default:
 		return CANT_OPERATE
 	}
@@ -315,6 +350,8 @@ func (q *Quotient) Subtract(right Object) Object {
 		return q.ToReal().Subtract(right)
 	case *Quotient:
 		return &Quotient{Value: new(big.Rat).Sub(q.Value, right.Value)}
+	case *Complex:
+		return q.ToComplex().Subtract(right)
 	default:
 		return CANT_OPERATE
 	}
@@ -327,6 +364,8 @@ func (q *Quotient) Multiply(right Object) Object {
 		return q.ToReal().Multiply(right)
 	case *Quotient:
 		return &Quotient{Value: new(big.Rat).Mul(q.Value, right.Value)}
+	case *Complex:
+		return right.Multiply(q)
 	default:
 		return CANT_OPERATE
 	}
@@ -342,6 +381,8 @@ func (q *Quotient) Divide(right Object) Object {
 			return ZERO_DIVISION
 		}
 		return &Quotient{Value: new(big.Rat).Quo(q.Value, right.Value)}
+	case *Complex:
+		return q.ToComplex().Divide(right)
 	default:
 		return CANT_OPERATE
 	}

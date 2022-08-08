@@ -46,18 +46,24 @@ func NewNodeError(errType ErrorType, message string, node ast.Node) NodeError {
 type ErrorList struct {
 	filepath     string
 	lines        []string
+	maxLineDigit int
+
 	LexerErrors  []TokenError
 	ParserErrors []TokenError
 	EvalErrors   []NodeError
 }
 
 func NewErrorList(input string, filepath string) *ErrorList {
+	lines := strings.Split(input, "\n")
+
 	return &ErrorList{
 		LexerErrors:  []TokenError{},
 		ParserErrors: []TokenError{},
 		EvalErrors:   []NodeError{},
-		lines:        strings.Split(input, "\n"),
+
+		lines:        lines,
 		filepath:     filepath,
+		maxLineDigit: findNumDigit(len(lines)),
 	}
 }
 
@@ -87,16 +93,16 @@ func (eh *ErrorList) NotEmpty() bool {
 
 func (el *ErrorList) printLine(buf *bytes.Buffer, lineNum int, showLine bool) {
 	line := el.lines[lineNum-1]
-	if showLine {
-		blue.Fprint(buf, lineNum, " | ")
+	if showLine && el.filepath != "" {
+		blue.Fprint(buf, padSpaceNum(lineNum, el.maxLineDigit), " | ")
 	} else {
-		blue.Fprint(buf, " ", " | ")
+		blue.Fprint(buf, strings.Repeat(" ", el.maxLineDigit), " | ")
 	}
 	white.Fprintln(buf, line)
 }
 
 func (el *ErrorList) underline(buf *bytes.Buffer, from, length int) {
-	blue.Fprint(buf, " ", " | ")
+	blue.Fprint(buf, strings.Repeat(" ", el.maxLineDigit), " | ")
 	white.Fprint(buf, strings.Repeat(" ", from))
 
 	for i := 0; i < length; i++ {
