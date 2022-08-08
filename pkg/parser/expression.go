@@ -1,7 +1,7 @@
 package parser
 
 import (
-	"strconv"
+	"math/big"
 	"vila/pkg/ast"
 	"vila/pkg/token"
 )
@@ -50,8 +50,8 @@ func (p *Parser) parseIdentifier() ast.Expression {
 func (p *Parser) parseInt() ast.Expression {
 	i := &ast.Int{Token: p.curToken}
 
-	value, err := strconv.ParseInt(string(p.curToken.Literal), 0, 64)
-	if err != nil {
+	value, check := new(big.Int).SetString(string(p.curToken.Literal), 10)
+	if !check {
 		p.syntaxError("Không thể parse số nguyên này")
 	}
 
@@ -76,8 +76,8 @@ func (p *Parser) parseString() ast.Expression {
 func (p *Parser) parseReal() ast.Expression {
 	re := &ast.Real{Token: p.curToken}
 
-	value, err := strconv.ParseFloat(string(p.curToken.Literal), 64)
-	if err != nil {
+	value, check := new(big.Float).SetString(string(p.curToken.Literal))
+	if !check {
 		p.syntaxError("Không thể parse số thực này")
 	}
 

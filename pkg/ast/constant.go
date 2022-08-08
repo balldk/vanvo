@@ -1,12 +1,13 @@
 package ast
 
 import (
+	"math/big"
 	"vila/pkg/token"
 )
 
 type Int struct {
 	Token token.Token
-	Value int64
+	Value *big.Int
 }
 
 func (i *Int) FromToken() token.Token { return i.Token }
@@ -17,7 +18,7 @@ func (i *Int) String() string {
 
 type Real struct {
 	Token token.Token
-	Value float64
+	Value *big.Float
 }
 
 func (r *Real) FromToken() token.Token {

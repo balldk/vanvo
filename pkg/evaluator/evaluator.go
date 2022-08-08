@@ -125,10 +125,10 @@ func (ev *Evaluator) evalNode() object.Object {
 		return ev.evalIdentifier(node)
 
 	case *ast.Int:
-		return &object.Int{Value: big.NewInt(node.Value)}
+		return &object.Int{Value: node.Value}
 
 	case *ast.Real:
-		return &object.Real{Value: big.NewFloat(node.Value)}
+		return &object.Real{Value: node.Value}
 
 	case *ast.Boolean:
 		return boolRef(node.Value)
