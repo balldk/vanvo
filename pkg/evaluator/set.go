@@ -14,11 +14,11 @@ func (ev *Evaluator) evalIntInterval(interval *ast.IntInterval) object.Object {
 	upper, ok2 := upperObj.(object.Realness)
 	if !ok1 {
 		errMsg := fmt.Sprintf("Không thể dùng '%s' làm chặn dưới", lowerObj.Type())
-		return ev.runtimeError(errMsg)
+		return ev.runtimeError(errMsg, interval.Lower)
 	}
 	if !ok2 {
-		errMsg := fmt.Sprintf("Không thể dùng '%s' làm chặn trên", lowerObj.Type())
-		return ev.runtimeError(errMsg)
+		errMsg := fmt.Sprintf("Không thể dùng '%s' làm chặn trên", upperObj.Type())
+		return ev.runtimeError(errMsg, interval.Upper)
 	}
 
 	return &object.IntInterval{Lower: lower, Upper: upper}

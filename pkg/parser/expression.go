@@ -100,8 +100,8 @@ func (p *Parser) parseBoolean() ast.Expression {
 }
 
 func (p *Parser) parseInterval() ast.Expression {
-	p.advanceToken()
 	leftBracket := p.curToken
+	p.advanceToken()
 
 	lower := p.parseExpression(LOWEST)
 
