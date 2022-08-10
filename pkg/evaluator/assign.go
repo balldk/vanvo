@@ -9,6 +9,9 @@ import (
 func (ev *Evaluator) evalVarDeclare(node *ast.VarDeclareStatement) {
 
 	val := ev.Eval(node.Value)
+	if val == NULL {
+		return
+	}
 	if _, ok := ev.Env.GetInScope(node.Ident.Value); ok {
 		errMsg := fmt.Sprintf("'%s' đã được khởi tạo", node.Ident.Value)
 		ev.runtimeError(errMsg)
@@ -36,6 +39,10 @@ func (ev *Evaluator) evalAssignStatement(node *ast.AssignStatement) object.Objec
 	}
 
 	val := ev.Eval(node.Value)
+	if val == NULL {
+		return NULL
+	}
+
 	obj := ev.Env.Set(node.Ident.Value, val)
 	if obj == nil {
 		errMsg := fmt.Sprintf("'%s' chưa được khai tạo", node.Ident.Value)
