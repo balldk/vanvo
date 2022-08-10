@@ -16,6 +16,7 @@ var (
 type Set interface {
 	Object
 	Contain(Object) *Boolean
+	IsCountable() bool
 }
 
 type CountableSet interface {
@@ -41,6 +42,7 @@ func (interval *IntInterval) Display() string {
 
 	return out.String()
 }
+func (interval *IntInterval) IsCountable() bool { return true }
 func (interval *IntInterval) Contain(obj Object) *Boolean {
 	switch obj := obj.(type) {
 	case *Int:
@@ -75,7 +77,8 @@ type RealInterval struct {
 	Lower *Real
 }
 
-func (interval *RealInterval) Type() ObjectType { return SetObj }
+func (interval *RealInterval) IsCountable() bool { return false }
+func (interval *RealInterval) Type() ObjectType  { return SetObj }
 func (interval *RealInterval) Display() string {
 	var out bytes.Buffer
 	out.WriteString("[")
@@ -96,4 +99,42 @@ func (interval *RealInterval) Contain(obj Object) *Boolean {
 	default:
 		return FALSE
 	}
+}
+
+type UnionSet struct {
+	Left       Set
+	Right      Set
+	leftLooped bool
+}
+
+func (set *UnionSet) Type() ObjectType { return SetObj }
+func (set *UnionSet) Display() string {
+	return set.Left.Display() + " + " + set.Right.Display()
+}
+func (set *UnionSet) IsCountable() bool {
+	return set.Left.IsCountable() && set.Right.IsCountable()
+}
+func (set *UnionSet) Contain(obj Object) *Boolean {
+	if set.Left.Contain(obj) == TRUE {
+		return TRUE
+	}
+	return set.Right.Contain(obj)
+}
+func (set *UnionSet) StartIterate() {
+
+	if left, isCountable := set.Left.(CountableSet); isCountable {
+		left.BeginIterate()
+	}
+	if right, isCountable := set.Right.(CountableSet); isCountable {
+		right.BeginIterate()
+	}
+}
+func (set *UnionSet) NextElement() Object {
+	if left, isCountable := set.Left.(CountableSet); isCountable {
+		element := left.NextElement()
+		if element == ENDLOOP {
+			set.leftLooped = true
+		}
+	}
+	return ENDLOOP
 }

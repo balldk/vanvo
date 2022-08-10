@@ -80,6 +80,11 @@ func (ev *Evaluator) evalAddition(left, right object.Object) object.Object {
 		value := left.Add(right)
 		return ev.someObject(value, errMsg)
 	}
+	if left, ok := left.(object.Set); ok {
+		if right, ok := right.(object.Set); ok {
+			return &object.UnionSet{Left: left, Right: right}
+		}
+	}
 
 	return ev.runtimeError(errMsg)
 }
