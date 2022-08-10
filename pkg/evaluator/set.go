@@ -21,7 +21,7 @@ func (ev *Evaluator) evalIntInterval(interval *ast.IntInterval) object.Object {
 		return ev.runtimeError(errMsg)
 	}
 
-	return &object.IntInterval{Lower: lower.ToReal(), Upper: upper.ToReal()}
+	return &object.IntInterval{Lower: lower, Upper: upper}
 }
 
 func (ev *Evaluator) evalRealInterval(interval *ast.RealInterval) object.Object {

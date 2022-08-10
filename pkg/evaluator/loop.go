@@ -30,7 +30,7 @@ func (ev *Evaluator) evalForEachStatement(
 
 			right := ev.Eval(condition.Right)
 			loopSet, isCountable := right.(object.CountableSet)
-			if !isCountable {
+			if !isCountable || !loopSet.IsCountable() {
 				errMsg := fmt.Sprintf("Vế phải của mệnh đề 'thuộc' phải là một 'Tập đếm được' thay vì '%s'", right.Type())
 				return ev.runtimeError(errMsg, condition.Right)
 			}
@@ -41,9 +41,7 @@ func (ev *Evaluator) evalForEachStatement(
 				return ev.runtimeError(errMsg, condition.Left)
 			}
 
-			loopSet.BeginIterate()
-			element := loopSet.NextElement()
-			for element != ENDLOOP {
+			loopSet.Iterate(func(element object.Object) {
 				env.SetInScope(ident.Value, element)
 
 				fullConditions := stmt.Conditions
@@ -53,9 +51,7 @@ func (ev *Evaluator) evalForEachStatement(
 				ev.evalForEachStatement(stmt, closeEnv, constraints)
 
 				stmt.Conditions = fullConditions
-
-				element = loopSet.NextElement()
-			}
+			})
 
 			return NULL
 		}
@@ -64,13 +60,10 @@ func (ev *Evaluator) evalForEachStatement(
 	// constraints
 	constraints = append(constraints, stmt.Conditions[0])
 
-	fullConditions := stmt.Conditions
 	stmt.Conditions = stmt.Conditions[1:]
 
 	closeEnv := object.NewEnclosedEnvironment(env)
 	ev.evalForEachStatement(stmt, closeEnv, constraints)
-
-	stmt.Conditions = fullConditions
 
 	return NULL
 }

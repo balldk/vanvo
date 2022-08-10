@@ -15,7 +15,6 @@ var (
 	TRUE         = object.TRUE
 	FALSE        = object.FALSE
 	INCOMPARABLE = object.INCOMPARABLE
-	ENDLOOP      = object.ENDLOOP
 	NO_PRINT     = &object.Null{}
 )
 

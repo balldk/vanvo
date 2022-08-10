@@ -2,15 +2,10 @@ package object
 
 import (
 	"bytes"
-	"math/big"
 )
 
 const (
 	SetObj = "Tập Hợp"
-)
-
-var (
-	ENDLOOP = &Null{}
 )
 
 type Set interface {
@@ -21,14 +16,12 @@ type Set interface {
 
 type CountableSet interface {
 	Set
-	BeginIterate()
-	NextElement() Object
+	Iterate(func(Object))
 }
 
 type IntInterval struct {
-	Upper      *Real
-	Lower      *Real
-	curElement *Int
+	Upper Number
+	Lower Number
 }
 
 func (interval *IntInterval) Type() ObjectType { return SetObj }
@@ -53,23 +46,12 @@ func (interval *IntInterval) Contain(obj Object) *Boolean {
 		return FALSE
 	}
 }
-func (interval *IntInterval) BeginIterate() {
-	interval.curElement = NewInt(new(big.Int))
-	interval.Lower.Value.Int(interval.curElement.Value)
-	if !interval.Lower.Value.IsInt() {
-		interval.curElement.Value.Add(interval.curElement.Value, IntOne)
+func (interval *IntInterval) Iterate(callback func(Object)) {
+	element := interval.Lower
+	for element.Less(interval.Upper) == TRUE || element.Equal(interval.Upper) == TRUE {
+		callback(element)
+		element = element.Add(NewInt(IntOne)).(Number)
 	}
-}
-func (interval *IntInterval) NextElement() Object {
-	if interval.curElement == nil {
-		interval.BeginIterate()
-	}
-	if interval.Upper.Less(interval.curElement) == TRUE {
-		return ENDLOOP
-	}
-	defer interval.curElement.Value.Add(interval.curElement.Value, IntOne)
-	val := new(big.Int).Set(interval.curElement.Value)
-	return NewInt(val)
 }
 
 type RealInterval struct {
@@ -102,9 +84,8 @@ func (interval *RealInterval) Contain(obj Object) *Boolean {
 }
 
 type UnionSet struct {
-	Left       Set
-	Right      Set
-	leftLooped bool
+	Left  Set
+	Right Set
 }
 
 func (set *UnionSet) Type() ObjectType { return SetObj }
@@ -119,22 +100,4 @@ func (set *UnionSet) Contain(obj Object) *Boolean {
 		return TRUE
 	}
 	return set.Right.Contain(obj)
-}
-func (set *UnionSet) StartIterate() {
-
-	if left, isCountable := set.Left.(CountableSet); isCountable {
-		left.BeginIterate()
-	}
-	if right, isCountable := set.Right.(CountableSet); isCountable {
-		right.BeginIterate()
-	}
-}
-func (set *UnionSet) NextElement() Object {
-	if left, isCountable := set.Left.(CountableSet); isCountable {
-		element := left.NextElement()
-		if element == ENDLOOP {
-			set.leftLooped = true
-		}
-	}
-	return ENDLOOP
 }

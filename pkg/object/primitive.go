@@ -31,6 +31,14 @@ var (
 	RealOne  = big.NewFloat(1)
 )
 
+type Number interface {
+	Order
+	Additive
+	Subtractive
+	Multiplicative
+	Division
+}
+
 func NewInt(value *big.Int) *Int {
 	return &Int{Value: value}
 }
@@ -169,6 +177,7 @@ func (i *Int) Less(right Object) *Boolean {
 }
 
 type Realness interface {
+	Number
 	ToReal() *Real
 }
 
