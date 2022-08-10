@@ -121,3 +121,31 @@ func (set *UnionSet) Iterate(callback IterateCallback) {
 		right.Iterate(callback)
 	}
 }
+
+type DiffSet struct {
+	Left  Set
+	Right Set
+}
+
+func (set *DiffSet) Type() ObjectType { return SetObj }
+func (set *DiffSet) Display() string {
+	return set.Left.Display() + " + " + set.Right.Display()
+}
+func (set *DiffSet) IsCountable() bool {
+	return set.Left.IsCountable()
+}
+func (set *DiffSet) Contain(obj Object) *Boolean {
+	if set.Left.Contain(obj) == FALSE {
+		return FALSE
+	}
+	return set.Right.Contain(obj).Not()
+}
+func (set *DiffSet) Iterate(callback IterateCallback) {
+	if left, isCountable := set.Left.(CountableSet); isCountable {
+		left.Iterate(func(element Object) {
+			if !set.Right.Contain(element).Value {
+				callback(element)
+			}
+		})
+	}
+}

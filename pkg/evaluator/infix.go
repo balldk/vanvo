@@ -96,6 +96,11 @@ func (ev *Evaluator) evalSubtraction(left, right object.Object) object.Object {
 		value := left.Subtract(right)
 		return ev.someObject(value, errMsg)
 	}
+	if left, ok := left.(object.Set); ok {
+		if right, ok := right.(object.Set); ok {
+			return ev.evalSetDiff(left, right)
+		}
+	}
 
 	return ev.runtimeError(errMsg)
 }
@@ -171,6 +176,10 @@ func (ev *Evaluator) evalUnion(left, right object.Set) object.Set {
 	}
 
 	return &object.UnionSet{Left: left, Right: right}
+}
+
+func (ev *Evaluator) evalSetDiff(left, right object.Set) object.Set {
+	return &object.DiffSet{Left: left, Right: right}
 }
 
 func (ev *Evaluator) evalEquality(left, right object.Object) *object.Boolean {
