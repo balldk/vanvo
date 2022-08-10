@@ -109,7 +109,7 @@ func (ev *Evaluator) evalNode() object.Object {
 		return ev.evalAssignStatement(node)
 
 	case *ast.VarDeclareStatement:
-		ev.evalVarDeclare(node)
+		return ev.evalVarDeclare(node)
 
 	case *ast.FunctionDeclareStatement:
 		ev.evalFunctionDeclare(node)
@@ -134,6 +134,9 @@ func (ev *Evaluator) evalNode() object.Object {
 
 	case *ast.String:
 		return &object.String{Value: node.Value}
+
+	case *ast.List:
+		return ev.evalList(node)
 
 	case *ast.IntInterval:
 		return ev.evalIntInterval(node)

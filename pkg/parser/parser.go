@@ -28,6 +28,7 @@ func New(l *lexer.Lexer, errors *errorhandler.ErrorList) *Parser {
 	p.registerPrefix(token.Plus, p.parsePrefixExpression)
 	p.registerPrefix(token.LParen, p.parseGroupExpression)
 	p.registerPrefix(token.LBracket, p.parseInterval)
+	p.registerPrefix(token.LBrace, p.parseList)
 
 	p.infixParseFns = make(map[token.TokenType]infixParseFn)
 	p.registerInfix(token.Plus, p.parseInfixExpression)

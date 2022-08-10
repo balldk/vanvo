@@ -6,6 +6,11 @@ import (
 	"vila/pkg/object"
 )
 
+func (ev *Evaluator) evalList(list *ast.List) object.Object {
+	exps := ev.evalExpressions(list.Data)
+	return &object.List{Data: exps}
+}
+
 func (ev *Evaluator) evalIntInterval(interval *ast.IntInterval) object.Object {
 	lowerObj := ev.Eval(interval.Lower)
 	upperObj := ev.Eval(interval.Upper)

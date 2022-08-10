@@ -6,17 +6,20 @@ import (
 	"vila/pkg/object"
 )
 
-func (ev *Evaluator) evalVarDeclare(node *ast.VarDeclareStatement) {
+func (ev *Evaluator) evalVarDeclare(node *ast.VarDeclareStatement) object.Object {
 
 	val := ev.Eval(node.Value)
 	if val == NULL {
-		return
+		return NULL
 	}
+
 	if _, ok := ev.Env.GetInScope(node.Ident.Value); ok {
 		errMsg := fmt.Sprintf("'%s' đã được khởi tạo", node.Ident.Value)
 		ev.runtimeError(errMsg)
 	}
 	ev.Env.SetInScope(node.Ident.Value, val)
+
+	return val
 }
 
 func (ev *Evaluator) evalFunctionDeclare(node *ast.FunctionDeclareStatement) {

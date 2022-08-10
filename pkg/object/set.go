@@ -21,6 +21,42 @@ type CountableSet interface {
 	Iterate(IterateCallback)
 }
 
+type List struct {
+	Data []Object
+}
+
+func (list *List) Type() ObjectType { return SetObj }
+func (list *List) Display() string {
+	var out bytes.Buffer
+	out.WriteString("{")
+
+	for ind, each := range list.Data {
+		out.WriteString(each.Display())
+		if ind != len(list.Data)-1 {
+			out.WriteString(",")
+		}
+	}
+	out.WriteString("}")
+
+	return out.String()
+}
+func (list *List) IsCountable() bool { return true }
+func (list *List) Contain(obj Object) *Boolean {
+	if obj, ok := obj.(Equal); ok {
+		for _, each := range list.Data {
+			if obj.Equal(each).Value {
+				return TRUE
+			}
+		}
+	}
+	return FALSE
+}
+func (list *List) Iterate(callback IterateCallback) {
+	for _, each := range list.Data {
+		callback(each)
+	}
+}
+
 type IntInterval struct {
 	Upper Realness
 	Lower Realness

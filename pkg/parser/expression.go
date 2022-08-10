@@ -99,6 +99,42 @@ func (p *Parser) parseBoolean() ast.Expression {
 	return &ast.Boolean{Token: p.curToken, Value: p.curTokenIs(token.True)}
 }
 
+func (p *Parser) parseList() ast.Expression {
+	leftBrace := p.curToken
+	p.advanceToken()
+
+	exp := p.parseExpression(LOWEST)
+
+	p.advanceToken()
+	if p.curTokenIs(token.Comma) || p.curTokenIs(token.RBrace) {
+		list := &ast.List{LeftBrace: leftBrace}
+		list.Data = append(list.Data, exp)
+
+		for !p.curTokenIs(token.RBrace) {
+			p.advanceToken()
+
+			exp = p.parseExpression(LOWEST)
+			if exp == nil {
+				p.Errors.ParserErrors = p.Errors.ParserErrors[1:]
+				p.expectError(token.RBrace)
+				return nil
+			}
+			list.Data = append(list.Data, exp)
+
+			p.advanceToken()
+		}
+
+		if !p.curTokenIs(token.RBrace) {
+			p.expectError(token.RBrace)
+			return nil
+		}
+		list.RightBrace = p.curToken
+		return list
+	}
+
+	return nil
+}
+
 func (p *Parser) parseInterval() ast.Expression {
 	leftBracket := p.curToken
 	p.advanceToken()
