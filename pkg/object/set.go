@@ -8,6 +8,8 @@ const (
 	SetObj = "Tập Hợp"
 )
 
+type IterateCallback func(Object)
+
 type Set interface {
 	Object
 	Contain(Object) *Boolean
@@ -16,7 +18,7 @@ type Set interface {
 
 type CountableSet interface {
 	Set
-	Iterate(func(Object))
+	Iterate(IterateCallback)
 }
 
 type IntInterval struct {
@@ -46,7 +48,7 @@ func (interval *IntInterval) Contain(obj Object) *Boolean {
 		return FALSE
 	}
 }
-func (interval *IntInterval) Iterate(callback func(Object)) {
+func (interval *IntInterval) Iterate(callback IterateCallback) {
 	element := interval.Lower
 	for element.Less(interval.Upper) == TRUE || element.Equal(interval.Upper) == TRUE {
 		callback(element)
@@ -100,4 +102,12 @@ func (set *UnionSet) Contain(obj Object) *Boolean {
 		return TRUE
 	}
 	return set.Right.Contain(obj)
+}
+func (set *UnionSet) Iterate(callback IterateCallback) {
+	if left, isCountable := set.Left.(CountableSet); isCountable {
+		left.Iterate(callback)
+	}
+	if right, isCountable := set.Right.(CountableSet); isCountable {
+		right.Iterate(callback)
+	}
 }
