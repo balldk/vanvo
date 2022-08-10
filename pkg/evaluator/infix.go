@@ -82,7 +82,7 @@ func (ev *Evaluator) evalAddition(left, right object.Object) object.Object {
 	}
 	if left, ok := left.(object.Set); ok {
 		if right, ok := right.(object.Set); ok {
-			return &object.UnionSet{Left: left, Right: right}
+			return ev.evalUnion(left, right)
 		}
 	}
 
@@ -153,6 +153,24 @@ func (ev *Evaluator) evalExponent(left, right object.Object) object.Object {
 	}
 
 	return ev.runtimeError(errMsg)
+}
+
+func (ev *Evaluator) evalUnion(left, right object.Set) object.Set {
+	if left, isInterval := left.(*object.RealInterval); isInterval {
+		if right, isInterval := right.(*object.RealInterval); isInterval {
+			if right.Lower.Less(left.Lower) == TRUE {
+				left, right = right, left
+			}
+			if right.Less(left).Value {
+				return left
+			}
+			if !left.Upper.Less(right.Lower).Value {
+				return &object.RealInterval{Lower: left.Lower, Upper: right.Upper}
+			}
+		}
+	}
+
+	return &object.UnionSet{Left: left, Right: right}
 }
 
 func (ev *Evaluator) evalEquality(left, right object.Object) *object.Boolean {

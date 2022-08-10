@@ -20,6 +20,10 @@ func (ev *Evaluator) evalIntInterval(interval *ast.IntInterval) object.Object {
 		errMsg := fmt.Sprintf("Không thể dùng '%s' làm chặn trên", upperObj.Type())
 		return ev.runtimeError(errMsg, interval.Upper)
 	}
+	if upper.Less(lower) == TRUE {
+		errMsg := fmt.Sprintf("Chặn dưới phải nhỏ hơn chặn trên (%s > %s)", lower.Display(), upper.Display())
+		return ev.runtimeError(errMsg)
+	}
 
 	return &object.IntInterval{Lower: lower, Upper: upper}
 }
@@ -39,5 +43,5 @@ func (ev *Evaluator) evalRealInterval(interval *ast.RealInterval) object.Object 
 		return ev.runtimeError(errMsg)
 	}
 
-	return &object.RealInterval{Lower: lower.ToReal(), Upper: upper.ToReal()}
+	return &object.RealInterval{Lower: lower, Upper: upper}
 }

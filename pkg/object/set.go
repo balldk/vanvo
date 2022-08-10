@@ -22,8 +22,8 @@ type CountableSet interface {
 }
 
 type IntInterval struct {
-	Upper Number
-	Lower Number
+	Upper Realness
+	Lower Realness
 }
 
 func (interval *IntInterval) Type() ObjectType { return SetObj }
@@ -52,13 +52,13 @@ func (interval *IntInterval) Iterate(callback IterateCallback) {
 	element := interval.Lower
 	for element.Less(interval.Upper) == TRUE || element.Equal(interval.Upper) == TRUE {
 		callback(element)
-		element = element.Add(NewInt(IntOne)).(Number)
+		element = element.Add(NewInt(IntOne)).(Realness)
 	}
 }
 
 type RealInterval struct {
-	Upper *Real
-	Lower *Real
+	Upper Realness
+	Lower Realness
 }
 
 func (interval *RealInterval) IsCountable() bool { return false }
@@ -82,6 +82,16 @@ func (interval *RealInterval) Contain(obj Object) *Boolean {
 		return Condition(cond1 && cond2)
 	default:
 		return FALSE
+	}
+}
+func (interval *RealInterval) Less(right Object) *Boolean {
+	switch right := right.(type) {
+	case *IntInterval:
+		cond1 := interval.Lower.Less(right.Lower).Not()
+		cond2 := interval.Upper.Less(right.Upper).Or(interval.Upper.Equal(right.Upper))
+		return cond1.And(cond2)
+	default:
+		return INCOMPARABLE
 	}
 }
 
