@@ -60,6 +60,7 @@ const (
 	Semicolon  = ";"
 	DotDot     = ".."
 	SlashSlash = "//"
+	Bar        = "|"
 )
 
 type Token struct {

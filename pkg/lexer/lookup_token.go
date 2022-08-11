@@ -32,6 +32,7 @@ var TOKEN_TABLE = map[string]token.TokenType{
 	">=": token.GreaterEqual,
 	"=>": token.Imply,
 	"//": token.SlashSlash,
+	"|":  token.Bar,
 }
 
 func (l *Lexer) lookupToken() token.Token {

@@ -108,26 +108,34 @@ func (p *Parser) parseList() ast.Expression {
 	p.advanceToken()
 	if p.curTokenIs(token.Comma) || p.curTokenIs(token.RBrace) {
 		list := &ast.List{LeftBrace: leftBrace}
-		list.Data = append(list.Data, exp)
 
-		for !p.curTokenIs(token.RBrace) {
-			p.advanceToken()
-
-			exp = p.parseExpression(LOWEST)
-			if exp == nil {
-				p.Errors.ParserErrors = p.Errors.ParserErrors[1:]
-				p.expectError(token.RBrace)
-				return nil
-			}
+		if exp != nil {
 			list.Data = append(list.Data, exp)
-
-			p.advanceToken()
 		}
 
-		if !p.curTokenIs(token.RBrace) {
-			p.expectError(token.RBrace)
+		p.advanceToken()
+		list.Data = append(list.Data, p.parseExpressionList(token.RBrace)...)
+
+		if !p.expectPeek(token.RBrace) {
 			return nil
 		}
+
+		list.RightBrace = p.curToken
+		return list
+	}
+
+	// List comprehension
+	if p.curTokenIs(token.Bar) {
+		list := &ast.ListComprehension{LeftBrace: leftBrace}
+		list.Expression = exp
+
+		p.advanceToken()
+		list.Conditions = p.parseExpressionList(token.RBrace)
+
+		if !p.expectPeek(token.RBrace) {
+			return nil
+		}
+
 		list.RightBrace = p.curToken
 		return list
 	}
@@ -232,7 +240,7 @@ func (p *Parser) parseCallArguments() []ast.Expression {
 	}
 
 	p.advanceToken()
-	args = p.parseExpressionList()
+	args = p.parseExpressionList(token.RParen)
 
 	if !p.expectPeek(token.RParen) {
 		return nil
@@ -241,18 +249,31 @@ func (p *Parser) parseCallArguments() []ast.Expression {
 	return args
 }
 
-func (p *Parser) parseExpressionList() []ast.Expression {
+func (p *Parser) parseExpressionList(closeTokens ...token.TokenType) []ast.Expression {
+	closeToken := token.TokenType(token.EOF)
+	if len(closeTokens) > 0 {
+		closeToken = closeTokens[0]
+	}
+
 	exps := []ast.Expression{}
 
-	exps = append(exps, p.parseExpression(LOWEST))
+	exp := p.parseExpression(LOWEST)
+
+	if exp != nil {
+		exps = append(exps, exp)
+	}
 
 	for p.peekTokenIs(token.Comma) {
 		p.advanceToken()
-		p.advanceToken()
-		if p.curTokenIs(token.RParen) {
+		if p.peekTokenIs(closeToken) {
 			return exps
 		}
-		exps = append(exps, p.parseExpression(LOWEST))
+		p.advanceToken()
+
+		exp := p.parseExpression(LOWEST)
+		if exp != nil {
+			exps = append(exps, exp)
+		}
 	}
 
 	return exps
