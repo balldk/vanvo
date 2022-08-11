@@ -200,7 +200,11 @@ func (ev *Evaluator) evalExpressions(exps []ast.Expression) []object.Object {
 func (ev *Evaluator) evalOutputStatement(stmt *ast.OutputStatement) {
 	for _, value := range stmt.Values {
 		evaluated := ev.Eval(value)
-		fmt.Print(evaluated.Display(), " ")
+		if str, isString := evaluated.(*object.String); isString {
+			fmt.Print(str.Value, " ")
+		} else {
+			fmt.Print(evaluated.Display(), " ")
+		}
 	}
 	fmt.Println()
 }
