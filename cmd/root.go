@@ -12,7 +12,7 @@ import (
 
 func errRecover() {
 	if r := recover(); r != nil {
-		fmt.Print("Lỗi hệ thống")
+		fmt.Print("Lỗi trình thông dịch")
 	}
 }
 
@@ -40,7 +40,7 @@ func runFromFile() {
 }
 
 func Execute() {
-	defer errRecover()
+	// defer errRecover()
 	initConfig()
 
 	if len(os.Args) > 1 {
