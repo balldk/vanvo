@@ -187,7 +187,11 @@ func (ev *Evaluator) evalEquality(left, right object.Object) *object.Boolean {
 
 	if left, ok := left.(object.Equal); ok {
 		value := left.Equal(right)
-		return ev.someObject(value, errMsg).(*object.Boolean)
+		value, isBool := ev.someObject(value, errMsg).(*object.Boolean)
+		if !isBool {
+			return FALSE
+		}
+		return value
 	}
 
 	ev.runtimeError(errMsg)
@@ -199,7 +203,11 @@ func (ev *Evaluator) evalLess(left, right object.Object) *object.Boolean {
 
 	if left, ok := left.(object.StrictOrder); ok {
 		value := left.Less(right)
-		return ev.someObject(value, errMsg).(*object.Boolean)
+		value, isBool := ev.someObject(value, errMsg).(*object.Boolean)
+		if !isBool {
+			return FALSE
+		}
+		return value
 	}
 
 	ev.runtimeError(errMsg)
@@ -226,7 +234,11 @@ func (ev *Evaluator) evalBelong(left, right object.Object) *object.Boolean {
 
 	if right, ok := right.(object.Set); ok {
 		value := right.Contain(left)
-		return ev.someObject(value, errMsg).(*object.Boolean)
+		value, isBool := ev.someObject(value, errMsg).(*object.Boolean)
+		if !isBool {
+			return FALSE
+		}
+		return value
 	}
 
 	ev.runtimeError(errMsg)

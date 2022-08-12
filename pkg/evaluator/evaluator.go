@@ -98,8 +98,7 @@ func (ev *Evaluator) evalNode() object.Object {
 		ev.evalForStatement(node)
 
 	case *ast.ForEachStatement:
-		env := object.NewEnclosedEnvironment(ev.Env)
-		ev.evalForEachStatement(node, env, []ast.Expression{})
+		ev.evalForEachStatement(node)
 
 	case *ast.ImplyStatement:
 		val := ev.Eval(node.Value)
@@ -137,6 +136,9 @@ func (ev *Evaluator) evalNode() object.Object {
 
 	case *ast.List:
 		return ev.evalList(node)
+
+	case *ast.ListComprehension:
+		return ev.evalListComprehension(node)
 
 	case *ast.IntInterval:
 		return ev.evalIntInterval(node)

@@ -11,6 +11,25 @@ func (ev *Evaluator) evalList(list *ast.List) object.Object {
 	return &object.List{Data: exps}
 }
 
+func (ev *Evaluator) evalListComprehension(list *ast.ListComprehension) object.Object {
+	closeEnv := object.NewEnclosedEnvironment(ev.Env)
+
+	res := &object.ListComprehension{
+		Expression: list.Expression,
+		Conditions: list.Conditions,
+		IterateFunc: func(callback object.IterateCallback) {
+			loopCallback := func(env *object.Environment) object.Object {
+				val := ev.Eval(list.Expression, env)
+				callback(val)
+				return NULL
+			}
+			ev.evalForEach(list.Conditions, []ast.Expression{}, loopCallback, closeEnv)
+		},
+	}
+
+	return res
+}
+
 func (ev *Evaluator) evalIntInterval(interval *ast.IntInterval) object.Object {
 	lowerObj := ev.Eval(interval.Lower)
 	upperObj := ev.Eval(interval.Upper)

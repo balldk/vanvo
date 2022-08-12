@@ -2,6 +2,7 @@ package object
 
 import (
 	"bytes"
+	"vila/pkg/ast"
 )
 
 const (
@@ -33,7 +34,7 @@ func (list *List) Display() string {
 	for ind, each := range list.Data {
 		out.WriteString(each.Display())
 		if ind != len(list.Data)-1 {
-			out.WriteString(",")
+			out.WriteString(", ")
 		}
 	}
 	out.WriteString("}")
@@ -55,6 +56,49 @@ func (list *List) Iterate(callback IterateCallback) {
 	for _, each := range list.Data {
 		callback(each)
 	}
+}
+
+type ListComprehension struct {
+	Expression  ast.Expression
+	Conditions  []ast.Expression
+	IterateFunc func(IterateCallback)
+}
+
+func (list *ListComprehension) Type() ObjectType { return SetObj }
+func (list *ListComprehension) Display() string {
+	var out bytes.Buffer
+	out.WriteString("{ ")
+
+	out.WriteString(list.Expression.String())
+	out.WriteString(" | ")
+
+	for ind, each := range list.Conditions {
+		out.WriteString(each.String())
+		if ind != len(list.Conditions)-1 {
+			out.WriteString(", ")
+		}
+	}
+
+	out.WriteString(" }")
+
+	return out.String()
+}
+func (list *ListComprehension) IsCountable() bool { return true }
+func (list *ListComprehension) Contain(obj Object) *Boolean {
+	res := FALSE
+
+	if obj, ok := obj.(Equal); ok {
+		list.Iterate(func(element Object) {
+			if obj.Equal(element).Value {
+				res = TRUE
+				return
+			}
+		})
+	}
+	return res
+}
+func (list *ListComprehension) Iterate(callback IterateCallback) {
+	list.IterateFunc(callback)
 }
 
 type IntInterval struct {
