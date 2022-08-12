@@ -42,6 +42,9 @@ func (ev *Evaluator) evalInfixExpression(
 	case token.Equal:
 		return ev.evalEquality(left, right)
 
+	case token.NotEqual:
+		return ev.evalEquality(left, right).Not()
+
 	case token.Less:
 		return ev.evalLess(left, right)
 

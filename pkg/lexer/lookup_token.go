@@ -28,6 +28,7 @@ var TOKEN_TABLE = map[string]token.TokenType{
 	":":  token.Colon,
 	";":  token.Semicolon,
 	"==": token.Equal,
+	"!=": token.NotEqual,
 	"<=": token.LessEqual,
 	">=": token.GreaterEqual,
 	"=>": token.Imply,
