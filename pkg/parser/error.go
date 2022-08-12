@@ -9,9 +9,9 @@ func (p *Parser) syntaxError(message string) {
 	p.Errors.AddParserError(message, p.curToken)
 }
 
-func (p *Parser) syntaxErrorImportant(message string) {
-	p.Errors.AddParserErrorImportant(message, p.curToken)
-}
+// func (p *Parser) syntaxErrorImportant(message string) {
+// 	p.Errors.AddParserErrorImportant(message, p.curToken)
+// }
 
 func (p *Parser) invalidSyntax() {
 	p.Errors.AddParserError("Cú pháp không hợp lệ", p.curToken)

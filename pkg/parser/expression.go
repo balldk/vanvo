@@ -218,6 +218,10 @@ func (p *Parser) parseGroupExpression() ast.Expression {
 		return nil
 	}
 
+	if len(block.Statements) == 1 {
+		return block.Statements[0]
+	}
+
 	block.RightParen = p.curToken
 
 	return block

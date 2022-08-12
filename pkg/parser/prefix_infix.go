@@ -81,7 +81,7 @@ func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
 	expr.Right = p.parseExpression(precedence)
 
 	if expr.Right == nil {
-		p.syntaxErrorImportant("Thiếu vế phải của " + string(expr.Operator.Literal))
+		p.syntaxError("Thiếu vế phải của " + string(expr.Operator.Literal))
 	}
 
 	return expr
