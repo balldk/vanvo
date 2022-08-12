@@ -21,8 +21,10 @@ func (bs *GroupExpression) ToToken() token.Token {
 
 func (bs *GroupExpression) String() string {
 	var out bytes.Buffer
+	out.WriteString("(\n")
 	for _, s := range bs.Statements {
 		out.WriteString(s.String())
 	}
+	out.WriteString(")")
 	return out.String()
 }

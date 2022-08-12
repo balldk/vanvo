@@ -1,6 +1,7 @@
 package ast
 
 import (
+	"bytes"
 	"vila/pkg/token"
 )
 
@@ -20,5 +21,13 @@ func (ie *IfExpression) ToToken() token.Token {
 }
 
 func (is *IfExpression) String() string {
-	return ""
+	var out bytes.Buffer
+
+	out.WriteString(is.Consequence.String())
+	out.WriteString(" nếu ")
+	out.WriteString(is.Condition.String())
+	out.WriteString(" còn không ")
+	out.WriteString(is.Alternative.String())
+
+	return out.String()
 }

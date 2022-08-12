@@ -47,9 +47,15 @@ func (ie *InfixExpression) ToToken() token.Token {
 func (ie *InfixExpression) String() string {
 	var out bytes.Buffer
 
-	out.WriteString("{ Operator: " + string(ie.Operator.Literal) + "\n")
-	out.WriteString("Left: " + ie.Left.String() + "\n")
-	out.WriteString("Right: " + ie.Right.String() + " }")
+	out.WriteString(ie.Left.String())
+
+	if len(ie.Operator.Literal) > 1 {
+		out.WriteString(" " + string(ie.Operator.Literal) + " ")
+	} else {
+		out.WriteString(string(ie.Operator.Literal))
+	}
+
+	out.WriteString(ie.Right.String())
 
 	return out.String()
 }

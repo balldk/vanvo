@@ -1,6 +1,7 @@
 package ast
 
 import (
+	"bytes"
 	"vila/pkg/token"
 )
 
@@ -18,7 +19,15 @@ func (ib *IfBranch) ToToken() token.Token {
 	return ib.Consequence.ToToken()
 }
 
-func (ib *IfBranch) String() string { return "" }
+func (ib *IfBranch) String() string {
+	var out bytes.Buffer
+
+	out.WriteString(string(ib.Token.Literal) + " ")
+	out.WriteString(ib.Condition.String())
+	out.WriteString(ib.Consequence.String())
+
+	return out.String()
+}
 
 type IfStatement struct {
 	Branches []*IfBranch
@@ -33,5 +42,11 @@ func (is *IfStatement) ToToken() token.Token {
 }
 
 func (is *IfStatement) String() string {
-	return ""
+	var out bytes.Buffer
+
+	for _, branch := range is.Branches {
+		out.WriteString(branch.String() + "\n")
+	}
+
+	return out.String()
 }

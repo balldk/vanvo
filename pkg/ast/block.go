@@ -23,8 +23,9 @@ func (bs *BlockStatement) ToToken() token.Token {
 
 func (bs *BlockStatement) String() string {
 	var out bytes.Buffer
+	out.WriteString(":\n")
 	for _, s := range bs.Statements {
-		out.WriteString(s.String())
+		out.WriteString(s.String() + "\n")
 	}
 	return out.String()
 }
