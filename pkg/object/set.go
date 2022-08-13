@@ -2,6 +2,7 @@ package object
 
 import (
 	"bytes"
+	"math"
 	"math/big"
 	"vila/pkg/ast"
 )
@@ -24,12 +25,9 @@ type Set interface {
 
 type CountableSet interface {
 	Set
-	Iterate(IterateCallback)
-}
-
-type Indexable interface {
-	Set
+	Length() int
 	At(index int) Object
+	Iterate(IterateCallback)
 }
 
 type List struct {
@@ -67,6 +65,9 @@ func (list *List) At(index int) Object {
 		return IndexError
 	}
 	return list.Data[index]
+}
+func (list *List) Length() int {
+	return len(list.Data)
 }
 func (list *List) Iterate(callback IterateCallback) {
 	for _, each := range list.Data {
@@ -129,6 +130,11 @@ func (list *ListComprehension) At(index int) Object {
 	}
 	return IndexError
 }
+func (list *ListComprehension) Length() int {
+	for range list.Channel {
+	}
+	return len(list.Data)
+}
 func (list *ListComprehension) Iterate(callback IterateCallback) {
 	data := list.At(0)
 	for i := 1; data != IndexError; i++ {
@@ -178,6 +184,15 @@ func (interval *IntInterval) Contain(obj Object) *Boolean {
 		}
 	}
 	return FALSE
+}
+func (interval *IntInterval) Length() int {
+	dif := interval.Upper.Subtract(interval.Lower).(Realness).ToReal()
+	quo, _ := dif.Divide(interval.Step).(Realness).ToReal().Value.Int(nil)
+	length := int(quo.Int64()) + 1
+	if length < 0 {
+		return 0
+	}
+	return length
 }
 func (interval *IntInterval) Iterate(callback IterateCallback) {
 	element := interval.Lower
@@ -256,6 +271,28 @@ func (set *UnionSet) Contain(obj Object) *Boolean {
 	}
 	return set.Right.Contain(obj)
 }
+func (set *UnionSet) At(index int) Object {
+
+	if left, isCountable := set.Left.(CountableSet); isCountable {
+		val := left.At(index)
+		if val != IndexError {
+			return val
+		}
+
+		if right, isCountable := set.Right.(CountableSet); isCountable {
+			return right.At(index - left.Length())
+		}
+	}
+	return IndexError
+}
+func (set *UnionSet) Length() int {
+	if left, isCountable := set.Left.(CountableSet); isCountable {
+		if right, isCountable := set.Right.(CountableSet); isCountable {
+			return left.Length() + right.Length()
+		}
+	}
+	return int(math.Inf(1))
+}
 func (set *UnionSet) Iterate(callback IterateCallback) {
 	if left, isCountable := set.Left.(CountableSet); isCountable {
 		left.Iterate(callback)
@@ -268,6 +305,7 @@ func (set *UnionSet) Iterate(callback IterateCallback) {
 type DiffSet struct {
 	Left  Set
 	Right Set
+	Data  []Object
 }
 
 func (set *DiffSet) Type() ObjectType { return SetObj }
@@ -282,6 +320,31 @@ func (set *DiffSet) Contain(obj Object) *Boolean {
 		return FALSE
 	}
 	return set.Right.Contain(obj).Not()
+}
+func (set *DiffSet) At(index int) Object {
+	if index < len(set.Data) {
+		return set.Data[index]
+	}
+	if left, isCountable := set.Left.(CountableSet); isCountable {
+		for i := len(set.Data); i <= index; i++ {
+			val := left.At(i)
+			if val == IndexError {
+				return IndexError
+			}
+			if !set.Right.Contain(val).Value {
+				set.Data = append(set.Data, val)
+			}
+			if index < len(set.Data) {
+				return set.Data[index]
+			}
+		}
+	}
+	return IndexError
+}
+func (set *DiffSet) Length() int {
+	for i := len(set.Data); set.At(i) != IndexError; i++ {
+	}
+	return len(set.Data)
 }
 func (set *DiffSet) Iterate(callback IterateCallback) {
 	if left, isCountable := set.Left.(CountableSet); isCountable {

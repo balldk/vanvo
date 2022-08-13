@@ -267,9 +267,8 @@ func (p *Parser) parseIndexExpression(set ast.Expression) ast.Expression {
 	p.advanceToken()
 
 	exp.Index = p.parseExpression(LOWEST)
-	p.advanceToken()
 
-	if !p.expectCur(token.RBracket) {
+	if !p.expectPeek(token.RBracket) {
 		return nil
 	}
 	exp.RightBracket = p.curToken

@@ -39,6 +39,21 @@ var Builtins = map[string]Object{
 	"Pi": &Real{Value: big.NewFloat(math.Pi)},
 	"E":  &Real{Value: big.NewFloat(math.E)},
 	"I":  &Complex{Real: NewReal(big.NewFloat(0)), Imagine: NewReal(big.NewFloat(1))},
+	"len": &Function{
+		Builtin: func(args ...Object) Object {
+			if len(args) != 1 {
+				return NewArgumentError(1, args)
+			}
+			if arg, ok := args[0].(CountableSet); ok {
+				val := big.NewInt(int64(arg.Length()))
+				return &Int{Value: val}
+
+			} else {
+				errMsg := fmt.Sprintf("Không thể dùng '%s' làm tham số", args[0].Type())
+				return NewError(errMsg)
+			}
+		},
+	},
 	"căn": &Function{
 		Builtin: squareRootBuiltin,
 	},
