@@ -110,8 +110,8 @@ func (p *Parser) parseLetStatement() ast.Statement {
 func (p *Parser) parseFunction(letToken token.Token, ident *ast.Identifier) *ast.FunctionDeclareStatement {
 	fn := &ast.FunctionDeclareStatement{Token: letToken, Ident: ident}
 
-	for p.peekTokenIs(token.Ident) {
-		p.advanceToken()
+	p.advanceToken()
+	for p.curTokenIs(token.Ident) {
 		param := p.parseIdentifier().(*ast.Identifier)
 		fn.Params = append(fn.Params, param)
 
@@ -122,6 +122,7 @@ func (p *Parser) parseFunction(letToken token.Token, ident *ast.Identifier) *ast
 		if !p.expectPeek(token.Comma) {
 			return nil
 		}
+		p.advanceToken()
 	}
 	if !p.expectCur(token.RParen) {
 		return nil
