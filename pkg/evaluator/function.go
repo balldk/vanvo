@@ -64,3 +64,11 @@ func (ev *Evaluator) applyFunction(fn *object.Function, args []object.Object) ob
 	val := ev.Eval(fn.Body, env)
 	return ev.unwrapImply(val)
 }
+
+func (ev *Evaluator) unwrapImply(obj object.Object) object.Object {
+	if imply, ok := obj.(*object.Imply); ok {
+		return ev.unwrapImply(imply.Value)
+	}
+
+	return obj
+}

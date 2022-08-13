@@ -11,23 +11,27 @@ func (ev *Evaluator) evalList(list *ast.List) object.Object {
 	return &object.List{Data: exps}
 }
 
-func (ev *Evaluator) evalListComprehension(list *ast.ListComprehension) object.Object {
+func (ev *Evaluator) evalListComprehension(node *ast.ListComprehension) object.Object {
 	closeEnv := object.NewEnclosedEnvironment(ev.Env)
 
-	res := &object.ListComprehension{
-		Expression: list.Expression,
-		Conditions: list.Conditions,
-		IterateFunc: func(callback object.IterateCallback) {
-			loopCallback := func(env *object.Environment) object.Object {
-				val := ev.Eval(list.Expression, env)
-				callback(val)
-				return NULL
-			}
-			ev.evalForEach(list.Conditions, []ast.Expression{}, loopCallback, closeEnv)
-		},
+	list := &object.ListComprehension{
+		Expression: node.Expression,
+		Conditions: node.Conditions,
+		Channel:    make(chan object.Object),
+		Data:       []object.Object{},
 	}
+	go func() {
+		defer close(list.Channel)
+		callback := func(env *object.Environment) object.Object {
+			val := ev.Eval(node.Expression, env)
+			list.Data = append(list.Data, val)
+			list.Channel <- val
+			return val
+		}
+		ev.evalForEach(node.Conditions, []ast.Expression{}, callback, closeEnv)
+	}()
 
-	return res
+	return list
 }
 
 func (ev *Evaluator) evalIntInterval(interval *ast.IntInterval) object.Object {
@@ -44,12 +48,8 @@ func (ev *Evaluator) evalIntInterval(interval *ast.IntInterval) object.Object {
 		errMsg := fmt.Sprintf("Không thể dùng '%s' làm chặn trên", upperObj.Type())
 		return ev.runtimeError(errMsg, interval.Upper)
 	}
-	if upper.Less(lower) == TRUE {
-		errMsg := fmt.Sprintf("Chặn dưới phải nhỏ hơn chặn trên (%s > %s)", lower.Display(), upper.Display())
-		return ev.runtimeError(errMsg)
-	}
 
-	return &object.IntInterval{Lower: lower, Upper: upper}
+	return &object.IntInterval{Lower: lower, Upper: upper, Step: object.NewInt(object.IntOne)}
 }
 
 func (ev *Evaluator) evalRealInterval(interval *ast.RealInterval) object.Object {

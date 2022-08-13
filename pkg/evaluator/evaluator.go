@@ -95,10 +95,10 @@ func (ev *Evaluator) evalNode() object.Object {
 		return ev.evalIfStatement(node)
 
 	case *ast.ForStatement:
-		ev.evalForStatement(node)
+		return ev.evalForStatement(node)
 
 	case *ast.ForEachStatement:
-		ev.evalForEachStatement(node)
+		return ev.evalForEachStatement(node)
 
 	case *ast.ImplyStatement:
 		val := ev.Eval(node.Value)
@@ -237,14 +237,6 @@ func (ev *Evaluator) isTruthy(obj object.Object) bool {
 		ev.runtimeError(errMsg)
 		return false
 	}
-}
-
-func (ev *Evaluator) unwrapImply(obj object.Object) object.Object {
-	if imply, ok := obj.(*object.Imply); ok {
-		return ev.unwrapImply(imply.Value)
-	}
-
-	return obj
 }
 
 func boolRef(val bool) *object.Boolean {

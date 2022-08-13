@@ -2,6 +2,7 @@ package object
 
 import (
 	"bytes"
+	"math/big"
 	"vila/pkg/ast"
 )
 
@@ -9,7 +10,11 @@ const (
 	SetObj = "Tập Hợp"
 )
 
-type IterateCallback func(Object)
+var (
+	IndexError = &Null{}
+)
+
+type IterateCallback func(Object) Object
 
 type Set interface {
 	Object
@@ -52,16 +57,27 @@ func (list *List) Contain(obj Object) *Boolean {
 	}
 	return FALSE
 }
+func (list *List) At(index int) Object {
+	if index >= len(list.Data) {
+		return IndexError
+	}
+	return list.Data[index]
+}
 func (list *List) Iterate(callback IterateCallback) {
 	for _, each := range list.Data {
-		callback(each)
+		val := callback(each)
+		if val.Type() == IMPLY_OBJ {
+			break
+		}
 	}
 }
 
 type ListComprehension struct {
-	Expression  ast.Expression
-	Conditions  []ast.Expression
-	IterateFunc func(IterateCallback)
+	Expression ast.Expression
+	Conditions []ast.Expression
+
+	Channel chan Object
+	Data    []Object
 }
 
 func (list *ListComprehension) Type() ObjectType { return SetObj }
@@ -88,22 +104,41 @@ func (list *ListComprehension) Contain(obj Object) *Boolean {
 	res := FALSE
 
 	if obj, ok := obj.(Equal); ok {
-		list.Iterate(func(element Object) {
+		list.Iterate(func(element Object) Object {
 			if obj.Equal(element).Value {
 				res = TRUE
-				return
 			}
+			return NULL
 		})
 	}
 	return res
 }
+func (list *ListComprehension) At(index int) Object {
+	if index < len(list.Data) {
+		return list.Data[index]
+	}
+	for range list.Channel {
+		if index < len(list.Data) {
+			return list.Data[index]
+		}
+	}
+	return IndexError
+}
 func (list *ListComprehension) Iterate(callback IterateCallback) {
-	list.IterateFunc(callback)
+	data := list.At(0)
+	for i := 1; data != IndexError; i++ {
+		val := callback(data)
+		if val.Type() == IMPLY_OBJ {
+			return
+		}
+		data = list.At(i)
+	}
 }
 
 type IntInterval struct {
 	Upper Realness
 	Lower Realness
+	Step  Realness
 }
 
 func (interval *IntInterval) Type() ObjectType { return SetObj }
@@ -113,27 +148,47 @@ func (interval *IntInterval) Display() string {
 	out.WriteString(interval.Lower.Display())
 	out.WriteString("..")
 	out.WriteString(interval.Upper.Display())
+
+	if !interval.Step.ToReal().Equal(NewReal(RealOne)).Value {
+		out.WriteString("," + interval.Step.Display())
+	}
+
 	out.WriteString("]")
 
 	return out.String()
 }
 func (interval *IntInterval) IsCountable() bool { return true }
 func (interval *IntInterval) Contain(obj Object) *Boolean {
-	switch obj := obj.(type) {
-	case *Int:
-		cond1 := obj.Less(interval.Upper) == TRUE || obj.Equal(interval.Upper) == TRUE
-		cond2 := interval.Lower.Less(obj) == TRUE || interval.Lower.Equal(obj) == TRUE
-		return Condition(cond1 && cond2)
-	default:
-		return FALSE
+	if obj, isReal := obj.(Realness); isReal {
+		if interval.Upper.Less(obj).Value {
+			return FALSE
+		}
+
+		index := obj.Subtract(interval.Lower).(Realness).Divide(interval.Step).(Realness)
+		if index.ToReal().Value.IsInt() {
+			return TRUE
+		}
 	}
+	return FALSE
 }
 func (interval *IntInterval) Iterate(callback IterateCallback) {
 	element := interval.Lower
 	for element.Less(interval.Upper) == TRUE || element.Equal(interval.Upper) == TRUE {
-		callback(element)
-		element = element.Add(NewInt(IntOne)).(Realness)
+		val := callback(element)
+		if val.Type() == IMPLY_OBJ {
+			break
+		}
+		element = element.Add(interval.Step).(Realness)
 	}
+}
+func (interval *IntInterval) At(index int) Object {
+	indexInt := NewInt(big.NewInt(int64(index)))
+	val := indexInt.Multiply(interval.Step).(Realness).Add(interval.Lower)
+
+	if interval.Upper.Less(val).Value {
+		return IndexError
+	}
+	return val
 }
 
 type RealInterval struct {
@@ -222,10 +277,11 @@ func (set *DiffSet) Contain(obj Object) *Boolean {
 }
 func (set *DiffSet) Iterate(callback IterateCallback) {
 	if left, isCountable := set.Left.(CountableSet); isCountable {
-		left.Iterate(func(element Object) {
+		left.Iterate(func(element Object) Object {
 			if !set.Right.Contain(element).Value {
-				callback(element)
+				return callback(element)
 			}
+			return NULL
 		})
 	}
 }

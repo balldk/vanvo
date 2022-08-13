@@ -7,13 +7,13 @@ import (
 	"vila/pkg/token"
 )
 
-func (ev *Evaluator) evalForEachStatement(stmt *ast.ForEachStatement) {
+func (ev *Evaluator) evalForEachStatement(stmt *ast.ForEachStatement) object.Object {
 	closeEnv := object.NewEnclosedEnvironment(ev.Env)
 	callback := func(loopEnv *object.Environment) object.Object {
 		return ev.Eval(stmt.Body, loopEnv)
 	}
 
-	ev.evalForEach(stmt.Conditions, []ast.Expression{}, callback, closeEnv)
+	return ev.evalForEach(stmt.Conditions, []ast.Expression{}, callback, closeEnv)
 }
 
 func (ev *Evaluator) evalForEach(
@@ -22,6 +22,9 @@ func (ev *Evaluator) evalForEach(
 	callback func(*object.Environment) object.Object,
 	env *object.Environment,
 ) object.Object {
+
+	var result object.Object
+	result = NULL
 
 	// if no condition left
 	if len(rawConditions) == 0 {
@@ -47,19 +50,24 @@ func (ev *Evaluator) evalForEach(
 				return ev.runtimeError(errMsg, condition.Right)
 			}
 
-			loopSet.Iterate(func(element object.Object) {
+			loopSet.Iterate(func(element object.Object) object.Object {
+				if result.Type() == object.IMPLY_OBJ {
+					return result
+				}
 				env.SetInScope(ident.Value, element)
 
 				fullConditions := rawConditions
 				rawConditions = rawConditions[1:]
 
 				closeEnv := object.NewEnclosedEnvironment(env)
-				ev.evalForEach(rawConditions, constraints, callback, closeEnv)
+				result = ev.evalForEach(rawConditions, constraints, callback, closeEnv)
 
 				rawConditions = fullConditions
+
+				return result
 			})
 
-			return NULL
+			return result
 		}
 	}
 
@@ -69,9 +77,7 @@ func (ev *Evaluator) evalForEach(
 	rawConditions = rawConditions[1:]
 
 	closeEnv := object.NewEnclosedEnvironment(env)
-	ev.evalForEach(rawConditions, constraints, callback, closeEnv)
-
-	return NULL
+	return ev.evalForEach(rawConditions, constraints, callback, closeEnv)
 }
 
 func (ev *Evaluator) evalForStatement(stmt *ast.ForStatement) object.Object {
