@@ -253,6 +253,21 @@ func (p *Parser) parseCallArguments() []ast.Expression {
 	return args
 }
 
+func (p *Parser) parseIndexExpression(set ast.Expression) ast.Expression {
+	exp := &ast.IndexExpression{Set: set}
+	p.advanceToken()
+
+	exp.Index = p.parseExpression(LOWEST)
+	p.advanceToken()
+
+	if !p.expectCur(token.RBracket) {
+		return nil
+	}
+	exp.RightBracket = p.curToken
+
+	return exp
+}
+
 func (p *Parser) parseExpressionList(closeTokens ...token.TokenType) []ast.Expression {
 	closeToken := token.TokenType(token.EOF)
 	if len(closeTokens) > 0 {

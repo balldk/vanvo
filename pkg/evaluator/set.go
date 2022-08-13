@@ -6,6 +6,26 @@ import (
 	"vila/pkg/object"
 )
 
+func (ev *Evaluator) evalIndex(exp *ast.IndexExpression) object.Object {
+	set := ev.Eval(exp.Set)
+	index := ev.Eval(exp.Index)
+
+	if set, ok := set.(object.Indexable); ok {
+		if index, ok := index.(*object.Int); ok {
+			val := set.At(int(index.Value.Int64()))
+
+			if val == object.IndexError {
+				return ev.runtimeError("Chỉ số vượt quá độ dài của tập hợp")
+			}
+			return val
+		}
+		errMsg := fmt.Sprintf("Chỉ số phải là một '%v' thay vì '%v'", object.IntObj, index.Type())
+		return ev.runtimeError(errMsg)
+	}
+	errMsg := "Biểu thức không hợp lệ"
+	return ev.runtimeError(errMsg)
+}
+
 func (ev *Evaluator) evalList(list *ast.List) object.Object {
 	exps := ev.evalExpressions(list.Data)
 	return &object.List{Data: exps}

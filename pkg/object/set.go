@@ -27,6 +27,11 @@ type CountableSet interface {
 	Iterate(IterateCallback)
 }
 
+type Indexable interface {
+	Set
+	At(index int) Object
+}
+
 type List struct {
 	Data []Object
 }

@@ -134,6 +134,9 @@ func (ev *Evaluator) evalNode() object.Object {
 	case *ast.String:
 		return &object.String{Value: node.Value}
 
+	case *ast.IndexExpression:
+		return ev.evalIndex(node)
+
 	case *ast.List:
 		return ev.evalList(node)
 

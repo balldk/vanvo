@@ -24,6 +24,7 @@ var precedences = map[token.TokenType]int{
 	token.Percent:      PRODUCT,
 	token.Hat:          EXP,
 	token.LParen:       CALL,
+	token.LBracket:     CALL,
 }
 
 type (
