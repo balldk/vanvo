@@ -152,7 +152,10 @@ func (interval *IntInterval) Display() string {
 	out.WriteString("[")
 	out.WriteString(interval.Lower.Display())
 	out.WriteString("..")
-	out.WriteString(interval.Upper.Display())
+
+	if !interval.Upper.ToReal().Value.IsInf() {
+		out.WriteString(interval.Upper.Display())
+	}
 
 	if !interval.Step.ToReal().Equal(NewReal(RealOne)).Value {
 		out.WriteString("," + interval.Step.Display())

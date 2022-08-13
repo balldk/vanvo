@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"math"
 	"math/big"
 	"vila/pkg/ast"
 	"vila/pkg/token"
@@ -169,8 +170,16 @@ func (p *Parser) parseInterval() ast.Expression {
 		seg := &ast.IntInterval{
 			LeftBracket: leftBracket,
 			Lower:       lower,
-			Upper:       p.parseExpression(LOWEST),
 		}
+
+		if p.curTokenIs(token.RBracket) {
+			seg.Upper = &ast.Real{Value: big.NewFloat(math.Inf(1))}
+			return seg
+
+		} else {
+			seg.Upper = p.parseExpression(LOWEST)
+		}
+
 		if p.expectPeek(token.RBracket) {
 			seg.RightBracket = p.curToken
 			return seg
