@@ -10,11 +10,11 @@ func (ev *Evaluator) evalIndex(exp *ast.IndexExpression) object.Object {
 	set := ev.Eval(exp.Set)
 	index := ev.Eval(exp.Index)
 
-	if set, ok := set.(object.CountableSet); ok {
-		if !set.IsCountable() {
-			return ev.runtimeError("Chỉ 'Tập đếm được' mới có thể truy cập chỉ số")
-		}
+	if set, ok := set.(object.Set); ok && !set.IsCountable() {
+		return ev.runtimeError("Không thể dùng tập không đếm được để truy cập chỉ số")
+	}
 
+	if set, ok := set.(object.CountableSet); ok {
 		if index, ok := index.(*object.Int); ok {
 			val := set.At(int(index.Value.Int64()))
 
@@ -26,7 +26,9 @@ func (ev *Evaluator) evalIndex(exp *ast.IndexExpression) object.Object {
 		errMsg := fmt.Sprintf("Chỉ số phải là một '%v' thay vì '%v'", object.IntObj, index.Type())
 		return ev.runtimeError(errMsg)
 	}
-	return ev.runtimeError("Chỉ 'Tập đếm được' mới có thể truy cập chỉ số")
+
+	errMsg := fmt.Sprintf("Không thể truy cập chỉ số vào '%v'", set.Type())
+	return ev.runtimeError(errMsg)
 }
 
 func (ev *Evaluator) evalList(list *ast.List) object.Object {
