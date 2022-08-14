@@ -6,10 +6,9 @@ import (
 )
 
 type VarDeclareStatement struct {
-	Token   token.Token
-	Ident   *Identifier
-	Value   Expression
-	SetType Expression
+	Token token.Token
+	Ident *Identifier
+	Value Expression
 }
 
 func (vds *VarDeclareStatement) FromToken() token.Token {
@@ -17,9 +16,6 @@ func (vds *VarDeclareStatement) FromToken() token.Token {
 }
 
 func (vds *VarDeclareStatement) ToToken() token.Token {
-	if vds.Value == nil {
-		return vds.SetType.ToToken()
-	}
 	return vds.Value.ToToken()
 }
 
@@ -32,11 +28,6 @@ func (vds *VarDeclareStatement) String() string {
 	if vds.Value != nil {
 		out.WriteString(" = ")
 		out.WriteString(vds.Value.String())
-	}
-
-	if vds.SetType != nil {
-		out.WriteString(" thuộc ")
-		out.WriteString(vds.SetType.String())
 	}
 
 	return out.String()

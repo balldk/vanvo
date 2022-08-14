@@ -69,7 +69,7 @@ func (p *Parser) parseLetStatement() ast.Statement {
 
 	// Identifier
 	if !p.expectPeek(token.Ident) {
-		p.Errors.AddParserError("Sau `cho` phải là một tên định danh", p.curToken)
+		p.Errors.AddParserError("Sau 'cho' phải là một tên định danh", p.curToken)
 	}
 	ident := &ast.Identifier{Token: p.curToken, Value: string(p.curToken.Literal)}
 
@@ -82,27 +82,12 @@ func (p *Parser) parseLetStatement() ast.Statement {
 	// Else declare variable
 	stmt := &ast.VarDeclareStatement{Token: letToken, Ident: ident}
 
-	hasAssign := false
-
-	// If has assign
-	if p.peekTokenIs(token.Assign) {
-		hasAssign = true
-		p.advanceToken()
-		p.advanceToken()
-
-		stmt.Value = p.parseExpression(LOWEST)
+	if !p.expectPeek(token.Assign) {
+		return nil
 	}
+	p.advanceToken()
 
-	// If has belong clause
-	if p.peekTokenIs(token.Belong) {
-		p.advanceToken()
-		p.advanceToken()
-
-		stmt.SetType = p.parseExpression(LOWEST)
-
-	} else if !hasAssign {
-		p.Errors.AddParserError("Khai báo biến phải có giá trị khởi tạo hoặc miền xác định", p.curToken)
-	}
+	stmt.Value = p.parseExpression(LOWEST)
 
 	return stmt
 }
