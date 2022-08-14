@@ -178,6 +178,12 @@ func (ev *Evaluator) evalUnion(left, right object.Set) object.Set {
 		}
 	}
 
+	if left, isList := left.(*object.List); isList {
+		if right, isList := right.(*object.List); isList {
+			return &object.List{Data: append(left.Data, right.Data...)}
+		}
+	}
+
 	return &object.UnionSet{Left: left, Right: right}
 }
 
