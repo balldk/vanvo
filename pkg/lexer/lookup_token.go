@@ -8,6 +8,7 @@ var TOKEN_TABLE = map[string]token.TokenType{
 	"":   token.EOF,
 	"=":  token.Assign,
 	"!":  token.Bang,
+	"#":  token.Hash,
 	"+":  token.Plus,
 	"-":  token.Minus,
 	"*":  token.Asterisk,

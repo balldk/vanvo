@@ -1,6 +1,7 @@
 package evaluator
 
 import (
+	"fmt"
 	"math/big"
 	"vila/pkg/object"
 	"vila/pkg/token"
@@ -14,6 +15,8 @@ func (ev *Evaluator) evalPrefixExpression(operator token.Token, right object.Obj
 	switch operator.Type {
 	case token.Bang:
 		return ev.evalBangPrefix(right)
+	case token.Hash:
+		return ev.evalHashPrefix(right)
 	case token.Minus:
 		return ev.evalMinusPrefix(right)
 	case token.Plus:
@@ -34,6 +37,15 @@ func (ev *Evaluator) evalBangPrefix(right object.Object) object.Object {
 	default:
 		return FALSE
 	}
+}
+
+func (ev *Evaluator) evalHashPrefix(right object.Object) object.Object {
+	if set, ok := right.(object.CountableSet); ok && set.IsCountable() {
+		val := big.NewInt(int64(set.Length()))
+		return object.NewInt(val)
+	}
+	errMsg := fmt.Sprintf("Không thể lấy độ dài của '%v'", right.Type())
+	return ev.runtimeError(errMsg)
 }
 
 func (ev *Evaluator) evalMinusPrefix(right object.Object) object.Object {

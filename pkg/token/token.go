@@ -27,6 +27,7 @@ const (
 	Hat      = "^"
 	Bang     = "!"
 	Dot      = "."
+	Hash     = "#"
 
 	Equal        = "=="
 	NotEqual     = "!="
