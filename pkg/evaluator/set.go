@@ -74,7 +74,17 @@ func (ev *Evaluator) evalIntInterval(interval *ast.IntInterval) object.Object {
 		return ev.runtimeError(errMsg, interval.Upper)
 	}
 
-	return &object.IntInterval{Lower: lower, Upper: upper, Step: object.NewInt(object.IntOne)}
+	var step object.Realness = object.NewInt(object.IntOne)
+
+	if interval.Step != nil {
+		step, ok1 = ev.Eval(interval.Step).(object.Realness)
+		if !ok1 {
+			errMsg := fmt.Sprintf("Không thể dùng '%s' làm bước nhảy", step.Type())
+			return ev.runtimeError(errMsg, interval.Upper)
+		}
+	}
+
+	return &object.IntInterval{Lower: lower, Upper: upper, Step: step}
 }
 
 func (ev *Evaluator) evalRealInterval(interval *ast.RealInterval) object.Object {

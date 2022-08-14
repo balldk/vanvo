@@ -37,6 +37,7 @@ type IntInterval struct {
 	RightBracket token.Token
 	Lower        Expression
 	Upper        Expression
+	Step         Expression
 }
 
 func (ii *IntInterval) FromToken() token.Token {

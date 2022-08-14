@@ -172,12 +172,26 @@ func (p *Parser) parseInterval() ast.Expression {
 			Lower:       lower,
 		}
 
+		hasComma := false
+
 		if p.curTokenIs(token.RBracket) {
 			seg.Upper = &ast.Real{Value: big.NewFloat(math.Inf(1))}
 			return seg
 
+		} else if p.curTokenIs(token.Comma) {
+			seg.Upper = &ast.Real{Value: big.NewFloat(math.Inf(1))}
+			hasComma = true
+
 		} else {
 			seg.Upper = p.parseExpression(LOWEST)
+		}
+
+		if p.peekTokenIs(token.Comma) || hasComma {
+			p.advanceToken()
+			if !hasComma {
+				p.advanceToken()
+			}
+			seg.Step = p.parseExpression(LOWEST)
 		}
 
 		if p.expectPeek(token.RBracket) {
