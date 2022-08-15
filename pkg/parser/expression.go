@@ -114,6 +114,11 @@ func (p *Parser) parseList() ast.Expression {
 			list.Data = append(list.Data, exp)
 		}
 
+		if p.curTokenIs(token.RBrace) {
+			list.RightBrace = p.curToken
+			return list
+		}
+
 		p.advanceToken()
 		list.Data = append(list.Data, p.parseExpressionList(token.RBrace)...)
 
