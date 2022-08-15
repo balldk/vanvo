@@ -236,7 +236,7 @@ func (ev *Evaluator) isTruthy(obj object.Object) bool {
 		}
 		return true
 	default:
-		errMsg := fmt.Sprintf("Không thể đặt `%s` làm điều kiện", obj.Type())
+		errMsg := fmt.Sprintf("Không thể đặt '%s' làm điều kiện", obj.Type())
 		ev.runtimeError(errMsg)
 		return false
 	}

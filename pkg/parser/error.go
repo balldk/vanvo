@@ -25,9 +25,9 @@ func (p *Parser) expectError(tokType token.TokenType) {
 	var msg string
 
 	if p.curIsStatementSeperator() {
-		msg = fmt.Sprintf("Thiếu `%s`", string(tokType))
+		msg = fmt.Sprintf("Thiếu '%s'", string(tokType))
 	} else {
-		msg = fmt.Sprintf("Cần `%s` thay vì `%s`", string(tokType), string(p.curToken.Literal))
+		msg = fmt.Sprintf("Cần '%s' thay vì '%s'", string(tokType), string(p.curToken.Literal))
 	}
 	p.syntaxError(msg)
 }

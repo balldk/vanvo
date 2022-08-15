@@ -77,7 +77,7 @@ func (ev *Evaluator) evalInfixExpression(
 }
 
 func (ev *Evaluator) evalAddition(left, right object.Object) object.Object {
-	errMsg := fmt.Sprintf("Không thể cộng `%v` với `%v`", left.Type(), right.Type())
+	errMsg := fmt.Sprintf("Không thể cộng '%v' với '%v'", left.Type(), right.Type())
 
 	if left, ok := left.(object.Additive); ok {
 		value := left.Add(right)
@@ -93,7 +93,7 @@ func (ev *Evaluator) evalAddition(left, right object.Object) object.Object {
 }
 
 func (ev *Evaluator) evalSubtraction(left, right object.Object) object.Object {
-	errMsg := fmt.Sprintf("Không thể trừ `%v` với `%v`", left.Type(), right.Type())
+	errMsg := fmt.Sprintf("Không thể trừ '%v' với '%v'", left.Type(), right.Type())
 
 	if left, ok := left.(object.Subtractive); ok {
 		value := left.Subtract(right)
@@ -109,7 +109,7 @@ func (ev *Evaluator) evalSubtraction(left, right object.Object) object.Object {
 }
 
 func (ev *Evaluator) evalMultiplication(left, right object.Object) object.Object {
-	errMsg := fmt.Sprintf("Không thể nhân `%v` với `%v`", left.Type(), right.Type())
+	errMsg := fmt.Sprintf("Không thể nhân '%v' với '%v'", left.Type(), right.Type())
 
 	if left, ok := left.(object.Multiplicative); ok {
 		value := left.Multiply(right)
@@ -120,7 +120,7 @@ func (ev *Evaluator) evalMultiplication(left, right object.Object) object.Object
 }
 
 func (ev *Evaluator) evalDivision(left, right object.Object) object.Object {
-	errMsg := fmt.Sprintf("Không thể chia `%v` với `%v`", left.Type(), right.Type())
+	errMsg := fmt.Sprintf("Không thể chia '%v' với '%v'", left.Type(), right.Type())
 
 	if left, ok := left.(object.Division); ok {
 		value := left.Divide(right)
@@ -131,7 +131,7 @@ func (ev *Evaluator) evalDivision(left, right object.Object) object.Object {
 }
 
 func (ev *Evaluator) evalModulo(left, right object.Object) object.Object {
-	errMsg := fmt.Sprintf("Không thể chia lấy dư `%v` với `%v`", left.Type(), right.Type())
+	errMsg := fmt.Sprintf("Không thể chia lấy dư '%v' với '%v'", left.Type(), right.Type())
 
 	if left, ok := left.(object.Modulo); ok {
 		value := left.Mod(right)
@@ -142,7 +142,7 @@ func (ev *Evaluator) evalModulo(left, right object.Object) object.Object {
 }
 
 func (ev *Evaluator) evalDotProduct(left, right object.Object) object.Object {
-	errMsg := fmt.Sprintf("Không thể . `%v` với `%v`", left.Type(), right.Type())
+	errMsg := fmt.Sprintf("Không thể . '%v' với '%v'", left.Type(), right.Type())
 
 	if left, ok := left.(object.DotProduct); ok {
 		value := left.Dot(right)
@@ -153,7 +153,7 @@ func (ev *Evaluator) evalDotProduct(left, right object.Object) object.Object {
 }
 
 func (ev *Evaluator) evalExponent(left, right object.Object) object.Object {
-	errMsg := fmt.Sprintf("Không thể mũ `%v` với `%v`", left.Type(), right.Type())
+	errMsg := fmt.Sprintf("Không thể mũ '%v' với '%v'", left.Type(), right.Type())
 
 	if left, ok := left.(object.Exponential); ok {
 		value := left.Power(right)
@@ -192,7 +192,7 @@ func (ev *Evaluator) evalSetDiff(left, right object.Set) object.Set {
 }
 
 func (ev *Evaluator) evalEquality(left, right object.Object) *object.Boolean {
-	errMsg := fmt.Sprintf("Không thể so sánh `%v` với `%v`", left.Type(), right.Type())
+	errMsg := fmt.Sprintf("Không thể so sánh '%v' với '%v'", left.Type(), right.Type())
 
 	if left, ok := left.(object.Equal); ok {
 		value := left.Equal(right)
@@ -208,7 +208,7 @@ func (ev *Evaluator) evalEquality(left, right object.Object) *object.Boolean {
 }
 
 func (ev *Evaluator) evalLess(left, right object.Object) *object.Boolean {
-	errMsg := fmt.Sprintf("Không thể so sánh `%v` với `%v`", left.Type(), right.Type())
+	errMsg := fmt.Sprintf("Không thể so sánh '%v' với '%v'", left.Type(), right.Type())
 
 	if left, ok := left.(object.StrictOrder); ok {
 		value := left.Less(right)

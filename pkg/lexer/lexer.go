@@ -116,7 +116,7 @@ func (l *Lexer) AdvanceToken() token.Token {
 			return tok
 
 		} else {
-			l.Errors.AddLexerError("Ký tự `"+string(l.ch)+"` không hợp lệ", token.Token{
+			l.Errors.AddLexerError("Ký tự '"+string(l.ch)+"' không hợp lệ", token.Token{
 				Type:    token.Illegal,
 				Literal: []rune{l.ch},
 				Line:    l.line,
