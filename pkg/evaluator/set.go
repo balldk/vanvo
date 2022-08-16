@@ -14,20 +14,26 @@ func (ev *Evaluator) evalIndex(exp *ast.IndexExpression) object.Object {
 		return ev.runtimeError("Không thể dùng tập không đếm được để truy cập chỉ số")
 	}
 
-	if set, ok := set.(object.CountableSet); ok {
-		if index, ok := index.(*object.Int); ok {
-			val := set.At(int(index.Value.Int64()))
-
-			if val == object.IndexError {
-				return ev.runtimeError("Chỉ số vượt quá độ dài của tập hợp")
-			}
-			return val
-		}
-		errMsg := fmt.Sprintf("Chỉ số phải là một '%v' thay vì '%v'", object.IntObj, index.Type())
-		return ev.runtimeError(errMsg)
+	if set, ok := set.(object.Indexable); ok {
+		return ev.indexing(set, index)
 	}
 
 	errMsg := fmt.Sprintf("Không thể truy cập chỉ số vào '%v'", set.Type())
+	return ev.runtimeError(errMsg)
+}
+
+func (ev *Evaluator) indexing(set object.Indexable, index object.Object) object.Object {
+	if index, ok := index.(*object.Int); ok {
+		val := set.At(int(index.Value.Int64()))
+
+		if val == object.IndexError {
+			errMsg := fmt.Sprintf("Chỉ số vượt quá độ dài của '%v'", set.Type())
+			return ev.runtimeError(errMsg)
+		}
+		return val
+	}
+
+	errMsg := fmt.Sprintf("Chỉ số phải là một '%v' thay vì '%v'", object.IntObj, index.Type())
 	return ev.runtimeError(errMsg)
 }
 

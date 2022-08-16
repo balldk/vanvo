@@ -23,10 +23,15 @@ type Set interface {
 	IsCountable() bool
 }
 
+type Indexable interface {
+	Object
+	At(index int) Object
+}
+
 type CountableSet interface {
 	Set
+	Indexable
 	Length() int
-	At(index int) Object
 	Iterate(IterateCallback)
 }
 

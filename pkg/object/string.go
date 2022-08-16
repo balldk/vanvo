@@ -15,6 +15,12 @@ type String struct {
 
 func (s *String) Type() ObjectType { return StringObj }
 func (s *String) Display() string  { return fmt.Sprintf("\"%s\"", s.Value) }
+func (s *String) At(index int) Object {
+	if index < len(s.Value) {
+		return &String{Value: string(s.Value[index])}
+	}
+	return IndexError
+}
 func (s *String) Add(right Object) Object {
 	switch right := right.(type) {
 	case *String:
