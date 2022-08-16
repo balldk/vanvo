@@ -20,6 +20,7 @@ const (
 	EXP     // ^
 	PREFIX
 	CALL
+	Compose // .
 )
 
 func (p *Parser) parseExpression(precedence int) ast.Expression {
