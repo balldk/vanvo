@@ -361,3 +361,84 @@ func (set *DiffSet) Iterate(callback IterateCallback) {
 		})
 	}
 }
+
+type ProductSet struct {
+	Sets []Set
+}
+
+func (prod *ProductSet) Type() ObjectType { return SetObj }
+func (prod *ProductSet) Display() string {
+	s := ""
+	for i, set := range prod.Sets {
+		s += set.Display()
+		if i != len(prod.Sets)-1 {
+			s += "*"
+		}
+	}
+	return s
+}
+func (prod *ProductSet) IsCountable() bool {
+	for _, set := range prod.Sets {
+		if !set.IsCountable() {
+			return false
+		}
+	}
+	return true
+}
+func (prod *ProductSet) Contain(obj Object) *Boolean {
+	check := FALSE
+	if set, isSet := obj.(CountableSet); isSet {
+		if !setHasLength(set, len(prod.Sets)) {
+			return FALSE
+		}
+
+		index := 0
+		set.Iterate(func(element Object) Object {
+			if !prod.Sets[index].Contain(element).Value {
+				return &Imply{}
+			}
+			index += 1
+			return element
+		})
+	}
+	return check
+}
+func (prod *ProductSet) At(index int) Object {
+	return IndexError
+}
+func (prod *ProductSet) Length() int {
+	length := 1
+	for _, set := range prod.Sets {
+		if set, ok := set.(CountableSet); ok {
+			length *= set.Length()
+		}
+	}
+	return length
+}
+func (prod *ProductSet) Iterate(callback IterateCallback) {
+	prod.IterateRecursive(callback, &List{Data: []Object{}})
+}
+
+func (prod *ProductSet) IterateRecursive(
+	callback IterateCallback,
+	result *List,
+) Object {
+	index := len(result.Data)
+
+	if set, isCountable := prod.Sets[index].(CountableSet); isCountable {
+		set.Iterate(func(element Object) Object {
+
+			result.Data = append(result.Data, element)
+
+			if len(result.Data) == len(prod.Sets) {
+				val := callback(result)
+				result.Data = result.Data[:index]
+				return val
+			}
+			val := prod.IterateRecursive(callback, result)
+			result.Data = result.Data[:index]
+			return val
+		})
+	}
+	return NULL
+}

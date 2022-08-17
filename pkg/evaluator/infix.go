@@ -115,6 +115,11 @@ func (ev *Evaluator) evalMultiplication(left, right object.Object) object.Object
 		value := left.Multiply(right)
 		return ev.someObject(value, errMsg)
 	}
+	if left, ok := left.(object.Set); ok {
+		if right, ok := right.(object.Set); ok {
+			return ev.evalSetProduct(left, right)
+		}
+	}
 
 	return ev.runtimeError(errMsg)
 }
@@ -159,6 +164,11 @@ func (ev *Evaluator) evalExponent(left, right object.Object) object.Object {
 		value := left.Power(right)
 		return ev.someObject(value, errMsg)
 	}
+	if left, ok := left.(object.Set); ok {
+		if right, ok := right.(*object.Int); ok {
+			return ev.evalSetExponent(left, right)
+		}
+	}
 
 	return ev.runtimeError(errMsg)
 }
@@ -189,6 +199,23 @@ func (ev *Evaluator) evalUnion(left, right object.Set) object.Set {
 
 func (ev *Evaluator) evalSetDiff(left, right object.Set) object.Set {
 	return &object.DiffSet{Left: left, Right: right}
+}
+
+func (ev *Evaluator) evalSetProduct(left, right object.Set) object.Set {
+
+	if left, isProd := left.(*object.ProductSet); isProd {
+		return &object.ProductSet{Sets: append(left.Sets, right)}
+	}
+	return &object.ProductSet{Sets: []object.Set{left, right}}
+}
+
+func (ev *Evaluator) evalSetExponent(left object.Set, right *object.Int) object.Set {
+	sets := []object.Set{}
+
+	for i := 0; i < int(right.Value.Int64()); i++ {
+		sets = append(sets, left)
+	}
+	return &object.ProductSet{Sets: sets}
 }
 
 func (ev *Evaluator) evalEquality(left, right object.Object) *object.Boolean {

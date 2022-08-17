@@ -1,7 +1,6 @@
 package evaluator
 
 import (
-	"fmt"
 	"vila/pkg/ast"
 	"vila/pkg/object"
 	"vila/pkg/token"
@@ -46,7 +45,7 @@ func (ev *Evaluator) evalForEach(
 			right := ev.Eval(condition.Right)
 			loopSet, isCountable := right.(object.CountableSet)
 			if !isCountable || !loopSet.IsCountable() {
-				errMsg := fmt.Sprintf("Vế phải của mệnh đề 'thuộc' phải là một 'Tập đếm được' thay vì '%s'", right.Type())
+				errMsg := "Vế phải của mệnh đề 'thuộc' phải là một Tập đếm được"
 				return ev.runtimeError(errMsg, condition.Right)
 			}
 
