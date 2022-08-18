@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 	"vila/cmd/repl"
 	"vila/pkg/evaluator"
 	"vila/pkg/object"
@@ -24,6 +25,8 @@ func runFromFile() {
 
 	file, err := ioutil.ReadFile(path)
 	input := string(file)
+	spaces := strings.Repeat(" ", 4)
+	input = strings.ReplaceAll(input, "\t", spaces)
 
 	if err != nil {
 		fmt.Printf("Không thể mở file: '%s'\n", path)

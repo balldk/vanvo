@@ -34,10 +34,15 @@ func Start() {
 	for {
 		line, err := rl.Readline()
 		line = strings.Trim(line, " ")
+		spaces := strings.Repeat(" ", 4)
+		line = strings.ReplaceAll(line, "\t", spaces)
 
 		if err != nil {
 			fmt.Println("Bái bai :(")
 			break
+		}
+		if line == "" {
+			continue
 		}
 
 		input := blockInput + line
