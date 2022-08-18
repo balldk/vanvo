@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -23,7 +22,7 @@ func runFromFile() {
 		fmt.Println("đường dẫn không hợp lệ")
 	}
 
-	file, err := ioutil.ReadFile(path)
+	file, err := os.ReadFile(path)
 	input := string(file)
 	spaces := strings.Repeat(" ", 4)
 	input = strings.ReplaceAll(input, "\t", spaces)
@@ -43,7 +42,7 @@ func runFromFile() {
 }
 
 func Execute() {
-	// defer errRecover()
+	defer errRecover()
 	initConfig()
 
 	if len(os.Args) > 1 {
