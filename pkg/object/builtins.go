@@ -38,7 +38,7 @@ func (*ArgumentError) Display() string  { return ErrorObj }
 var Builtins = map[string]Object{
 	"Pi": &Real{Value: big.NewFloat(math.Pi)},
 	"E":  &Real{Value: big.NewFloat(math.E)},
-	"I":  &Complex{Real: NewReal(big.NewFloat(0)), Imagine: NewReal(big.NewFloat(1))},
+	"I":  &Complex{Real: NewInt(IntZero), Imagine: NewInt(IntOne)},
 	"len": &Function{
 		Builtin: func(args ...Object) Object {
 			if len(args) != 1 {
@@ -79,7 +79,7 @@ func squareRootBuiltin(args ...Object) Object {
 		real := arg.ToReal().Value
 		if real.Cmp(RealZero) == -1 {
 			real = new(big.Float).Abs(real)
-			return NewComplex(NewReal(RealZero), NewReal(real))
+			return NewComplex(NewInt(IntZero), NewReal(real))
 		}
 		return NewReal(new(big.Float).Sqrt(real))
 

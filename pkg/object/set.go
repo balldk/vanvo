@@ -307,6 +307,55 @@ func (set *UnionSet) Iterate(callback IterateCallback) {
 	}
 }
 
+type IntersectionSet struct {
+	Left  Set
+	Right Set
+}
+
+func (set *IntersectionSet) Type() ObjectType { return SetObj }
+func (set *IntersectionSet) Display() string {
+	return set.Left.Display() + " & " + set.Right.Display()
+}
+func (set *IntersectionSet) IsCountable() bool {
+	return set.Left.IsCountable() || set.Right.IsCountable()
+}
+func (set *IntersectionSet) Contain(obj Object) *Boolean {
+	if !set.Left.Contain(obj).Value {
+		return FALSE
+	}
+	return set.Right.Contain(obj)
+}
+func (set *IntersectionSet) At(index int) Object {
+
+	if left, isCountable := set.Left.(CountableSet); isCountable {
+		val := left.At(index)
+		if val != IndexError {
+			return val
+		}
+
+		if right, isCountable := set.Right.(CountableSet); isCountable {
+			return right.At(index - left.Length())
+		}
+	}
+	return IndexError
+}
+func (set *IntersectionSet) Length() int {
+	if left, isCountable := set.Left.(CountableSet); isCountable {
+		if right, isCountable := set.Right.(CountableSet); isCountable {
+			return left.Length() + right.Length()
+		}
+	}
+	return int(math.Inf(1))
+}
+func (set *IntersectionSet) Iterate(callback IterateCallback) {
+	if left, isCountable := set.Left.(CountableSet); isCountable {
+		left.Iterate(callback)
+	}
+	if right, isCountable := set.Right.(CountableSet); isCountable {
+		right.Iterate(callback)
+	}
+}
+
 type DiffSet struct {
 	Left  Set
 	Right Set

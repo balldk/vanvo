@@ -53,7 +53,7 @@ func (i *Int) ToReal() *Real {
 	return &Real{Value: new(big.Float).SetInt(i.Value)}
 }
 func (i *Int) ToComplex() *Complex {
-	return i.ToReal().ToComplex()
+	return NewComplex(i, NewInt(IntZero))
 }
 func (i *Int) ToQuotient() *Quotient {
 	return NewQuotient(i.Value, IntOne)
@@ -195,7 +195,7 @@ func (r *Real) ToReal() *Real {
 	return r
 }
 func (r *Real) ToComplex() *Complex {
-	return NewComplex(r, NewReal(RealZero))
+	return NewComplex(r, NewInt(IntZero))
 }
 func (r *Real) IsZero() bool {
 	if val, _ := r.Value.Float32(); val == 0 {
@@ -332,7 +332,7 @@ func (q *Quotient) ToReal() *Real {
 	return NewReal(big.NewFloat(val))
 }
 func (q *Quotient) ToComplex() *Complex {
-	return q.ToReal().ToComplex()
+	return NewComplex(q, NewInt(IntZero))
 }
 func (q *Quotient) Inverse() *Quotient {
 	return &Quotient{Value: new(big.Rat).Inv(q.Value)}

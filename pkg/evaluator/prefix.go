@@ -58,7 +58,7 @@ func (ev *Evaluator) evalMinusPrefix(right object.Object) object.Object {
 		numer := new(big.Int).Neg(right.Value.Num())
 		return object.NewQuotient(numer, right.Value.Denom())
 	case *object.Complex:
-		return object.NewReal(object.RealZero).Subtract(right)
+		return object.NewInt(object.IntZero).Subtract(right)
 	default:
 		return NULL
 	}
