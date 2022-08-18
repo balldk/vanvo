@@ -14,7 +14,11 @@ import (
 const PROMPT = ">> "
 
 func welcomeBoard() {
-	color.Blue("Chào mừng đến với Vila 0.1.0")
+	color.Blue("Chào mừng đến với VanVo 0.1.0")
+	color.Blue(`        _           ?  `)
+	color.Blue(`   ┬  ┬┌─┐┌┐┌  ┬  ┬┌─┌'`)
+	color.Blue(`   └┐┌┘├─┤│││  └┐┌┘│ │ `)
+	color.Blue(`    └┘ ┴ ┴┘└┘   └┘ └─┘ `)
 }
 
 func Start() {
