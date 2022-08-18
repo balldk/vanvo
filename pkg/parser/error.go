@@ -2,7 +2,7 @@ package parser
 
 import (
 	"fmt"
-	"vila/pkg/token"
+	"vanvo/pkg/token"
 )
 
 func (p *Parser) syntaxError(message string) {

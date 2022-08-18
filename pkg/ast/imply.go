@@ -2,7 +2,7 @@ package ast
 
 import (
 	"bytes"
-	"vila/pkg/token"
+	"vanvo/pkg/token"
 )
 
 type ImplyStatement struct {

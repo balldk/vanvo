@@ -1,8 +1,8 @@
 package lexer
 
 import (
-	"vila/pkg/errorhandler"
-	"vila/pkg/token"
+	"vanvo/pkg/errorhandler"
+	"vanvo/pkg/token"
 )
 
 type Lexer struct {

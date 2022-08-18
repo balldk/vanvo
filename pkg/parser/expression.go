@@ -3,8 +3,8 @@ package parser
 import (
 	"math"
 	"math/big"
-	"vila/pkg/ast"
-	"vila/pkg/token"
+	"vanvo/pkg/ast"
+	"vanvo/pkg/token"
 )
 
 const (

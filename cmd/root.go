@@ -6,9 +6,9 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"vila/cmd/repl"
-	"vila/pkg/evaluator"
-	"vila/pkg/object"
+	"vanvo/cmd/repl"
+	"vanvo/pkg/evaluator"
+	"vanvo/pkg/object"
 )
 
 func errRecover() {

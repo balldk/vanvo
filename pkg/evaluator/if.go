@@ -1,8 +1,8 @@
 package evaluator
 
 import (
-	"vila/pkg/ast"
-	"vila/pkg/object"
+	"vanvo/pkg/ast"
+	"vanvo/pkg/object"
 )
 
 func (ev *Evaluator) evalIfExpression(ie *ast.IfExpression) object.Object {

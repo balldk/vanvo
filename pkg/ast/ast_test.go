@@ -2,7 +2,7 @@ package ast
 
 import (
 	"testing"
-	"vila/pkg/token"
+	"vanvo/pkg/token"
 )
 
 func TestString(t *testing.T) {

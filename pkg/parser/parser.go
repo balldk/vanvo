@@ -1,10 +1,10 @@
 package parser
 
 import (
-	"vila/pkg/ast"
-	"vila/pkg/errorhandler"
-	"vila/pkg/lexer"
-	"vila/pkg/token"
+	"vanvo/pkg/ast"
+	"vanvo/pkg/errorhandler"
+	"vanvo/pkg/lexer"
+	"vanvo/pkg/token"
 )
 
 const IDENT_SIZE = 4

@@ -1,7 +1,7 @@
 package ast
 
 import (
-	"vila/pkg/token"
+	"vanvo/pkg/token"
 )
 
 type List struct {

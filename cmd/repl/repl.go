@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"fmt"
 	"strings"
-	"vila/pkg/evaluator"
-	"vila/pkg/object"
+	"vanvo/pkg/evaluator"
+	"vanvo/pkg/object"
 
 	"github.com/chzyer/readline"
 	"github.com/fatih/color"

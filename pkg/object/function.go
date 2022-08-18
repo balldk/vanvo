@@ -2,7 +2,7 @@ package object
 
 import (
 	"bytes"
-	"vila/pkg/ast"
+	"vanvo/pkg/ast"
 )
 
 const (

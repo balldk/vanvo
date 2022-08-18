@@ -1,7 +1,7 @@
 package main
 
 import (
-	"vila/cmd"
+	"vanvo/cmd"
 )
 
 func main() {

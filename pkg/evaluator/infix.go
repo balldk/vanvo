@@ -2,8 +2,8 @@ package evaluator
 
 import (
 	"fmt"
-	"vila/pkg/object"
-	"vila/pkg/token"
+	"vanvo/pkg/object"
+	"vanvo/pkg/token"
 )
 
 func (ev *Evaluator) evalInfixExpression(

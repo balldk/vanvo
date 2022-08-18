@@ -2,8 +2,8 @@ package evaluator
 
 import (
 	"fmt"
-	"vila/pkg/ast"
-	"vila/pkg/object"
+	"vanvo/pkg/ast"
+	"vanvo/pkg/object"
 )
 
 func (ev *Evaluator) evalIndex(exp *ast.IndexExpression) object.Object {

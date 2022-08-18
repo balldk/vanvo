@@ -3,8 +3,8 @@ package errorhandler
 import (
 	"bytes"
 	"strings"
-	"vila/pkg/ast"
-	"vila/pkg/token"
+	"vanvo/pkg/ast"
+	"vanvo/pkg/token"
 
 	"github.com/fatih/color"
 )

@@ -3,8 +3,8 @@ package evaluator
 import (
 	"fmt"
 	"math/big"
-	"vila/pkg/object"
-	"vila/pkg/token"
+	"vanvo/pkg/object"
+	"vanvo/pkg/token"
 )
 
 func (ev *Evaluator) evalPrefixExpression(operator token.Token, right object.Object) object.Object {

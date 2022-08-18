@@ -1,6 +1,6 @@
 package ast
 
-import "vila/pkg/token"
+import "vanvo/pkg/token"
 
 type ForStatement struct {
 	Token      token.Token

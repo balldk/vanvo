@@ -1,8 +1,8 @@
 package parser
 
 import (
-	"vila/pkg/ast"
-	"vila/pkg/token"
+	"vanvo/pkg/ast"
+	"vanvo/pkg/token"
 )
 
 func (p *Parser) parseStatement() ast.Statement {

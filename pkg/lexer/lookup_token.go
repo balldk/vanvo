@@ -1,7 +1,7 @@
 package lexer
 
 import (
-	"vila/pkg/token"
+	"vanvo/pkg/token"
 )
 
 var TOKEN_TABLE = map[string]token.TokenType{

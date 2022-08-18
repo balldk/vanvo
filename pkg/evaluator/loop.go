@@ -1,9 +1,9 @@
 package evaluator
 
 import (
-	"vila/pkg/ast"
-	"vila/pkg/object"
-	"vila/pkg/token"
+	"vanvo/pkg/ast"
+	"vanvo/pkg/object"
+	"vanvo/pkg/token"
 )
 
 func (ev *Evaluator) evalForEachStatement(stmt *ast.ForEachStatement) object.Object {

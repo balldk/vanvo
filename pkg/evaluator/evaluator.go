@@ -3,11 +3,11 @@ package evaluator
 import (
 	"fmt"
 	"math/big"
-	"vila/pkg/ast"
-	"vila/pkg/errorhandler"
-	"vila/pkg/lexer"
-	"vila/pkg/object"
-	"vila/pkg/parser"
+	"vanvo/pkg/ast"
+	"vanvo/pkg/errorhandler"
+	"vanvo/pkg/lexer"
+	"vanvo/pkg/object"
+	"vanvo/pkg/parser"
 )
 
 var (

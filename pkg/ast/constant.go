@@ -2,7 +2,7 @@ package ast
 
 import (
 	"math/big"
-	"vila/pkg/token"
+	"vanvo/pkg/token"
 )
 
 type Int struct {
