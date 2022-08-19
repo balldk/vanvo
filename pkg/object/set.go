@@ -436,14 +436,16 @@ func (prod *ProductSet) IsCountable() bool {
 }
 func (prod *ProductSet) Contain(obj Object) *Boolean {
 	check := FALSE
-	if set, isSet := obj.(CountableSet); isSet {
-		if !setHasLength(set, len(prod.Sets)) {
+	if set, isSet := obj.(CountableSet); isSet && set.IsCountable() {
+		if set.Length() != len(prod.Sets) {
 			return FALSE
 		}
 
+		check = TRUE
 		index := 0
 		set.Iterate(func(element Object) Object {
 			if !prod.Sets[index].Contain(element).Value {
+				check = FALSE
 				return &Imply{}
 			}
 			index += 1

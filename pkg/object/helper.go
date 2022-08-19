@@ -21,12 +21,3 @@ func toSmallAngle(ang *big.Float) {
 	kFloat.Mul(kFloat, big.NewFloat(2*math.Pi))
 	ang.Sub(ang, big.NewFloat(2*math.Pi))
 }
-
-func setHasLength(set CountableSet, length int) bool {
-	for i := 0; i < length; i++ {
-		if set.At(i) == IndexError {
-			return false
-		}
-	}
-	return set.At(length) != IndexError
-}
