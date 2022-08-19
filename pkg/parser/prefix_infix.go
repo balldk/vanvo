@@ -85,5 +85,28 @@ func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
 		p.syntaxError("Thiếu vế phải của " + string(expr.Operator.Literal))
 	}
 
+	// convert expression like a < b < c to (a < b) và (b < c)
+	if left, isInfix := left.(*ast.InfixExpression); isInfix {
+		cond1 := left.Operator.Type == token.Less || left.Operator.Type == token.LessEqual
+		cond2 := expr.Operator.Type == token.Less || expr.Operator.Type == token.LessEqual
+
+		cond3 := left.Operator.Type == token.Greater || left.Operator.Type == token.GreaterEqual
+		cond4 := expr.Operator.Type == token.Greater || expr.Operator.Type == token.GreaterEqual
+
+		cond5 := left.Operator.Type == token.Equal && expr.Operator.Type == token.Equal
+
+		if (cond1 && cond2) || (cond3 && cond4) || cond5 {
+			expr = &ast.InfixExpression{
+				Operator: token.Token{Type: token.And},
+				Left:     left,
+				Right: &ast.InfixExpression{
+					Operator: expr.Operator,
+					Left:     left.Right,
+					Right:    expr.Right,
+				},
+			}
+		}
+	}
+
 	return expr
 }
