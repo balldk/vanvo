@@ -45,12 +45,12 @@ func Start() {
 			fmt.Println("Bái bai :(")
 			break
 		}
-		if line == "" {
-			continue
-		}
 
 		input := blockInput + line
-		lastWord := input[len(input)-1]
+		lastWord := byte(0)
+		if len(line) > 0 {
+			lastWord = input[len(input)-1]
+		}
 
 		if line == "" {
 			blockInput = ""
