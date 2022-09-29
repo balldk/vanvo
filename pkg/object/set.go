@@ -379,8 +379,8 @@ func (set *DiffSet) At(index int) Object {
 	if index < len(set.Data) {
 		return set.Data[index]
 	}
-	if left, isCountable := set.Left.(CountableSet); isCountable {
-		for i := len(set.Data); i <= index; i++ {
+	if left, isCountable := set.Left.(CountableSet); isCountable && set.IsCountable() {
+		for i := len(set.Data); len(set.Data) <= index; i++ {
 			val := left.At(i)
 			if val == IndexError {
 				return IndexError

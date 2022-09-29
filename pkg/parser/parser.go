@@ -144,7 +144,7 @@ func (p *Parser) skipEndline() {
 		p.advanceToken()
 	}
 	// skip consecutive endline
-	for p.curTokenIs(token.Endline) && p.peekTokenIs(token.Endline) {
+	for p.curTokenIs(token.Endline) && p.peekIsStatementSeperator() {
 		p.advanceToken()
 	}
 }
