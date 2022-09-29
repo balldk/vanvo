@@ -234,7 +234,7 @@ func (p *Parser) parseGroupExpression() ast.Expression {
 	}
 
 	if p.curTokenIs(token.Endline) {
-		p.identLevel++
+		p.indentLevel++
 	}
 
 	for !p.curTokenIs(token.RParen) && !p.curTokenIs(token.EOF) {

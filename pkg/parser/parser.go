@@ -13,7 +13,7 @@ func New(l *lexer.Lexer, errors *errorhandler.ErrorList) *Parser {
 	p := &Parser{
 		l:             l,
 		Errors:        errors,
-		identLevel:    0,
+		indentLevel:   0,
 		peekPeekToken: token.Token{Type: ""},
 	}
 	p.prefixParseFns = make(map[token.TokenType]prefixParseFn)
@@ -59,9 +59,9 @@ func New(l *lexer.Lexer, errors *errorhandler.ErrorList) *Parser {
 }
 
 type Parser struct {
-	l          *lexer.Lexer
-	Errors     *errorhandler.ErrorList
-	identLevel int
+	l           *lexer.Lexer
+	Errors      *errorhandler.ErrorList
+	indentLevel int
 
 	curToken      token.Token
 	peekToken     token.Token
@@ -149,7 +149,7 @@ func (p *Parser) skipEndline() {
 	}
 }
 
-func (p *Parser) updateIdentLevel() {
+func (p *Parser) updateIndentLevel() {
 	p.skipEndline()
 
 	if p.curTokenIs(token.Endline) {
@@ -160,11 +160,11 @@ func (p *Parser) updateIdentLevel() {
 		}
 
 		level := length / 4
-		if level > p.identLevel {
+		if level > p.indentLevel {
 			p.invalidIndent()
 			return
 		}
-		p.identLevel = level
+		p.indentLevel = level
 		p.advanceToken()
 	}
 }

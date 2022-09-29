@@ -6,15 +6,15 @@ import (
 )
 
 func (p *Parser) parseStatement() ast.Statement {
-	defer p.updateIdentLevel()
-	p.updateIdentLevel()
+	defer p.updateIndentLevel()
+	p.updateIndentLevel()
 
 	var stmt ast.Statement
 
 	if p.curTokenIs(token.Ident) && p.peekTokenIs(token.Assign) {
 		stmt = p.parseAssignStatement()
 		p.checkEndStatement()
-		p.updateIdentLevel()
+		p.updateIndentLevel()
 
 		return stmt
 	}
@@ -194,8 +194,8 @@ func (p *Parser) parseBlockStatement() *ast.BlockStatement {
 	block.Statements = []ast.Statement{}
 	p.advanceToken()
 
-	p.identLevel++
-	curLevel := p.identLevel
+	p.indentLevel++
+	curLevel := p.indentLevel
 
 	if p.curTokenIs(token.Endline) && len(p.curToken.Literal)/4 < curLevel {
 		p.skipEndline()
@@ -205,10 +205,10 @@ func (p *Parser) parseBlockStatement() *ast.BlockStatement {
 		p.syntaxError("Thiếu mệnh đề sau điều kiện")
 	}
 
-	for p.identLevel == curLevel && !p.curTokenIs(token.EOF) {
+	for p.indentLevel == curLevel && !p.curTokenIs(token.EOF) {
 		stmt := p.parseStatement()
 		block.Statements = append(block.Statements, stmt)
-		p.updateIdentLevel()
+		p.updateIndentLevel()
 	}
 
 	return block
