@@ -38,6 +38,7 @@ const (
 
 	And = "và"
 	Or  = "hay"
+	Is  = "là"
 
 	Let     = "cho"
 	If      = "nếu"
@@ -87,6 +88,7 @@ var keywords = keywordsWithoutDiacritic(map[string]TokenType{
 	"thuộc":     Belong,
 	"và":        And,
 	"hay":       Or,
+	"là":        Is,
 	"nhập":      Input,
 	"xuất":      Output,
 })

@@ -2,14 +2,22 @@ package evaluator
 
 import (
 	"fmt"
+	"vanvo/pkg/ast"
 	"vanvo/pkg/object"
 	"vanvo/pkg/token"
 )
 
 func (ev *Evaluator) evalInfixExpression(
 	operator token.Token,
-	left, right object.Object,
+	leftExpr, rightExpr ast.Expression,
 ) object.Object {
+	if operator.Type == token.Is {
+		return ev.evalIs(leftExpr, rightExpr)
+	}
+
+	left := ev.Eval(leftExpr)
+	right := ev.Eval(rightExpr)
+
 	if left, isImply := left.(*object.Imply); isImply {
 		return left
 	}
@@ -262,6 +270,18 @@ func (ev *Evaluator) evalOr(left, right object.Object) object.Object {
 		return left
 	}
 	return right
+}
+
+func (ev *Evaluator) evalIs(leftExpr, rightExpr ast.Expression) *object.Boolean {
+	left := ev.Eval(leftExpr)
+	if rightExpr, ok := rightExpr.(*ast.Identifier); ok {
+		if fn, ok := object.DataTypes[rightExpr.Value]; ok {
+			return boolRef(fn(left))
+		}
+
+		ev.runtimeError("'" + rightExpr.Value + "' không phải kiểu dữ liệu.")
+	}
+	return FALSE
 }
 
 func (ev *Evaluator) evalBelong(left, right object.Object) *object.Boolean {
