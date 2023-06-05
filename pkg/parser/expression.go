@@ -12,7 +12,6 @@ const (
 	LOWEST
 	IF
 	CONJUNC // 'và', 'hay'
-	IS
 	BELONG
 	EQUAL   // ==
 	COMPARE // > or <

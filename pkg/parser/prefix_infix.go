@@ -9,7 +9,6 @@ var precedences = map[token.TokenType]int{
 	token.If:           IF,
 	token.And:          CONJUNC,
 	token.Or:           CONJUNC,
-	token.Is:           IS,
 	token.Belong:       BELONG,
 	token.Equal:        EQUAL,
 	token.NotEqual:     EQUAL,

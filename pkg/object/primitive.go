@@ -175,11 +175,6 @@ func (i *Int) Less(right Object) *Boolean {
 		return INCOMPARABLE
 	}
 }
-func (i *Int) IsEven() bool {
-	two := big.NewInt(2)
-	m := new(big.Int).Mod(i.Value, two)
-	return m.Cmp(IntZero) == 0
-}
 
 type Realness interface {
 	Number
