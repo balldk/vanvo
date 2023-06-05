@@ -28,6 +28,8 @@ go install .
 
 Ngoài ra bạn có thể tải file thực thi tại đây [Releases v0.1.0](https://github.com/balldk/vanvo/releases/tag/v0.1.0).
 
+**Cài đặt language support:** Để ngôn ngữ có syntax highlight và snippets trên VSCode thì bạn hãy qua đây cài thêm extension nhé: [github.com/balldk/vscode-vanvo](https://github.com/balldk/vscode-vanvo).
+
 ## Một số ví dụ minh họa
 
 **Ví dụ 1:** Xét tính chia hết của n cho 2 và 3, với n là các số nguyên trong khoảng $[1,100]$
@@ -69,4 +71,4 @@ List comprehension có tính "lazy", tức là chỉ khi ta cần dùng phần t
 
 ## Tài liệu
 
-Tài liệu được viết cụ thể ở đây: [balldk.github.io/posts/vanvo/](https://balldk.github.io/posts/vanvo/)
+Tài liệu được viết chi tiết ở đây: [balldk.github.io/posts/vanvo/](https://balldk.github.io/posts/vanvo/)
