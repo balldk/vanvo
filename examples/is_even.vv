@@ -1,0 +1,11 @@
+// Trả về đúng, nếu n là số chẵn, sai nếu n là số lẻ
+cho là chẵn(n) = (
+	cho two = 2
+	nếu n % two == 0:
+		=> đúng
+	sai
+)
+
+với mỗi x thuộc [1..100]:
+    nếu là chẵn(x):
+        xuất x, "là số chẵn"

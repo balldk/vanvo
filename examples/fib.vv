@@ -1,0 +1,4 @@
+cho fib = {0, 1, 1} + { fib[n-1] + fib[n-2] | n thuộc [3..] }
+
+với mỗi n thuộc [1..100]:
+    xuất fib[n]

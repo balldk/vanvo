@@ -1,0 +1,2 @@
+cho gtln(a, b) = a nếu a > b còn không b
+xuất gtln(2, 3)  // 3	

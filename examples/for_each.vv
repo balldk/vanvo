@@ -1,0 +1,2 @@
+với mỗi n thuộc [1..5], m thuộc [3..5], n % 2 == 0, m % 2 == 1:
+	xuất n, m

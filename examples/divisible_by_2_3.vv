@@ -1,0 +1,9 @@
+cho A = [1..100]
+
+với mỗi n thuộc A:
+	nếu n % 2 == 0:
+		xuất n, "chia hết cho 2"
+	còn nếu n % 3 == 0:
+		xuất n, "chia hết cho 3"
+	còn không:
+		xuất n, "không chia hết cho cả 2 và 3"

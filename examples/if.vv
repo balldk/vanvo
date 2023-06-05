@@ -1,0 +1,8 @@
+cho n = 100
+
+nếu n < 0:
+	xuất n, "là số âm"
+còn nếu n > 0:
+	xuất n, "là số dương"
+còn không:
+	xuất n, "là 0"

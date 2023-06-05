@@ -1,0 +1,9 @@
+cho a = 4
+cho b = 5/2
+
+xuất a + b  // 13/2
+xuất a - b  // 3/2
+xuất a * b  // 10
+xuất a / b  // 8/5
+xuất a ^ b  // 32
+xuất a % 7  // 4

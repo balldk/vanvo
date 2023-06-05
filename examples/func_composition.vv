@@ -1,0 +1,5 @@
+cho f(x) = 2x(x^2 - 2x)(3x - 5)
+cho g(x) = 5x
+
+cho a = 5
+xuất f.g(a) // 2012500

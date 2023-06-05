@@ -1,0 +1,9 @@
+xuất 1 == 2  // sai
+xuất 1 != 2  // đúng
+xuất 1 < 1   // sai
+xuất 1 <= 1  // đúng
+xuất 1 > 1   // sai
+xuất 1 >= 1  // đúng
+
+xuất đúng và sai  // sai
+xuất đúng hay sai // đúng
