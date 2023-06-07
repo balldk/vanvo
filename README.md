@@ -18,7 +18,7 @@ Ngôn ngữ sẽ có hơi thiên hướng toán học, những bạn học toán
 
 ## Cài đặt
 
-Nếu bạn đã tải [Go ](https://go.dev/)thì cách đơn giản nhất để cài đặt là clone và build trực tiếp từ source như sau
+Nếu bạn đã tải [Go](https://go.dev/) thì cách đơn giản nhất để cài đặt là clone và build trực tiếp từ source như sau
 
 ```bash
 git clone https://github.com/balldk/vanvo
@@ -29,6 +29,14 @@ go install .
 Ngoài ra bạn có thể tải file thực thi tại đây [Releases v0.1.0](https://github.com/balldk/vanvo/releases/tag/v0.1.0).
 
 **Cài đặt language support:** Để ngôn ngữ có syntax highlight và snippets trên VSCode thì bạn hãy qua đây cài thêm extension nhé: [github.com/balldk/vscode-vanvo](https://github.com/balldk/vscode-vanvo).
+
+Để chạy chương trình ta dùng lệnh
+
+```vanvo
+vanvo program.vv
+```
+
+Trong đó `program.vv` là file chứa nội dung code. Nói chung file extension của VanVo là `.vv`.
 
 ## Một số ví dụ minh họa
 
@@ -68,6 +76,10 @@ với mỗi n thuộc fib:
 ```
 
 List comprehension có tính "lazy", tức là chỉ khi ta cần dùng phần tử nào trong mảng thì phần tử đó mới được tính ra, do đó ta có thể dễ dàng định nghĩa ra mảng vô hạn phần tử trong VanVo.
+
+**Ví dụ 4:** Hệ thống báo lỗi của chương trình
+
+![screenshot_error](/examples/screenshot_error.png)
 
 ## Tài liệu
 

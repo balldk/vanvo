@@ -1,0 +1,14 @@
+cho là ngtố(n) = (
+    nếu n < 2:
+        => sai
+
+    với mỗi k thuộc [2..căn(n)]:
+        nếu n % k == 0:
+            => sai
+    => đúng
+)
+
+cho tập ngtố = { n | n thuộc [1..], là ngtố(n) }
+
+với mỗi n thuộc tập ngtố:
+    xuất n
