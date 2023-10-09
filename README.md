@@ -1,9 +1,9 @@
 <div align="center">
 
 # VanVo - Ngôn ngữ lập trình với cú pháp thuần Việt
-![](https://raw.githubusercontent.com/webuild-community/badge/master/svg/made.svg)
-![](https://img.shields.io/badge/made_with-Go-blue?logo=go)
-![](https://img.shields.io/badge/b%C3%BAn%20%C4%91%E1%BA%ADu-m%E1%BA%AFm%20t%C3%B4m-red?logo=undertale)
+[![](https://raw.githubusercontent.com/webuild-community/badge/master/svg/made.svg)](https://vi.wikipedia.org/wiki/Vi%E1%BB%87t_Nam)
+[![](https://img.shields.io/badge/made_with-Go-blue?logo=go)](https://go.dev/)
+[![bun-dau](https://img.shields.io/badge/b%C3%BAn%20%C4%91%E1%BA%ADu-m%E1%BA%AFm%20t%C3%B4m-red?logo=undertale)](https://vi.wikipedia.org/wiki/B%C3%BAn_%C4%91%E1%BA%ADu_m%E1%BA%AFm_t%C3%B4m)
 
 </div>
 
