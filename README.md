@@ -1,3 +1,5 @@
+![](https://raw.githubusercontent.com/webuild-community/badge/master/svg/made.svg)
+
 # VanVo - Ngôn ngữ lập trình với cú pháp thuần Việt
 
 VanVo (Văn Vở) là ngôn ngữ lập trình được thiết kế với cú pháp thuần Việt, nhưng không chỉ đơn giản là dịch lại một cách gượng gạo từ các ngôn ngữ khác, mình cố gắng để thiết kế một ngôn ngữ sao cho các câu lệnh trông tự nhiên như tiếng Việt nhất có thể, thuận tiện cho người Việt nhất có thể. Điển hình là bạn có thể đặt tên định danh có khoảng trắng như `số nguyên tố`.
