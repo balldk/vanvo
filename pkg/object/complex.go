@@ -1,7 +1,7 @@
 package object
 
 import (
-	"fmt"
+	"math"
 	"math/big"
 )
 
@@ -10,7 +10,6 @@ const (
 )
 
 func NewComplex(real Realness, imagine Realness) *Complex {
-	fmt.Println(real.Type(), imagine.Type())
 	return &Complex{Real: real, Imagine: imagine}
 }
 
@@ -38,7 +37,9 @@ func (c *Complex) Display() string {
 	if imagine != 0 {
 		if imagine < 0 && real == 0 {
 			s += "-"
-			s += NewInt(big.NewInt(-1)).Multiply(c.Imagine).Display()
+			if imagine != -1 {
+				s += NewInt(big.NewInt(-1)).Multiply(c.Imagine).Display()
+			}
 		}
 		if imagine != 1 && imagine > 0 {
 			s += c.Imagine.Display()
@@ -54,10 +55,23 @@ func (c *Complex) Display() string {
 
 	return s
 }
+func (c *Complex) ModuleSquare() Realness {
+	a := c.Real.Multiply(c.Real).(Realness)
+	b := c.Imagine.Multiply(c.Imagine).(Realness)
+	return a.Add(b).(Realness)
+}
 func (c *Complex) Module() *Real {
-	a := c.Real.Multiply(c.Real).(*Real)
-	b := c.Imagine.Multiply(c.Imagine).(*Real)
-	return a.Add(b).(*Real)
+	return c.ModuleSquare().ToReal().Sqrt().(*Real)
+}
+func (c *Complex) Argument() *Real {
+	var val float64
+	if real, _ := c.Real.ToReal().Value.Float64(); real == 0 {
+		val = math.Inf(1)
+	} else {
+		val, _ = c.Imagine.ToReal().Divide(c.Real).(*Real).Value.Float64()
+	}
+	angle := math.Atan(val)
+	return NewReal(big.NewFloat(angle))
 }
 func (c *Complex) Add(right Object) Object {
 	switch right := right.(type) {
@@ -128,11 +142,27 @@ func (c *Complex) Divide(right Object) Object {
 		f, ok4 := c.Real.Multiply(right.Imagine).(Realness)
 
 		if ok1 && ok2 && ok3 && ok4 {
-			real := a.Add(b).(Realness).Divide(right.Module()).(Realness)
-			imagine := e.Subtract(f).(Realness).Divide(right.Module()).(Realness)
+			real := a.Add(b).(Realness).Divide(right.ModuleSquare()).(Realness)
+			imagine := e.Subtract(f).(Realness).Divide(right.ModuleSquare()).(Realness)
 			return NewComplex(real, imagine)
 		}
 		return CANT_OPERATE
+	default:
+		return CANT_OPERATE
+	}
+}
+func (c *Complex) Power(right Object) Object {
+	switch right := right.(type) {
+	case *Int:
+		radius := c.Module()
+		angle := c.Argument()
+
+		newRadius, _ := radius.Power(right).(Realness)
+		newAngle, _ := angle.Multiply(right).(Realness)
+		newReal := newAngle.ToReal().Cos().(Realness).ToReal().Multiply(newRadius).(Realness).ToReal().Round()
+		newImagine := newAngle.ToReal().Sin().(Realness).ToReal().Multiply(newRadius).(Realness).ToReal().Round()
+
+		return NewComplex(newReal, newImagine)
 	default:
 		return CANT_OPERATE
 	}

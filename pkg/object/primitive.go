@@ -2,6 +2,7 @@ package object
 
 import (
 	"fmt"
+	"math"
 	"math/big"
 
 	"github.com/ALTree/bigfloat"
@@ -29,10 +30,10 @@ var (
 	IntOne   = big.NewInt(1)
 	RealZero = big.NewFloat(0)
 	RealOne  = big.NewFloat(1)
+	Epsilon  = big.NewFloat(0.0000001)
 )
 
 type Number interface {
-	Order
 	Additive
 	Subtractive
 	Multiplicative
@@ -178,6 +179,7 @@ func (i *Int) Less(right Object) *Boolean {
 
 type Realness interface {
 	Number
+	Order
 	ToReal() *Real
 }
 
@@ -282,6 +284,68 @@ func (r *Real) Power(right Object) Object {
 	default:
 		return CANT_OPERATE
 	}
+}
+func (r *Real) Sqrt() Number {
+	val := r.Value
+	if val.Cmp(RealZero) == -1 {
+		val = new(big.Float).Abs(val)
+		return NewComplex(NewInt(IntZero), NewReal(val))
+	}
+	return NewReal(new(big.Float).Sqrt(val))
+}
+func (r *Real) Cos() Number {
+	real := r.ToReal().Value
+	toSmallAngle(real)
+
+	val, _ := real.Float64()
+	val = math.Cos(val)
+	if math.Abs(val) < 1e-15 {
+		return NewReal(big.NewFloat(0))
+	}
+
+	bigVal := big.NewFloat(val)
+	return NewReal(bigVal)
+}
+func (r *Real) Sin() Number {
+	real := r.ToReal().Value
+	toSmallAngle(real)
+
+	val, _ := real.Float64()
+	val = math.Sin(val)
+	if math.Abs(val) < 1e-15 {
+		return NewReal(big.NewFloat(0))
+	}
+
+	bigVal := big.NewFloat(val)
+	return NewReal(bigVal)
+}
+func (r *Real) Tan() Number {
+	real := r.ToReal().Value
+	toSmallAngle(real)
+
+	val, _ := real.Float64()
+	val = math.Tan(val)
+	if math.Abs(val) < 1e-15 {
+		return NewReal(big.NewFloat(0))
+	}
+
+	bigVal := big.NewFloat(val)
+	return NewReal(bigVal)
+}
+func (r *Real) NaturalLog() Number {
+	return NewReal(bigfloat.Log(r.ToReal().Value))
+}
+func (r *Real) Round() *Real {
+	i := new(big.Int)
+	i, _ = new(big.Float).Add(r.Value, new(big.Float).Mul(big.NewFloat(0.5), big.NewFloat(float64(r.Value.Sign())))).Int(i)
+	f := new(big.Float).SetInt(i)
+
+	dif := new(big.Float).Sub(r.Value, f)
+	dif = dif.Abs(dif)
+	if dif.Cmp(Epsilon) == -1 {
+		r.Value = f
+	}
+	return r
 }
 func (r *Real) Equal(right Object) *Boolean {
 	switch right := right.(type) {

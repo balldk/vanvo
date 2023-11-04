@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"math"
 	"math/big"
-
-	"github.com/ALTree/bigfloat"
 )
 
 const (
@@ -55,7 +53,7 @@ var Builtins = map[string]Object{
 		},
 	},
 	"căn": &Function{
-		Builtin: squareRootBuiltin,
+		Builtin: SquareRootBuiltin,
 	},
 	"sin": &Function{
 		Builtin: sinBuiltin,
@@ -71,17 +69,12 @@ var Builtins = map[string]Object{
 	},
 }
 
-func squareRootBuiltin(args ...Object) Object {
+func SquareRootBuiltin(args ...Object) Object {
 	if len(args) != 1 {
 		return NewArgumentError(1, args)
 	}
 	if arg, ok := args[0].(Realness); ok {
-		real := arg.ToReal().Value
-		if real.Cmp(RealZero) == -1 {
-			real = new(big.Float).Abs(real)
-			return NewComplex(NewInt(IntZero), NewReal(real))
-		}
-		return NewReal(new(big.Float).Sqrt(real))
+		return arg.ToReal().Sqrt()
 
 	} else {
 		errMsg := fmt.Sprintf("Không thể dùng '%s' làm tham số", args[0].Type())
@@ -94,17 +87,7 @@ func sinBuiltin(args ...Object) Object {
 		return NewArgumentError(1, args)
 	}
 	if arg, ok := args[0].(Realness); ok {
-		real := arg.ToReal().Value
-		toSmallAngle(real)
-
-		val, _ := real.Float64()
-		val = math.Sin(val)
-		if math.Abs(val) < 1e-15 {
-			return NewReal(big.NewFloat(0))
-		}
-
-		bigVal := big.NewFloat(val)
-		return NewReal(bigVal)
+		return arg.ToReal().Sin()
 
 	} else {
 		errMsg := fmt.Sprintf("Không thể dùng '%s' làm tham số", args[0].Type())
@@ -117,17 +100,7 @@ func cosBuiltin(args ...Object) Object {
 		return NewArgumentError(1, args)
 	}
 	if arg, ok := args[0].(Realness); ok {
-		real := arg.ToReal().Value
-		toSmallAngle(real)
-
-		val, _ := real.Float64()
-		val = math.Cos(val)
-		if math.Abs(val) < 1e-15 {
-			return NewReal(big.NewFloat(0))
-		}
-
-		bigVal := big.NewFloat(val)
-		return NewReal(bigVal)
+		return arg.ToReal().Cos()
 
 	} else {
 		errMsg := fmt.Sprintf("Không thể dùng '%s' làm tham số", args[0].Type())
@@ -140,17 +113,7 @@ func tanBuiltin(args ...Object) Object {
 		return NewArgumentError(1, args)
 	}
 	if arg, ok := args[0].(Realness); ok {
-		real := arg.ToReal().Value
-		toSmallAngle(real)
-
-		val, _ := real.Float64()
-		val = math.Tan(val)
-		if math.Abs(val) < 1e-15 {
-			return NewReal(big.NewFloat(0))
-		}
-
-		bigVal := big.NewFloat(val)
-		return NewReal(bigVal)
+		return arg.ToReal().Tan()
 
 	} else {
 		errMsg := fmt.Sprintf("Không thể dùng '%s' làm tham số", args[0].Type())
@@ -163,8 +126,7 @@ func naturalLogBuiltin(args ...Object) Object {
 		return NewArgumentError(1, args)
 	}
 	if arg, ok := args[0].(Realness); ok {
-		real := arg.ToReal().Value
-		return NewReal(bigfloat.Log(real))
+		return arg.ToReal().NaturalLog()
 
 	} else {
 		errMsg := fmt.Sprintf("Không thể dùng '%s' làm tham số", args[0].Type())
